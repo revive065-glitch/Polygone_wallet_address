@@ -3,505 +3,495 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>폴리곤 지갑 등록소</title>
+<title>지갑 등록소 — 누구 지갑인지 같이 채우기</title>
 <style>
 :root{
-  --bg:#0f1216; --panel:#171b21; --panel2:#1e242c; --line:#2a323c;
-  --tx:#e6eaef; --tx2:#9aa5b1; --tx3:#6b7684;
-  --accent:#4c9aff; --ok:#3ecf8e; --warn:#f5a623; --danger:#f2555a;
-  --a:#3ecf8e; --b:#4c9aff; --c:#8c93a0;
+  --bg:#16181c; --panel:#1e2126; --panel2:#262a30; --line:#333940;
+  --tx:#e8ecf1; --tx2:#a5aeb9; --tx3:#727b86;
+  --blue:#3987e5; --green:#199e70; --red:#e04a4a; --gold:#c98500;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
-  font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
-.wrap{max-width:1080px;margin:0 auto;padding:24px 18px 80px}
-h1{font-size:23px;margin:0 0 6px;letter-spacing:-.4px}
-h2{font-size:17px;margin:32px 0 12px;letter-spacing:-.3px}
-.sub{color:var(--tx2);font-size:13.5px;margin:0 0 20px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-.notice{background:#1a1f26;border:1px solid var(--line);border-left:3px solid var(--warn);
-  border-radius:8px;padding:13px 15px;font-size:13px;color:var(--tx2);margin-bottom:18px}
-.notice b{color:var(--tx)}
-label{display:block;font-size:12.5px;color:var(--tx2);margin:12px 0 5px;font-weight:600}
-input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--tx);
-  border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-textarea{resize:vertical;min-height:74px}
-input.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 18px;
-  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
-button:hover{filter:brightness(1.1)} button:disabled{opacity:.45;cursor:default;filter:none}
-button.ghost{background:transparent;border:1px solid var(--line);color:var(--tx2)}
-button.sm{padding:6px 12px;font-size:12.5px;font-weight:500}
-.msg{margin-top:12px;padding:11px 14px;border-radius:8px;font-size:13.5px;display:none}
-.msg.err{display:block;background:rgba(242,85,90,.12);border:1px solid rgba(242,85,90,.35);color:#ff9296}
-.msg.ok{display:block;background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.35);color:#6ee7b0}
-.alert{margin-top:10px;padding:12px 14px;border-radius:8px;font-size:13px;display:none;
-  background:rgba(242,85,90,.1);border:1px solid rgba(242,85,90,.4);color:#ff9aa0}
-.alert.on{display:block}
-.alert code{background:rgba(0,0,0,.35);padding:1px 5px;border-radius:4px;font-size:12px}
+  font-size:14px;line-height:1.55;-webkit-text-size-adjust:100%}
+.wrap{max-width:1260px;margin:0 auto;padding:16px 16px 60px}
 
-.grp{border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden;background:var(--panel)}
-.grp-h{padding:13px 16px;background:var(--panel2);display:flex;align-items:center;
-  gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.addr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;
-  color:var(--tx);word-break:break-all}
-.badge{font-size:11px;padding:2.5px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
-.bA{background:rgba(62,207,142,.16);color:var(--a)}
-.bB{background:rgba(76,154,255,.16);color:var(--b)}
-.bC{background:rgba(140,147,160,.16);color:var(--c)}
-.bD{background:rgba(242,85,90,.16);color:var(--danger)}
-.cand{padding:13px 16px;border-top:1px solid var(--line);display:flex;gap:14px;align-items:flex-start}
-.cand:first-of-type{border-top:0}
-.cand .body{flex:1;min-width:0}
-.cand .nm{font-weight:600;font-size:14.5px}
-.cand .ev{color:var(--tx2);font-size:13px;margin-top:4px;white-space:pre-wrap;word-break:break-word}
-.cand .meta{color:var(--tx3);font-size:11.5px;margin-top:6px}
-.cand .meta a{color:var(--accent);text-decoration:none}
-.vote{text-align:center;min-width:66px;flex-shrink:0}
-.vote .n{font-size:21px;font-weight:700;line-height:1.15}
-.vote .lb{font-size:10.5px;color:var(--tx3);margin-bottom:6px}
-.vote .btns{display:flex;gap:4px;justify-content:center}
-.vote button{padding:4px 9px;font-size:12px;font-weight:600}
-.vote .no{background:transparent;border:1px solid var(--line);color:var(--tx3)}
-.lead{box-shadow:inset 3px 0 0 var(--ok)}
-.empty{color:var(--tx3);text-align:center;padding:40px 16px;font-size:14px}
-.tools{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.tools input{flex:1;min-width:180px}
-.stat{display:flex;gap:18px;flex-wrap:wrap;color:var(--tx2);font-size:12.5px;margin-bottom:14px}
-.stat b{color:var(--tx);font-size:15px}
-a.pg{color:var(--accent);text-decoration:none;font-size:11.5px}
-.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--tx3);font-size:11.5px;line-height:1.75}
-@media(max-width:640px){.row{grid-template-columns:1fr}.cand{flex-direction:row}}
+/* 헤더 */
+.top{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-bottom:12px;
+  border-bottom:1px solid var(--line);margin-bottom:16px}
+.top h1{font-size:19px;margin:0;letter-spacing:-.3px;white-space:nowrap}
+.top .sub{color:var(--tx3);font-size:12.5px;flex:1;min-width:180px}
+.top .me{display:flex;gap:7px;align-items:center}
+.top .me label{font-size:12px;color:var(--tx2);font-weight:600;white-space:nowrap;margin:0}
+.top .me input{width:150px}
+
+/* 2단 */
+.app{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.col{min-width:0}
+.col.right{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding-right:2px}
+.col.right h2{position:sticky;top:0;z-index:3;background:var(--bg);padding:2px 0 6px;margin:0}
+#qbox{position:sticky;top:30px;z-index:2}
+h2{font-size:14.5px;margin:0 0 10px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+h2 .c{font-size:12px;color:var(--tx3);font-weight:500}
+
+label{display:block;font-size:11.5px;color:var(--tx2);margin:0 0 4px;font-weight:600}
+input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--tx);
+  border-radius:8px;padding:8px 10px;font-size:13.5px;font-family:inherit;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+textarea{resize:vertical}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+button{background:var(--blue);color:#fff;border:0;border-radius:8px;padding:8px 15px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+button:hover{filter:brightness(1.12)} button:disabled{opacity:.4;cursor:default;filter:none}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--tx2)}
+button.ghost:hover{border-color:var(--blue);color:var(--tx)}
+button.sm{padding:4px 10px;font-size:12px}
+button.ok{background:var(--green)} button.no{background:transparent;border:1px solid var(--line);color:var(--tx3)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.notice{background:#1b1e23;border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:8px;padding:9px 12px;font-size:12px;color:var(--tx2);margin-bottom:12px}
+.notice b{color:var(--tx)}
+
+/* 현황 타일 */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer}
+.tile:hover{border-color:var(--blue)}
+.tile.on{border-color:var(--blue);background:#20262e}
+.tile .n{font-size:19px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .k{font-size:11px;color:var(--tx2);display:flex;align-items:center;gap:4px;margin-top:1px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* 지갑 카드 (컴팩트) */
+.w{border:1px solid var(--line);border-radius:10px;margin-bottom:9px;background:var(--panel);overflow:hidden}
+.w-h{padding:9px 12px;display:flex;gap:8px;align-items:center;background:var(--panel2);flex-wrap:wrap}
+.w-h .ttl{font-weight:600;font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w-h .ttl.none{font-weight:400;color:var(--tx3)}
+.w-sub{padding:5px 12px 0;font-size:11.5px;color:var(--tx3);
+  font-family:ui-monospace,Menlo,Consolas,monospace;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.w-sub a{color:var(--blue);text-decoration:none;font-family:inherit}
+.w-b{padding:6px 12px 11px}
+.state{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.s-ok{background:rgba(25,158,112,.16);color:#48d19a}
+.s-vote{background:rgba(57,135,229,.16);color:#7db6ff}
+.s-none{background:rgba(114,123,134,.18);color:var(--tx2)}
+.s-bad{background:rgba(224,74,74,.16);color:#ff8a8a}
+
+/* 후보 한 줄 */
+.c-row{display:flex;gap:9px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.c-row:first-child{border-top:0}
+.c-row .rk{width:26px;flex-shrink:0;text-align:center;font-size:11px;color:var(--tx3);font-weight:700}
+.c-row .rk.win{color:var(--gold)}
+.c-row .mid{flex:1;min-width:0}
+.c-row .nm{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-row .ev{color:var(--tx3);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-row .sc{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
+.c-row .sc.p{color:var(--green)} .c-row .sc.m{color:var(--red)}
+.c-row .act{display:flex;gap:4px;flex-shrink:0}
+.voted{font-size:11px;color:var(--green);font-weight:600;white-space:nowrap}
+.tag{font-size:10px;padding:1px 6px;border-radius:20px;font-weight:600;white-space:nowrap;
+  background:rgba(255,255,255,.07);color:var(--tx2)}
+
+.warn{background:rgba(224,74,74,.1);border:1px solid rgba(224,74,74,.35);border-radius:8px;
+  padding:8px 11px;font-size:11.5px;color:#ffa8a8;margin:7px 0}
+.warn code{background:rgba(0,0,0,.35);padding:1px 4px;border-radius:3px}
+.msg{margin-top:9px;padding:8px 11px;border-radius:8px;font-size:12.5px;display:none}
+.msg.err{display:block;background:rgba(224,74,74,.12);border:1px solid rgba(224,74,74,.35);color:#ff9a9a}
+.msg.ok{display:block;background:rgba(25,158,112,.14);border:1px solid rgba(25,158,112,.4);color:#5fd6a6}
+.empty{color:var(--tx3);text-align:center;padding:30px 14px;font-size:13px}
+.tools{display:flex;gap:7px;align-items:center;margin-bottom:10px}
+.tools input{flex:1;min-width:0}
+.hint{color:var(--tx3);font-size:11.5px}
+
+/* 등록 폼 — 이름 / 근거 두 줄이 전부 */
+.f{border-top:1px solid var(--line);padding-top:9px;margin-top:8px}
+.f .r1{display:grid;grid-template-columns:1fr 118px;gap:6px;margin-bottom:6px}
+.f .r2{display:flex;gap:6px}
+.f .r2 input{flex:1}
+.f .m{font-size:11.5px;color:#ff9a9a;margin-top:5px;min-height:14px}
+.foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);
+  color:var(--tx3);font-size:11px;line-height:1.7}
+@media(max-width:920px){
+  .app{grid-template-columns:1fr}
+  .col.right{position:static;max-height:none;order:-1}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<h1>폴리곤 지갑 등록소</h1>
-<p class="sub">지갑 주소에 <b>주인 이름</b>을 달아주는 곳입니다. 여기 등록된 이름이 <b>통합장부</b>에 그대로 반영돼, 거래내역이 "누가 누구에게"로 읽히게 됩니다.<br>
-한 주소에 여러 후보를 올릴 수 있고, 가장 설득력 있는 후보가 투표로 정해집니다.</p>
-
-<div class="notice">
-  <b>읽고 시작해주세요.</b><br>
-  · 여기 올라오는 라벨은 전부 <b>추정</b>입니다. 확정 사실이 아닙니다.<br>
-  · <b>실명·전화번호·주소 등 개인정보는 절대 쓰지 마세요.</b> 닉네임이나 직책만 씁니다.<br>
-  · 근거 없는 지목은 등록되지 않습니다. 어디서 본 주소인지 반드시 적어주세요.<br>
-  · 지갑 주소 자체는 블록체인에 공개된 정보지만, 특정인을 단정해 지목하면 법적 문제가 될 수 있습니다.
+<div class="top">
+  <h1>지갑 등록소</h1>
+  <span class="sub">지갑이 누구 것인지 같이 채웁니다. 여기 이름이 폴리곤스캔 화면에 그대로 뜹니다.</span>
+  <div class="me"><label>내 닉네임</label>
+    <input id="nick" maxlength="20" placeholder="카페 닉네임" spellcheck="false"></div>
 </div>
 
-<div class="card">
-  <h2 style="margin-top:0">지갑 등록하기</h2>
-  <label>내 닉네임 (카페 닉으로 통일해주세요)</label>
-  <input id="nick" maxlength="20" placeholder="예: 홍길동123">
+<div class="app">
 
-  <label>지갑 주소</label>
-  <input id="addr" class="mono" maxlength="42" placeholder="0x0000000000000000000000000000000000000000" spellcheck="false">
-  <div id="poison" class="alert"></div>
-
-  <div class="row">
-    <div>
-      <label>이 지갑을 무엇으로 보시나요</label>
-      <input id="name" maxlength="60" placeholder="예: 회사 정산 지급지갑 / OO지사 총판 지갑">
+  <!-- ============ 왼쪽: 등록 현황 ============ -->
+  <div class="col left">
+    <h2>등록 현황 <span class="c" id="upd"></span></h2>
+    <div class="tiles" id="tiles"></div>
+    <div class="tools">
+      <input id="search" placeholder="이름 · 주소 · 근거로 찾기">
+      <button class="ghost sm" id="reload">새로고침</button>
+      <button class="ghost sm" id="dl">내려받기</button>
     </div>
-    <div>
-      <label>분류</label>
-      <select id="type">
-        <option value="company">회사 수금 지갑 (참여금이 모이는 곳)</option>
-        <option value="company_payout">회사 지급 지갑 (정산금이 나오는 곳)</option>
-        <option value="community">커뮤니티 대표·총판 지갑</option>
-        <option value="exchange">거래소 입출금 지갑</option>
-        <option value="otc">환전·OTC 상대</option>
-        <option value="relay">경유 지갑 (받고 바로 이체)</option>
-        <option value="scam_lookalike">사칭 주소</option>
-        <option value="personal">개인 지갑</option>
-        <option value="unknown" selected>잘 모르겠음</option>
-      </select>
-    </div>
+    <div id="list"><div class="empty">불러오는 중…</div></div>
   </div>
 
-  <label>근거 <span style="color:var(--tx3);font-weight:400">— 어디서 이 주소를 봤는지, 왜 그렇게 보는지 (10자 이상)</span></label>
-  <textarea id="ev" maxlength="1000" placeholder="예: 2026-03-14 공지 캡처에 나온 입금 주소. 제 지갑에서도 이 주소로 3번 보냈습니다."></textarea>
-
-  <label>근거 자료 링크 (선택) <span style="color:var(--tx3);font-weight:400">— 폴리곤스캔 TX 링크, 이미지 링크 등</span></label>
-  <input id="link" maxlength="300" placeholder="https://polygonscan.com/tx/0x...">
-
-  <div style="margin-top:16px"><button id="submit">등록</button>
-    <button class="ghost" id="toggleBulk" style="margin-left:6px">여러 개 한번에 등록</button></div>
-  <div id="msg" class="msg"></div>
-</div>
-
-<div class="card" id="bulkCard" style="display:none">
-  <h2 style="margin-top:0">여러 개 한번에 등록</h2>
-  <p class="sub" style="margin:0 0 4px">폴리곤스캔에서 주소를 긁어와 붙여넣으세요. 한 줄에 하나씩,
-    <code style="font-size:12px">주소,이름</code> 형식으로 쓰면 이름까지 같이 들어갑니다.</p>
-  <label>주소 목록</label>
-  <textarea id="bulkList" style="min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px"
-    placeholder="0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c,회사 수금지갑&#10;0xf11d0da941625c2e6df119c6b30df9d42ad0a964,회사 지급지갑&#10;0x03496d8161408913fc35ed22aa839588ed4cdda8"></textarea>
-  <div class="row">
-    <div>
-      <label>이름이 안 적힌 줄에 붙일 이름 (선택)</label>
-      <input id="bulkName" maxlength="60" placeholder="예: OO지사 관련 지갑">
+  <!-- ============ 오른쪽: 확인 · 등록 ============ -->
+  <div class="col right">
+    <h2>주소 확인 · 등록</h2>
+    <div class="notice">
+      <b>실명·전화번호는 쓰지 마세요.</b> 닉네임이나 직책만 씁니다. 모든 이름은 <b>추정</b>입니다.
     </div>
-    <div>
-      <label>분류</label>
-      <select id="bulkType">
-        <option value="unknown" selected>잘 모르겠음</option>
-        <option value="company">회사 수금 지갑</option>
-        <option value="company_payout">회사 지급 지갑</option>
-        <option value="community">커뮤니티 대표·총판</option>
-        <option value="exchange">거래소</option>
-        <option value="otc">환전·OTC</option>
-        <option value="personal">개인 지갑</option>
-        <option value="scam_lookalike">사칭 주소</option>
-      </select>
+    <div class="card" id="qbox">
+      <label>지갑 주소 <span style="font-weight:400;color:var(--tx3)">— 여러 개면 줄바꿈</span></label>
+      <textarea id="q" class="mono" style="min-height:66px;font-size:12px" spellcheck="false"
+        placeholder="0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c"></textarea>
+      <div class="tools" style="margin:9px 0 0">
+        <button id="check">확인</button>
+        <button class="ghost sm" id="clear">지우기</button>
+        <span class="hint" id="qcount"></span>
+      </div>
+      <div id="qmsg" class="msg"></div>
     </div>
+    <div id="result"></div>
   </div>
-  <label>근거 <span style="color:var(--tx3);font-weight:400">— 전체에 공통으로 붙습니다 (10자 이상)</span></label>
-  <textarea id="bulkEv" maxlength="1000" placeholder="예: 제 지갑 거래내역에 나온 주소들입니다. 2026-03월 공지 캡처와 대조했습니다."></textarea>
-  <div style="margin-top:14px"><button id="bulkGo">한번에 등록</button>
-    <span class="pg" id="bulkCount" style="margin-left:10px"></span></div>
-  <div id="bulkMsg" class="msg"></div>
 </div>
-
-<h2>등록된 지갑</h2>
-<div class="stat" id="stat"></div>
-<div class="tools">
-  <input id="q" placeholder="주소 · 이름 · 근거로 검색">
-  <select id="filter" style="width:auto">
-    <option value="">전체 분류</option>
-    <option value="company">회사 수금</option>
-    <option value="company_payout">회사 지급</option>
-    <option value="community">커뮤니티 대표</option>
-    <option value="exchange">거래소</option>
-    <option value="relay">경유</option>
-    <option value="scam_lookalike">사칭</option>
-    <option value="dust">더스트</option>
-    <option value="unknown">미상</option>
-  </select>
-  <button class="ghost sm" id="reload">새로고침</button>
-  <button class="ghost sm" id="dl">labels.json 내려받기</button>
-</div>
-<div id="list"><div class="empty">불러오는 중…</div></div>
 
 <div class="foot">
-  이 페이지의 자료는 폴리곤 블록체인의 공개 기록과 커뮤니티 제보를 모은 것으로, <b>확정된 사실이 아닌 추정</b>입니다.
-  특정 개인·법인의 위법행위를 단정하지 않으며, 오류가 있으면 즉시 정정합니다.
-  정정·삭제 요청은 카페 운영진에게 알려주세요.
+  폴리곤 블록체인의 공개 기록과 커뮤니티 제보를 모은 것으로, <b>확정된 사실이 아닌 추정</b>입니다.
+  특정 개인·법인의 위법행위를 단정하지 않으며, 정정·삭제 요청은 카페 운영진에게 알려주세요.
 </div>
-
 </div>
 
 <script>
 /* ==========================================================
-   설정 — 아래 두 값만 본인 것으로 바꾸면 됩니다.
+   설정 — 아래 두 줄만 본인 것으로 바꾸면 됩니다.
    ========================================================== */
-var API_URL    = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhMWcBy9BsOXdQYMALAXKTBLMvxtjE3fzNDP6RMpl01fhMHY-NAS/exec';  // Apps Script 웹앱 /exec URL
-var LABELS_URL = 'labels.json';  // 확정 라벨 (GitHub raw URL 권장)
-
+var API_URL    = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhMWcBy9BsOXdQYMALAXKTBLMvxtjE3fzNDP6RMpl01fhMHY-NAS/exec';               // Apps Script 웹앱 /exec URL
+var LABELS_URL = 'labels.json';    // 확정 라벨 (GitHub raw URL 권장)
 /* ========================================================== */
+
 var $ = function(id){ return document.getElementById(id); };
 var TYPE_KO = {company:'회사 수금',company_payout:'회사 지급',community:'커뮤니티 대표',
-  exchange:'거래소',otc:'환전/OTC',bridge:'브릿지',relay:'경유',token:'토큰 컨트랙트',
-  scam_lookalike:'사칭 주소',dust:'더스트 스팸',personal:'개인',unknown:'미상'};
+  exchange:'거래소',otc:'환전/OTC',bridge:'브릿지',relay:'경유',token:'토큰',
+  contract:'컨트랙트',scam_lookalike:'사칭 주소',dust:'더스트',personal:'개인',unknown:'미상'};
+var TYPE_OPTS = [['unknown','분류 모름'],['community','커뮤니티 대표'],['company','회사 수금'],
+  ['company_payout','회사 지급'],['exchange','거래소'],['otc','환전·OTC'],
+  ['personal','개인'],['scam_lookalike','사칭 주소']];
 
-var seed = {labels:{}}, entries = [], votes = {}, myVotes = {};
+var seed = {labels:{}}, entries = [], votes = {}, filter = '', openForms = {}, checked = [];
 
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function shortAddr(a){ return a.slice(0,10)+'…'+a.slice(-8); }
 function norm(a){ return String(a||'').trim().toLowerCase(); }
 function isAddr(a){ return /^0x[a-f0-9]{40}$/.test(norm(a)); }
-/** address poisoning 판정 키: 앞 4 + 뒤 4 (0x 제외) */
-function pKey(a){ a = norm(a); return a.slice(2,6)+'|'+a.slice(-4); }
+function shortA(a){ return a.slice(0,10)+'…'+a.slice(-8); }
+function pKey(a){ a=norm(a); return a.slice(2,6)+'|'+a.slice(-4); }
+function nick(){ return $('nick').value.trim(); }
 
 /* ---------- 통신 ---------- */
 function jsonp(url){
-  return new Promise(function(res, rej){
-    var cb = 'cb_' + Math.floor(Math.random()*1e9);
-    var s = document.createElement('script');
-    var t = setTimeout(function(){ cleanup(); rej(new Error('시간 초과')); }, 25000);
-    function cleanup(){ clearTimeout(t); delete window[cb]; if(s.parentNode) s.parentNode.removeChild(s); }
-    window[cb] = function(d){ cleanup(); res(d); };
-    s.onerror = function(){ cleanup(); rej(new Error('불러오기 실패')); };
-    s.src = url + (url.indexOf('?')<0?'?':'&') + 'callback=' + cb;
+  return new Promise(function(res,rej){
+    var cb='cb_'+Math.floor(Math.random()*1e9), s=document.createElement('script');
+    var t=setTimeout(function(){cl();rej(new Error('시간 초과'));},25000);
+    function cl(){clearTimeout(t);delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);}
+    window[cb]=function(d){cl();res(d);};
+    s.onerror=function(){cl();rej(new Error('불러오기 실패'));};
+    s.src=url+(url.indexOf('?')<0?'?':'&')+'callback='+cb;
     document.head.appendChild(s);
   });
 }
-function post(payload){
-  // Content-Type을 text/plain으로 보내 CORS preflight를 피합니다.
-  return fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(payload), redirect:'follow'})
-    .then(function(r){ return r.json(); });
+function post(p){
+  return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(p),redirect:'follow'}).then(function(r){ return r.json(); });
 }
 
-/* ---------- 로딩 ---------- */
-function loadSeed(){
-  return fetch(LABELS_URL, {cache:'no-store'}).then(function(r){ return r.json(); })
-    .then(function(j){ seed = j || {labels:{}}; })
-    .catch(function(){ seed = {labels:{}}; });
-}
-function loadEntries(){
-  if(!API_URL){ entries = []; votes = {}; return Promise.resolve(); }
-  return jsonp(API_URL).then(function(r){
-    if(r && r.ok){ entries = r.data.entries || []; votes = r.data.votes || {}; }
-    else throw new Error(r && r.error || '응답 오류');
-  });
-}
+/* ---------- 데이터 ---------- */
 function refresh(){
-  $('list').innerHTML = '<div class="empty">불러오는 중…</div>';
-  Promise.all([loadSeed(), loadEntries()]).then(render).catch(function(e){
-    $('list').innerHTML = '<div class="empty">목록을 불러오지 못했습니다.<br><span style="font-size:12px">'+esc(e.message)+'</span></div>';
-  });
-}
-
-/* ---------- 사칭 주소 감지 ---------- */
-function knownAddresses(){
-  var m = {};
-  Object.keys(seed.labels||{}).forEach(function(a){
-    m[norm(a)] = (seed.labels[a].name||'') + ' [' + (seed.labels[a].confidence||'?') + '등급]';
-  });
-  entries.forEach(function(e){ if(!m[e.address]) m[e.address] = e.name + ' [제보]'; });
-  return m;
-}
-function checkPoison(a){
-  var el = $('poison');
-  el.className = 'alert'; el.innerHTML = '';
-  if(!isAddr(a)) return;
-  a = norm(a);
-  var known = knownAddresses();
-  if(known[a]){
-    el.className = 'alert on';
-    el.style.background='rgba(76,154,255,.1)'; el.style.borderColor='rgba(76,154,255,.4)'; el.style.color='#8fc0ff';
-    el.innerHTML = '이미 등록된 주소입니다 — <b>'+esc(known[a])+'</b>. 다른 후보를 추가하거나 기존 후보에 투표해주세요.';
-    return;
-  }
-  var k = pKey(a), hits = [];
-  Object.keys(known).forEach(function(o){ if(o!==a && pKey(o)===k) hits.push(o); });
-  if(hits.length){
-    el.style.background=''; el.style.borderColor=''; el.style.color='';
-    el.className = 'alert on';
-    el.innerHTML = '<b>⚠ 사칭 주소일 수 있습니다.</b><br>' +
-      '입력하신 주소는 아래 주소와 <b>앞 4자리·뒤 4자리가 같지만 다른 주소</b>입니다. ' +
-      '가짜 주소를 거래내역에 심어 복사 실수를 유도하는 수법(address poisoning)이 이 프로젝트에서 실제로 확인됐습니다.<br>' +
-      hits.map(function(o){ return '<code>'+esc(shortAddr(o))+'</code> — '+esc(known[o]); }).join('<br>') +
-      '<br>내역에서 복사한 주소라면, 실제로 <b>금액이 0이 아닌 거래</b>가 있었는지 폴리곤스캔에서 꼭 확인해주세요.';
-  }
-}
-
-/* ---------- 렌더링 ---------- */
-function render(){
-  var q = norm($('q').value), ft = $('filter').value;
-  var groups = {};
-
-  Object.keys(seed.labels||{}).forEach(function(a){
-    var L = seed.labels[a]; a = norm(a);
-    groups[a] = groups[a] || {addr:a, seed:null, cands:[]};
-    groups[a].seed = L;
-  });
-  entries.forEach(function(e){
-    groups[e.address] = groups[e.address] || {addr:e.address, seed:null, cands:[]};
-    var v = votes[e.id] || {up:0,down:0};
-    groups[e.address].cands.push({e:e, up:v.up, down:v.down, score:v.up - v.down});
-  });
-
-  var arr = Object.keys(groups).map(function(k){ return groups[k]; });
-  arr.forEach(function(g){ g.cands.sort(function(x,y){ return y.score - x.score; }); });
-
-  if(ft) arr = arr.filter(function(g){
-    return (g.seed && g.seed.type===ft) || g.cands.some(function(c){ return c.e.type===ft; }); });
-  if(q) arr = arr.filter(function(g){
-    if(g.addr.indexOf(q)>=0) return true;
-    if(g.seed && (norm(g.seed.name).indexOf(q)>=0 || norm(g.seed.evidence).indexOf(q)>=0)) return true;
-    return g.cands.some(function(c){
-      return norm(c.e.name).indexOf(q)>=0 || norm(c.e.evidence).indexOf(q)>=0 || norm(c.e.reporter).indexOf(q)>=0; });
-  });
-
-  arr.sort(function(x,y){
-    var sx = (x.seed?1000:0) + (x.cands[0]?x.cands[0].score:0) + x.cands.length;
-    var sy = (y.seed?1000:0) + (y.cands[0]?y.cands[0].score:0) + y.cands.length;
-    return sy - sx;
-  });
-
-  var nSeed = Object.keys(seed.labels||{}).length;
-  var nVotes = Object.keys(votes).reduce(function(s,k){ return s + votes[k].up + votes[k].down; }, 0);
-  $('stat').innerHTML =
-    '<span><b>'+Object.keys(groups).length+'</b> 개 주소</span>' +
-    '<span>확정 라벨 <b>'+nSeed+'</b></span>' +
-    '<span>커뮤니티 제보 <b>'+entries.length+'</b></span>' +
-    '<span>투표 <b>'+nVotes+'</b></span>' +
-    (API_URL ? '' : '<span style="color:var(--warn)">API_URL 미설정 — 확정 라벨만 표시 중</span>');
-
-  if(!arr.length){ $('list').innerHTML = '<div class="empty">아직 등록된 지갑이 없습니다.</div>'; return; }
-
-  $('list').innerHTML = arr.map(function(g){
-    var h = '<div class="grp"><div class="grp-h">' +
-      '<span class="addr">'+esc(g.addr)+'</span>';
-    if(g.seed){
-      var cls = g.seed.type==='scam_lookalike'||g.seed.type==='dust' ? 'bD' : ('b'+(g.seed.confidence||'C'));
-      h += '<span class="badge '+cls+'">'+esc(g.seed.confidence||'C')+'등급 · '+esc(TYPE_KO[g.seed.type]||g.seed.type)+'</span>';
-    }
-    h += '<a class="pg" href="https://polygonscan.com/address/'+esc(g.addr)+'" target="_blank" rel="noopener">폴리곤스캔 ↗</a></div>';
-
-    if(g.seed){
-      h += '<div class="cand"><div class="vote"><div class="lb">확정</div><div class="n" style="color:var(--ok)">✓</div></div>' +
-        '<div class="body"><div class="nm">'+esc(g.seed.name)+'</div>' +
-        '<div class="ev">'+esc(g.seed.evidence||'')+'</div>' +
-        '<div class="meta">출처: '+esc(g.seed.source||'-')+' · '+esc(g.seed.added||'')+'</div></div></div>';
-    }
-    g.cands.forEach(function(c, i){
-      var lead = (i===0 && g.cands.length>1 && c.score>0) ? ' lead' : '';
-      var voted = myVotes[c.e.id];
-      h += '<div class="cand'+lead+'">' +
-        '<div class="vote"><div class="lb">'+(lead?'최다':'득표')+'</div>' +
-        '<div class="n">'+c.score+'</div><div class="btns">' +
-        (voted ? '<span style="font-size:11px;color:var(--tx3)">'+esc(voted)+'</span>'
-               : '<button class="sm" data-v="찬성" data-id="'+esc(c.e.id)+'">맞다</button>' +
-                 '<button class="sm no" data-v="반대" data-id="'+esc(c.e.id)+'">아니다</button>') +
-        '</div></div>' +
-        '<div class="body"><div class="nm">'+esc(c.e.name) +
-        ' <span class="badge bC">'+esc(TYPE_KO[c.e.type]||c.e.type)+'</span></div>' +
-        '<div class="ev">'+esc(c.e.evidence)+'</div>' +
-        '<div class="meta">제보 '+esc(c.e.reporter)+' · '+esc(c.e.ts) +
-        (c.e.link ? ' · <a href="'+esc(c.e.link)+'" target="_blank" rel="noopener">근거자료 ↗</a>' : '') +
-        ' · 찬성 '+c.up+' / 반대 '+c.down+'</div></div></div>';
+  return Promise.all([
+    fetch(LABELS_URL,{cache:'no-store'}).then(function(r){return r.json();})
+      .then(function(j){ seed=j||{labels:{}}; }).catch(function(){ seed={labels:{}}; }),
+    (!API_URL ? Promise.resolve() : jsonp(API_URL).then(function(r){
+      if(r&&r.ok){ entries=r.data.entries||[]; votes=r.data.votes||{}; }
+      else throw new Error(r&&r.error||'응답 오류');
+    }))
+  ]).then(function(){ renderTiles(); renderList(); renderResult(); })
+    .catch(function(e){
+      $('list').innerHTML='<div class="empty">목록을 불러오지 못했습니다.<br>'+esc(e.message)+'</div>';
     });
-    return h + '</div>';
-  }).join('');
+}
 
-  Array.prototype.forEach.call($('list').querySelectorAll('button[data-id]'), function(b){
-    b.onclick = function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v')); };
+function stateOf(addr){
+  addr = norm(addr);
+  var L = seed.labels && seed.labels[addr];
+  var cands = entries.filter(function(e){ return e.address===addr; }).map(function(e){
+    var v = votes[e.id] || {up:0,down:0,voters:[]};
+    return {e:e, up:v.up, down:v.down, score:v.up-v.down, voters:v.voters||[]};
+  }).sort(function(x,y){ return y.score-x.score || y.up-x.up; });
+
+  var kind = (L && (L.type==='scam_lookalike'||L.type==='dust')) ? 'bad'
+           : L ? 'ok' : cands.length ? 'vote' : 'none';
+
+  var twins=[], k=pKey(addr), all={};
+  Object.keys(seed.labels||{}).forEach(function(x){ all[norm(x)]=1; });
+  entries.forEach(function(e){ all[e.address]=1; });
+  Object.keys(all).forEach(function(x){ if(x!==addr && pKey(x)===k) twins.push(x); });
+  return {addr:addr, kind:kind, label:L, cands:cands, twins:twins};
+}
+function nameOf(a){ var s=stateOf(a);
+  return s.label ? s.label.name : (s.cands[0] ? s.cands[0].e.name : null); }
+
+/* ---------- 카드 ---------- */
+var BADGE = {ok:['s-ok','✓ 확정'], vote:['s-vote','투표 중'], bad:['s-bad','⚠ 사칭·스팸'], none:['s-none','이름 없음']};
+
+function walletCard(addr){
+  var s = stateOf(addr), b = BADGE[s.kind];
+  var title = s.label ? s.label.name : (s.cands[0] ? s.cands[0].e.name : shortA(addr));
+  var sub = s.label ? (TYPE_KO[s.label.type]||s.label.type)+' · '+(s.label.confidence||'B')+'등급'
+          : (s.cands.length ? '후보 '+s.cands.length+'개' : '');
+
+  var h = '<div class="w" data-w="'+esc(addr)+'">' +
+    '<div class="w-h">' +
+      '<span class="state '+b[0]+'">'+b[1]+'</span>' +
+      '<span class="ttl'+(s.kind==='none'?' none':'')+'" title="'+esc(title)+'">'+esc(title)+'</span>' +
+    '</div>' +
+    '<div class="w-sub"><span>'+esc(shortA(addr))+'</span>' +
+      (sub?'<span>· '+esc(sub)+'</span>':'') +
+      '<a href="https://polygonscan.com/address/'+esc(addr)+'" target="_blank" rel="noopener">폴리곤스캔 ↗</a></div>' +
+    '<div class="w-b">';
+
+  if(s.twins.length && s.kind!=='bad'){
+    h += '<div class="warn"><b>⚠ 앞뒤 4자리가 같은 다른 주소가 있습니다</b><br>' +
+      s.twins.slice(0,4).map(function(t){ var n=nameOf(t);
+        return '<code>'+esc(shortA(t))+'</code>'+(n?' '+esc(n):''); }).join('<br>') + '</div>';
+  }
+  if(s.label){
+    h += '<div class="c-row"><div class="rk win" style="color:'+(s.kind==='bad'?'var(--red)':'var(--green)')+'">'+
+      (s.kind==='bad'?'⚠':'✓')+'</div><div class="mid">' +
+      '<div class="ev" style="color:var(--tx2)" title="'+esc(s.label.evidence||'')+'">'+esc(s.label.evidence||'')+'</div>' +
+      '</div><span class="tag">확정</span></div>';
+  }
+  s.cands.forEach(function(c,i){
+    var me=nick(), did=me && c.voters.indexOf(me)>=0, win=(i===0 && s.cands.length>1);
+    h += '<div class="c-row">' +
+      '<div class="rk'+(win?' win':'')+'">'+(win?'1위':(i+1))+'</div>' +
+      '<div class="mid"><div class="nm">'+esc(c.e.name)+
+        ' <span class="tag">'+esc(TYPE_KO[c.e.type]||c.e.type)+'</span></div>' +
+        '<div class="ev" title="'+esc(c.e.evidence)+'">'+esc(c.e.evidence)+' — '+esc(c.e.reporter)+'</div></div>' +
+      '<div class="sc '+(c.score>0?'p':c.score<0?'m':'')+'">'+(c.score>0?'+':'')+c.score+'</div>' +
+      '<div class="act">' + (did ? '<span class="voted">투표함</span>'
+        : '<button class="sm ok" data-v="찬성" data-id="'+esc(c.e.id)+'">맞다</button>' +
+          '<button class="sm no" data-v="반대" data-id="'+esc(c.e.id)+'">아니다</button>') +
+      '</div></div>';
   });
+
+  var open = openForms[addr];
+  h += '<div style="margin-top:8px"><button class="'+(s.kind==='none'?'':'ghost')+' sm" data-open="'+esc(addr)+'">' +
+       (open ? '닫기' : (s.kind==='none' ? '이름 달기' : '다른 이름 제안')) + '</button></div>';
+
+  if(open){
+    h += '<div class="f" data-form="'+esc(addr)+'">' +
+      '<div class="r1">' +
+        '<input class="f-name" placeholder="지갑 이름 (예: 강남지사 총판)">' +
+        '<select class="f-type">' + TYPE_OPTS.map(function(o){
+            return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('') + '</select>' +
+      '</div>' +
+      '<div class="r2">' +
+        '<input class="f-ev" placeholder="근거 — 어디서 본 주소인지 (10자 이상)">' +
+        '<button class="sm f-go" data-a="'+esc(addr)+'">등록</button>' +
+      '</div><div class="m"></div></div>';
+  }
+  return h + '</div></div>';
+}
+
+function bind(root){
+  root.querySelectorAll('button[data-id]').forEach(function(b){
+    b.onclick=function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v')); }; });
+  root.querySelectorAll('button[data-open]').forEach(function(b){
+    b.onclick=function(){
+      var a=b.getAttribute('data-open');
+      openForms[a]=!openForms[a];
+      renderResult(); renderList();
+      var f=document.querySelector('[data-form="'+a+'"] .f-name'); if(f) f.focus();
+    }; });
+  root.querySelectorAll('.f-go').forEach(function(b){
+    b.onclick=function(){ submitOne(b.getAttribute('data-a'), b.closest('.f')); }; });
+  root.querySelectorAll('.f-ev').forEach(function(i){
+    i.onkeydown=function(e){ if(e.key==='Enter') i.closest('.f').querySelector('.f-go').click(); }; });
 }
 
 /* ---------- 동작 ---------- */
 function doVote(id, opinion){
-  var nick = $('nick').value.trim();
-  if(!nick){ alert('상단에 닉네임을 먼저 입력해주세요.'); $('nick').focus(); return; }
-  if(!API_URL){ alert('API_URL이 설정되지 않아 투표할 수 없습니다.'); return; }
-  post({action:'vote', id:id, voter:nick, opinion:opinion}).then(function(r){
-    if(r.ok){ myVotes[id] = opinion; return loadEntries().then(render); }
-    alert(r.error || '투표에 실패했습니다.');
-  }).catch(function(){ alert('투표 전송에 실패했습니다. 잠시 후 다시 시도해주세요.'); });
+  if(!nick()){ alert('오른쪽 위에 닉네임을 먼저 입력해주세요.'); $('nick').focus(); return; }
+  if(!API_URL){ alert('API_URL이 설정되지 않았습니다.'); return; }
+  post({action:'vote', id:id, voter:nick(), opinion:opinion}).then(function(r){
+    if(r.ok) refresh(); else alert(r.error||'투표에 실패했습니다.');
+  }).catch(function(){ alert('투표 전송에 실패했습니다.'); });
+}
+function submitOne(addr, form){
+  var msg=form.querySelector('.m');
+  var p={action:'submit', address:addr, reporter:nick(),
+    name:form.querySelector('.f-name').value.trim(),
+    type:form.querySelector('.f-type').value,
+    evidence:form.querySelector('.f-ev').value.trim(), link:''};
+  if(!API_URL){ msg.textContent='API_URL이 설정되지 않았습니다.'; return; }
+  if(!p.reporter){ msg.textContent='닉네임을 입력해주세요.'; return; }
+  if(!p.name){ msg.textContent='지갑 이름을 적어주세요.'; return; }
+  if(p.evidence.length<10){ msg.textContent='근거를 10자 이상 적어주세요.'; return; }
+  var btn=form.querySelector('.f-go'); btn.disabled=true; btn.textContent='등록 중';
+  post(p).then(function(r){
+    btn.disabled=false; btn.textContent='등록';
+    if(r.ok){ openForms[addr]=false; refresh(); }
+    else msg.textContent=r.error||'등록에 실패했습니다.';
+  }).catch(function(){ btn.disabled=false; btn.textContent='등록'; msg.textContent='전송에 실패했습니다.'; });
 }
 
-$('submit').onclick = function(){
-  var m = $('msg'); m.className='msg';
-  if(!API_URL){ m.className='msg err'; m.textContent='API_URL이 설정되지 않았습니다. 설치 안내를 확인해주세요.'; return; }
-  var p = {action:'submit', address:$('addr').value.trim(), name:$('name').value.trim(),
-    type:$('type').value, evidence:$('ev').value.trim(), link:$('link').value.trim(),
-    reporter:$('nick').value.trim()};
-  if(!isAddr(p.address)){ m.className='msg err'; m.textContent='지갑 주소 형식이 올바르지 않습니다 (0x + 40자리).'; return; }
-  if(!p.reporter){ m.className='msg err'; m.textContent='닉네임을 입력해주세요.'; return; }
-  if(!p.name){ m.className='msg err'; m.textContent='이 지갑을 무엇으로 보는지 적어주세요.'; return; }
-  if(p.evidence.length < 10){ m.className='msg err'; m.textContent='근거를 10자 이상 적어주세요.'; return; }
-
-  $('submit').disabled = true; $('submit').textContent = '등록 중…';
-  post(p).then(function(r){
-    $('submit').disabled = false; $('submit').textContent = '등록';
-    if(r.ok){
-      m.className='msg ok'; m.textContent='등록되었습니다. 감사합니다.';
-      $('addr').value=''; $('name').value=''; $('ev').value=''; $('link').value='';
-      $('poison').className='alert';
-      refresh();
-    } else { m.className='msg err'; m.textContent = r.error || '등록에 실패했습니다.'; }
-  }).catch(function(){
-    $('submit').disabled = false; $('submit').textContent = '등록';
-    m.className='msg err'; m.textContent='전송에 실패했습니다. 잠시 후 다시 시도해주세요.';
-  });
-};
-
-$('dl').onclick = function(){
-  var out = JSON.parse(JSON.stringify(seed));
-  out.labels = out.labels || {};
-  var byAddr = {};
-  entries.forEach(function(e){
-    var v = votes[e.id] || {up:0,down:0}, s = v.up - v.down;
-    if(!byAddr[e.address] || s > byAddr[e.address].s) byAddr[e.address] = {e:e, s:s, v:v};
-  });
-  Object.keys(byAddr).forEach(function(a){
-    if(out.labels[a]) return;                 // 확정 라벨 우선
-    var t = byAddr[a];
-    if(t.s < 1) return;                       // 순득표 1 이상만 반영
-    out.labels[a] = {name:t.e.name+' (추정)', type:t.e.type, confidence: t.s>=5?'B':'C',
-      evidence:t.e.evidence, source:'커뮤니티 제보 '+t.e.reporter+' · 찬성'+t.v.up+'/반대'+t.v.down,
-      added:t.e.ts};
-  });
-  out.updated = new Date().toISOString().slice(0,10);
-  var blob = new Blob([JSON.stringify(out, null, 2)], {type:'application/json'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'labels.json'; a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
-};
-
-/* ---------- 일괄 등록 ---------- */
-function parseBulk(){
+/* ---------- 확인 결과 ---------- */
+function parseQ(){
   var out=[], seen={};
-  $('bulkList').value.split(/\r?\n/).forEach(function(line){
-    line=line.trim(); if(!line) return;
-    var parts=line.split(/[,\t]/);
-    var a=norm(parts[0]);
-    if(!isAddr(a) || seen[a]) return;
-    seen[a]=1;
-    out.push({address:a, name:(parts.slice(1).join(',')||'').trim()});
-  });
+  $('q').value.split(/[\s,;]+/).forEach(function(t){
+    var a=norm(t); if(isAddr(a)&&!seen[a]){ seen[a]=1; out.push(a); } });
   return out;
 }
-$('toggleBulk').onclick=function(){
-  var c=$('bulkCard');
-  c.style.display = c.style.display==='none' ? '' : 'none';
-  if(c.style.display==='') c.scrollIntoView({behavior:'smooth', block:'nearest'});
-};
-$('bulkList').addEventListener('input', function(){
-  var n=parseBulk().length;
-  $('bulkCount').textContent = n ? '주소 '+n+'개 인식됨' : '';
-});
-$('bulkGo').onclick=function(){
-  var m=$('bulkMsg'); m.className='msg';
-  if(!API_URL){ m.className='msg err'; m.textContent='API_URL이 설정되지 않았습니다.'; return; }
-  var nick=$('nick').value.trim(), ev=$('bulkEv').value.trim();
-  var common=$('bulkName').value.trim(), type=$('bulkType').value;
-  var list=parseBulk();
-  if(!nick){ m.className='msg err'; m.textContent='상단에 닉네임을 입력해주세요.'; return; }
-  if(ev.length<10){ m.className='msg err'; m.textContent='근거를 10자 이상 적어주세요.'; return; }
-  if(!list.length){ m.className='msg err'; m.textContent='올바른 지갑 주소가 없습니다.'; return; }
-  var items=list.map(function(x){ return {address:x.address, name:x.name||common, type:type}; })
-                .filter(function(x){ return x.name; });
-  if(!items.length){ m.className='msg err'; m.textContent='이름을 적어주세요. 줄마다 "주소,이름" 으로 쓰거나 공통 이름을 입력하세요.'; return; }
-  if(items.length>60){ m.className='msg err'; m.textContent='한 번에 60개까지만 됩니다. 나눠서 올려주세요.'; return; }
+function renderResult(){
+  var box=$('result');
+  if(!checked.length){ box.innerHTML=''; return; }
+  var g={ok:[],vote:[],none:[],bad:[]};
+  checked.forEach(function(a){ g[stateOf(a).kind].push(a); });
+  var h='<div class="card" style="padding:10px 13px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--tx2)">' +
+    '<b style="color:var(--tx);font-size:14px">'+checked.length+'개 확인</b>' +
+    (g.ok.length?'<span><span class="dot" style="background:var(--green)"></span> 확정 '+g.ok.length+'</span>':'') +
+    (g.vote.length?'<span><span class="dot" style="background:var(--blue)"></span> 투표 중 '+g.vote.length+'</span>':'') +
+    (g.bad.length?'<span><span class="dot" style="background:var(--red)"></span> 사칭 '+g.bad.length+'</span>':'') +
+    (g.none.length?'<span><span class="dot" style="background:var(--tx3)"></span> 이름 없음 '+g.none.length+'</span>':'') +
+    (g.none.length>1?'<button class="sm" id="bulkOpen" style="margin-left:auto">'+g.none.length+'개 한번에</button>':'') +
+    '</div>';
+  ['bad','ok','vote','none'].forEach(function(k){ g[k].forEach(function(a){ h+=walletCard(a); }); });
+  box.innerHTML=h; bind(box);
+  var bo=$('bulkOpen'); if(bo) bo.onclick=function(){ openBulk(g.none); };
+}
 
-  $('bulkGo').disabled=true; $('bulkGo').textContent='등록 중…';
-  post({action:'bulk', reporter:nick, evidence:ev, items:items}).then(function(r){
-    $('bulkGo').disabled=false; $('bulkGo').textContent='한번에 등록';
-    if(r.ok){
-      m.className='msg ok';
-      m.textContent=r.added+'건 등록됐습니다.'+(r.skipped?' ('+r.skipped+'건은 이미 있거나 형식이 달라 건너뜀)':'');
-      $('bulkList').value=''; $('bulkEv').value=''; $('bulkCount').textContent='';
-      refresh();
-    } else { m.className='msg err'; m.textContent=r.error||'등록에 실패했습니다.'; }
-  }).catch(function(){
-    $('bulkGo').disabled=false; $('bulkGo').textContent='한번에 등록';
-    m.className='msg err'; m.textContent='전송에 실패했습니다.';
+/* ---------- 여러 개 한번에 ---------- */
+function openBulk(addrs){
+  var h='<div class="card" id="bulkCard"><h2 style="margin-bottom:8px">이름 없는 '+addrs.length+'개 한번에</h2>' +
+    '<div class="hint" style="margin-bottom:9px">아는 것만 적으세요. 비워둔 줄은 등록되지 않습니다.</div>' +
+    addrs.map(function(a){
+      return '<div style="display:grid;grid-template-columns:130px 1fr 108px;gap:5px;margin-bottom:5px;align-items:center">' +
+        '<span class="mono" style="font-size:11px;color:var(--tx3)" title="'+esc(a)+'">'+esc(a.slice(0,8)+'…'+a.slice(-6))+'</span>' +
+        '<input class="b-name" data-a="'+esc(a)+'" placeholder="지갑 이름">' +
+        '<select class="b-type" data-a="'+esc(a)+'">'+TYPE_OPTS.map(function(o){
+          return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('')+'</select></div>';
+    }).join('') +
+    '<div class="r2" style="display:flex;gap:6px;margin-top:9px">' +
+      '<input id="bEv" style="flex:1" placeholder="근거 — 전체 공통 (10자 이상)">' +
+      '<button class="sm" id="bGo">등록</button>' +
+      '<button class="ghost sm" id="bCancel">취소</button></div>' +
+    '<div class="m" id="bMsg" style="font-size:11.5px;color:#ff9a9a;margin-top:5px"></div></div>';
+  var box=document.createElement('div'); box.innerHTML=h;
+  $('result').insertBefore(box, $('result').firstChild.nextSibling);
+  box.querySelector('#bCancel').onclick=function(){ box.remove(); };
+  box.querySelector('#bGo').onclick=function(){
+    var msg=box.querySelector('#bMsg'), ev=box.querySelector('#bEv').value.trim();
+    if(!nick()){ msg.textContent='닉네임을 입력해주세요.'; return; }
+    if(ev.length<10){ msg.textContent='근거를 10자 이상 적어주세요.'; return; }
+    var items=[];
+    box.querySelectorAll('.b-name').forEach(function(inp){
+      var nm=inp.value.trim(); if(!nm) return;
+      var a=inp.getAttribute('data-a');
+      items.push({address:a, name:nm, type:box.querySelector('.b-type[data-a="'+a+'"]').value}); });
+    if(!items.length){ msg.textContent='이름을 하나 이상 적어주세요.'; return; }
+    var b=box.querySelector('#bGo'); b.disabled=true; b.textContent='등록 중';
+    post({action:'bulk', reporter:nick(), evidence:ev, items:items}).then(function(r){
+      b.disabled=false; b.textContent='등록';
+      if(r.ok){ box.remove(); refresh(); } else msg.textContent=r.error||'등록에 실패했습니다.';
+    }).catch(function(){ b.disabled=false; b.textContent='등록'; msg.textContent='전송에 실패했습니다.'; });
+  };
+}
+
+/* ---------- 현황 ---------- */
+function allAddrs(){
+  var m={};
+  Object.keys(seed.labels||{}).forEach(function(a){ m[norm(a)]=1; });
+  entries.forEach(function(e){ m[e.address]=1; });
+  return Object.keys(m);
+}
+function renderTiles(){
+  var c={ok:0,vote:0,none:0,bad:0}, all=allAddrs();
+  all.forEach(function(a){ c[stateOf(a).kind]++; });
+  var t=[['','전체',all.length,'var(--tx2)'],['ok','확정',c.ok,'var(--green)'],
+         ['vote','투표 중',c.vote,'var(--blue)'],['bad','사칭·스팸',c.bad,'var(--red)']];
+  $('tiles').innerHTML=t.map(function(x){
+    return '<div class="tile'+(filter===x[0]?' on':'')+'" data-f="'+x[0]+'">' +
+      '<div class="n">'+x[2]+'</div><div class="k"><span class="dot" style="background:'+x[3]+'"></span>'+x[1]+'</div></div>';
+  }).join('');
+  $('tiles').querySelectorAll('.tile').forEach(function(el){
+    el.onclick=function(){ filter=el.getAttribute('data-f'); renderTiles(); renderList(); }; });
+  $('upd').textContent = seed.updated ? '라벨 '+seed.updated : '';
+}
+function renderList(){
+  var q=norm($('search').value);
+  var arr=allAddrs().filter(function(a){
+    var s=stateOf(a);
+    if(filter && s.kind!==filter) return false;
+    if(!q) return true;
+    if(a.indexOf(q)>=0) return true;
+    if(s.label && (norm(s.label.name).indexOf(q)>=0 || norm(s.label.evidence).indexOf(q)>=0)) return true;
+    return s.cands.some(function(c){ return norm(c.e.name).indexOf(q)>=0 ||
+      norm(c.e.evidence).indexOf(q)>=0 || norm(c.e.reporter).indexOf(q)>=0; });
   });
+  var ord={ok:0,vote:1,bad:2,none:3};
+  arr.sort(function(x,y){
+    var sx=stateOf(x), sy=stateOf(y);
+    if(ord[sx.kind]!==ord[sy.kind]) return ord[sx.kind]-ord[sy.kind];
+    return (sy.cands[0]?sy.cands[0].score:0)-(sx.cands[0]?sx.cands[0].score:0);
+  });
+  if(!arr.length){ $('list').innerHTML='<div class="empty">해당하는 지갑이 없습니다.</div>'; return; }
+  $('list').innerHTML=arr.slice(0,150).map(walletCard).join('') +
+    (arr.length>150?'<div class="empty">…외 '+(arr.length-150)+'개. 검색으로 좁혀보세요.</div>':'');
+  bind($('list'));
+}
+
+/* ---------- 내려받기 ---------- */
+$('dl').onclick=function(){
+  var out=JSON.parse(JSON.stringify(seed)); out.labels=out.labels||{};
+  allAddrs().forEach(function(a){
+    if(out.labels[a]) return;
+    var t=stateOf(a).cands[0];
+    if(!t || t.score<1) return;
+    out.labels[a]={name:t.e.name+' (추정)', type:t.e.type, confidence:t.score>=5?'B':'C',
+      evidence:t.e.evidence, source:'커뮤니티 제보 '+t.e.reporter+' · 찬성'+t.up+'/반대'+t.down, added:t.e.ts};
+  });
+  out.updated=new Date().toISOString().slice(0,10);
+  var b=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='labels.json'; a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
 };
 
-/* 폴리곤스캔 스크립트에서 ?add=0x... 로 넘어오면 미리 채워둡니다 */
-(function(){
-  var q=new URLSearchParams(location.search).get('add');
-  if(!q) return;
-  var list=q.split(',').map(norm).filter(isAddr);
-  if(list.length===1){ $('addr').value=list[0]; checkPoison(list[0]); $('addr').scrollIntoView(); }
-  else if(list.length>1){ $('bulkCard').style.display=''; $('bulkList').value=list.join('\n');
-    $('bulkCount').textContent='주소 '+list.length+'개 인식됨'; }
-})();
+/* ---------- 이벤트 ---------- */
+$('check').onclick=function(){
+  var m=$('qmsg'); m.className='msg';
+  var list=parseQ();
+  if(!list.length){ m.className='msg err'; m.textContent='올바른 주소(0x + 40자리)를 입력해주세요.'; return; }
+  checked=list; renderResult();
+};
+$('clear').onclick=function(){ $('q').value=''; checked=[]; $('qcount').textContent='';
+  $('qmsg').className='msg'; renderResult(); };
+$('q').addEventListener('input',function(){
+  var n=parseQ().length; $('qcount').textContent = n?n+'개 인식':''; });
+$('search').addEventListener('input', renderList);
+$('reload').onclick=refresh;
+$('nick').addEventListener('input',function(){ renderResult(); renderList(); });
 
-$('addr').addEventListener('input', function(){ checkPoison($('addr').value); });
-$('q').addEventListener('input', render);
-$('filter').addEventListener('change', render);
-$('reload').onclick = refresh;
-refresh();
+(function(){ var p=new URLSearchParams(location.search).get('add');
+  if(p) $('q').value=p.split(',').join('\n'); })();
+
+refresh().then(function(){ if($('q').value.trim()) $('check').click(); });
 </script>
 </body>
 </html>
