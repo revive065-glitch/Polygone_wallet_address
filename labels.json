@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "updated": "2026-07-31",
+  "chain": "polygon",
+  "chainId": 137,
+  "note": "폴리곤 지갑 라벨 사전. 온체인 공개기록 기반이며, confidence가 A가 아닌 항목은 모두 '추정'입니다. 특정 개인의 실명·연락처는 절대 기록하지 않습니다.",
+  "confidenceLegend": {
+    "A": "확정 — 공식 공지·앱 화면·서비스 문서에 나온 주소이거나, 온체인 사실 자체로 성격이 확정되는 경우",
+    "B": "유력 — 다수 지갑에서 동일 패턴이 반복 확인됨. 주인을 특정한 것은 아님",
+    "C": "추정 — 제보만 있고 교차검증 전. 반드시 '추정'으로 표기할 것"
+  },
+  "typeLegend": {
+    "company": "회사 수금 지갑 (참여금이 모이는 곳)",
+    "company_payout": "회사 지급 지갑 (정산금이 나가는 곳)",
+    "community": "커뮤니티 대표·총판 지갑",
+    "exchange": "중앙화 거래소 입출금 지갑 — 추적 종착점",
+    "otc": "환전·OTC 상대",
+    "bridge": "브릿지·스왑 컨트랙트",
+    "token": "토큰 컨트랙트 (지갑 아님)",
+    "relay": "경유 지갑 — 받은 즉시 전액 이체, 잔고 상시 0",
+    "scam_lookalike": "주소 사칭(address poisoning) — 실제 주소와 앞4·뒤4자리를 맞춘 가짜",
+    "dust": "더스트 스팸 — 0원 또는 0.0001 단위 전송만 반복",
+    "personal": "개인 지갑",
+    "unknown": "미상"
+  },
+  "tokens": {
+    "0x435001af7fc65b621b0043df99810b2f30860c5d": { "symbol": "KWT", "decimals": 6 },
+    "0x98965474ecbec2f532f1f780ee37b0b05f77ca55": { "symbol": "SUT", "decimals": 18 },
+    "0xc2132d05d31c914a87c6611c10748aeb04b58e8f": { "symbol": "USDT", "decimals": 6 },
+    "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359": { "symbol": "USDC", "decimals": 6 }
+  },
+  "dustThreshold": { "KWT": 1000, "SUT": 0.01, "USDT": 0.01, "USDC": 0.01 },
+
+  "labels": {
+    "0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c": {
+      "name": "CC2C 회사 수금지갑",
+      "type": "company",
+      "confidence": "A",
+      "evidence": "슈퍼세이브 참여금(SUT/USDT/KWT)이 모이는 주소. 유입 전용이며 유출 기록이 사실상 없음. 확인된 3개 지갑에서만 151건 유입.",
+      "source": "프로젝트 확정 (2026-07-29)",
+      "added": "2026-07-31"
+    },
+    "0xf11d0da941625c2e6df119c6b30df9d42ad0a964": {
+      "name": "회사 지급지갑 #1 (추정)",
+      "type": "company_payout",
+      "confidence": "B",
+      "evidence": "500명 이상에게 KWT/SUT를 반복 송금. 확인된 지갑 기준 주간정산 수령 경로와 일치. 유입은 소수 주소로부터만 발생.",
+      "source": "온체인 패턴 분석",
+      "added": "2026-07-31"
+    },
+    "0xe6e7ec8dfbacc0dbfc8e838ff2a49a252ab4ff85": {
+      "name": "회사 지급지갑 #2 / 멀티샌드 (추정)",
+      "type": "company_payout",
+      "confidence": "B",
+      "evidence": "900명 이상에게 일괄 송금(multisend) 패턴. CC2C 수금지갑으로도 송금함.",
+      "source": "온체인 패턴 분석",
+      "added": "2026-07-31"
+    },
+    "0x5a7317b12e4b1e8b4be8fff9eba090e03fafc4ca": {
+      "name": "경유 지갑 (추정)",
+      "type": "relay",
+      "confidence": "B",
+      "evidence": "받은 금액과 내보낸 금액이 토큰별로 거의 동일(USDT 57,950 유입=유출). 잔고를 남기지 않고 CC2C 수금지갑으로 재송금.",
+      "source": "온체인 패턴 분석",
+      "added": "2026-07-31"
+    },
+
+    "0x505e71695e9bc45943c58adec1650577bca68fd9": {
+      "name": "Binance 입금지갑 (폴리곤)",
+      "type": "exchange",
+      "confidence": "B",
+      "evidence": "누적 트랜잭션 490만건 이상, USDT 1,500만개 이상 보유하는 대형 허브. 추적 종착점으로 처리.",
+      "source": "온체인 규모 확인",
+      "added": "2026-07-31"
+    },
+    "0x290275e3db66394c52272398959845170e4dcb88": {
+      "name": "Binance 입금지갑 #2 (폴리곤)",
+      "type": "exchange",
+      "confidence": "B",
+      "evidence": "누적 트랜잭션 460만건 이상, USDT 1,400만개 이상 보유.",
+      "source": "온체인 규모 확인",
+      "added": "2026-07-31"
+    },
+    "0xf977814e90da44bfa03b6295a0616a897441acec": {
+      "name": "Binance 콜드월렛 (다체인 공개주소)",
+      "type": "exchange",
+      "confidence": "B",
+      "evidence": "USDT 9,000만개 보유. 여러 체인에서 동일 주소로 공개적으로 알려진 거래소 보관 주소.",
+      "source": "온체인 규모 확인",
+      "added": "2026-07-31"
+    },
+    "0x0d0707963952f2fba59dd06f2b425ace40b492fe": {
+      "name": "Gate.io 입출금지갑 (폴리곤)",
+      "type": "exchange",
+      "confidence": "B",
+      "evidence": "누적 트랜잭션 180만건 이상. SUT 상장 거래소로, 확인된 지갑이 이 주소로부터 SUT 23,320개를 출금 수령한 기록이 있음.",
+      "source": "온체인 규모 확인 + 수령 기록",
+      "added": "2026-07-31"
+    },
+    "0xf89d7b9c864f589bbf53a82105107622b35eaa40": {
+      "name": "Bybit 입출금지갑 (폴리곤)",
+      "type": "exchange",
+      "confidence": "B",
+      "evidence": "누적 트랜잭션 360만건 이상, USDT 800만개 이상 보유.",
+      "source": "온체인 규모 확인",
+      "added": "2026-07-31"
+    },
+
+    "0xaaa440a23e1ae5f3c3f95334e2b39ddb63bbcc2c": {
+      "name": "CC2C 사칭 주소",
+      "type": "scam_lookalike",
+      "confidence": "A",
+      "evidence": "진짜 CC2C(0xaaa4d5dd…89cc2c)와 앞4자리 aaa4 · 뒤4자리 cc2c가 동일. 실금액 거래는 0건이고 0원 전송만 존재. 주소 복사 실수를 유도하는 address poisoning.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0xaaa4356b02cc5fa4c9277f6c50c58636b189cc2c": {
+      "name": "CC2C 사칭 주소",
+      "type": "scam_lookalike",
+      "confidence": "A",
+      "evidence": "진짜 CC2C와 앞4·뒤4자리 동일. 0원 전송 위주.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0xaaa4e19445cde662ad575159d80392397bfdcc2c": {
+      "name": "CC2C 사칭 주소",
+      "type": "scam_lookalike",
+      "confidence": "A",
+      "evidence": "진짜 CC2C와 앞4·뒤4자리 동일. 하루 만에 110명에게 0원 전송.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0xaaa491233a4d681a17fb3c3471144a1ef6d9cc2c": {
+      "name": "CC2C 사칭 주소",
+      "type": "scam_lookalike",
+      "confidence": "A",
+      "evidence": "진짜 CC2C와 앞4·뒤4자리 동일. 실금액 거래 없음.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0x17727eafae3c3d4f56e1e439f23ee335835b98c5": {
+      "name": "더스트 스팸 주소",
+      "type": "dust",
+      "confidence": "A",
+      "evidence": "0.0001 USDT를 동일 지갑에 64회 반복 송금. 실질 자금 이동 없음.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0x17e899f08dd0f46d6bada57c5f505671be0398c5": {
+      "name": "더스트 스팸 주소",
+      "type": "dust",
+      "confidence": "A",
+      "evidence": "0.0001 USDT 62회 반복 송금.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0xc9cae7558839311596b6320074745b90410b6ab6": {
+      "name": "더스트 스팸 주소",
+      "type": "dust",
+      "confidence": "A",
+      "evidence": "0.0001 USDT 43회 반복 송금.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0xc9b6049cb9072e5b24c88c3a051eccdfe30b6ab6": {
+      "name": "더스트 스팸 주소",
+      "type": "dust",
+      "confidence": "A",
+      "evidence": "0.0001 USDT 41회 반복 송금.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0x1047a88bbe545587435d9bd1e7401ff7757c31c9": {
+      "name": "0원 전송 스팸 주소",
+      "type": "dust",
+      "confidence": "A",
+      "evidence": "271건 전부 0원 전송. 앞4자리 1047 · 뒤4자리 31c9로 짝을 맞춘 사칭 계열.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    },
+    "0x1047ae9ed0856447f228b3b7c1fa077aeb9731c9": {
+      "name": "0원 전송 스팸 주소",
+      "type": "dust",
+      "confidence": "A",
+      "evidence": "268건 전부 0원 전송. 1047…31c9 사칭 계열.",
+      "source": "온체인 확인",
+      "added": "2026-07-31"
+    }
+  }
+}
