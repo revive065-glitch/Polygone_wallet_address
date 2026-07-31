@@ -26,7 +26,17 @@ body{margin:0;background:var(--bg);color:var(--tx);
 .top .me input{width:150px}
 
 /* 2단 */
-.app{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.tabs{display:none;gap:6px;margin-bottom:12px}
+.tabs a{flex:1;text-align:center;padding:9px;border:1px solid var(--line);border-radius:9px;
+  font-size:13.5px;font-weight:600;color:var(--tx2);cursor:pointer;background:var(--panel)}
+.tabs a.on{border-color:var(--blue);color:var(--tx);background:#20262e}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:200;
+  background:#12331f;border:1px solid var(--green);color:#7ee2b3;padding:10px 18px;border-radius:10px;
+  font-size:13.5px;font-weight:600;box-shadow:0 6px 22px rgba(0,0,0,.5);opacity:0;pointer-events:none;
+  transition:opacity .18s, transform .18s}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.bad{background:#331616;border-color:var(--red);color:#ffa8a8}
 .col{min-width:0}
 .col.right{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;padding-right:2px}
 .col.right h2{position:sticky;top:0;z-index:3;background:var(--bg);padding:2px 0 6px;margin:0}
@@ -111,10 +121,23 @@ button.ok{background:var(--green)} button.no{background:transparent;border:1px s
 .f .m{font-size:11.5px;color:#ff9a9a;margin-top:5px;min-height:14px}
 .foot{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);
   color:var(--tx3);font-size:11px;line-height:1.7}
-@media(max-width:920px){
+/* 창이 좁아도 최대한 2단을 유지하고, 정말 좁아지면 탭으로 전환합니다 */
+@media(max-width:1100px){ .wrap{padding:14px 12px 60px} .app{gap:12px} }
+@media(max-width:900px){
+  .c-row .ev{display:none}
+  .f .r1{grid-template-columns:1fr 96px}
+}
+@media(max-width:700px){
   .app{grid-template-columns:1fr}
-  .col.right{position:static;max-height:none;order:-1}
-  .tiles{grid-template-columns:repeat(2,1fr)}
+  .tabs{display:flex}
+  .col{display:none}
+  .col.show{display:block}
+  .col.right{position:static;max-height:none;overflow:visible}
+  .col.right h2,#qbox{position:static}
+  .tiles{grid-template-columns:repeat(4,1fr)}
+  .tile .n{font-size:17px}
+  .c-row .ev{display:block}
+  .top h1{font-size:17px} .top .sub{display:none}
 }
 </style>
 </head>
@@ -128,14 +151,24 @@ button.ok{background:var(--green)} button.no{background:transparent;border:1px s
     <input id="nick" maxlength="20" placeholder="카페 닉네임" spellcheck="false"></div>
 </div>
 
+<div class="tabs" id="tabs">
+  <a data-p="left" class="on">등록 현황</a>
+  <a data-p="right">주소 확인 · 등록</a>
+</div>
+
 <div class="app">
 
   <!-- ============ 왼쪽: 등록 현황 ============ -->
-  <div class="col left">
+  <div class="col left show">
     <h2>등록 현황 <span class="c" id="upd"></span></h2>
     <div class="tiles" id="tiles"></div>
     <div class="tools">
       <input id="search" placeholder="이름 · 주소 · 근거로 찾기">
+      <select id="sort" style="width:auto;flex:0 0 auto;font-size:12px;padding:6px 8px">
+        <option value="state">상태순</option>
+        <option value="new">최신 등록순</option>
+        <option value="vote">득표순</option>
+      </select>
       <button class="ghost sm" id="reload">새로고침</button>
       <button class="ghost sm" id="dl">내려받기</button>
     </div>
@@ -168,12 +201,13 @@ button.ok{background:var(--green)} button.no{background:transparent;border:1px s
   특정 개인·법인의 위법행위를 단정하지 않으며, 정정·삭제 요청은 카페 운영진에게 알려주세요.
 </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
 /* ==========================================================
    설정 — 아래 두 줄만 본인 것으로 바꾸면 됩니다.
    ========================================================== */
-var API_URL    = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhMWcBy9BsOXdQYMALAXKTBLMvxtjE3fzNDP6RMpl01fhMHY-NAS/exec';               // Apps Script 웹앱 /exec URL
+var API_URL    = ''https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhMWcBy9BsOXdQYMALAXKTBLMvxtjE3fzNDP6RMpl01fhMHY-NAS/exec'';               // Apps Script 웹앱 /exec URL
 var LABELS_URL = 'labels.json';    // 확정 라벨 (GitHub raw URL 권장)
 /* ========================================================== */
 
@@ -194,6 +228,21 @@ function isAddr(a){ return /^0x[a-f0-9]{40}$/.test(norm(a)); }
 function shortA(a){ return a.slice(0,10)+'…'+a.slice(-8); }
 function pKey(a){ a=norm(a); return a.slice(2,6)+'|'+a.slice(-4); }
 function nick(){ return $('nick').value.trim(); }
+
+/* 닉네임은 이 브라우저에만 기억해 둡니다 (매번 다시 치지 않도록) */
+function remember(k,v){ try{ localStorage.setItem('reg_'+k, v); }catch(e){} }
+function recall(k){ try{ return localStorage.getItem('reg_'+k)||''; }catch(e){ return ''; } }
+
+var toastT;
+function toast(msg, bad){
+  var t=$('toast'); t.textContent=msg; t.className='toast on'+(bad?' bad':'');
+  clearTimeout(toastT); toastT=setTimeout(function(){ t.className='toast'+(bad?' bad':''); }, 2400);
+}
+function showPane(p){
+  document.querySelectorAll('#tabs a').forEach(function(a){ a.className = a.dataset.p===p?'on':''; });
+  document.querySelectorAll('.col').forEach(function(c){
+    c.classList.toggle('show', c.classList.contains(p)); });
+}
 
 /* ---------- 통신 ---------- */
 function jsonp(url){
@@ -331,8 +380,9 @@ function doVote(id, opinion){
   if(!nick()){ alert('오른쪽 위에 닉네임을 먼저 입력해주세요.'); $('nick').focus(); return; }
   if(!API_URL){ alert('API_URL이 설정되지 않았습니다.'); return; }
   post({action:'vote', id:id, voter:nick(), opinion:opinion}).then(function(r){
-    if(r.ok) refresh(); else alert(r.error||'투표에 실패했습니다.');
-  }).catch(function(){ alert('투표 전송에 실패했습니다.'); });
+    if(r.ok){ toast(opinion==='찬성'?'찬성 표를 넣었습니다':'반대 표를 넣었습니다'); refresh(); }
+    else toast(r.error||'투표에 실패했습니다', true);
+  }).catch(function(){ toast('투표 전송에 실패했습니다', true); });
 }
 function submitOne(addr, form){
   var msg=form.querySelector('.m');
@@ -347,7 +397,7 @@ function submitOne(addr, form){
   var btn=form.querySelector('.f-go'); btn.disabled=true; btn.textContent='등록 중';
   post(p).then(function(r){
     btn.disabled=false; btn.textContent='등록';
-    if(r.ok){ openForms[addr]=false; refresh(); }
+    if(r.ok){ openForms[addr]=false; toast('"'+p.name+'" 등록됐습니다'); refresh(); }
     else msg.textContent=r.error||'등록에 실패했습니다.';
   }).catch(function(){ btn.disabled=false; btn.textContent='등록'; msg.textContent='전송에 실패했습니다.'; });
 }
@@ -409,7 +459,8 @@ function openBulk(addrs){
     var b=box.querySelector('#bGo'); b.disabled=true; b.textContent='등록 중';
     post({action:'bulk', reporter:nick(), evidence:ev, items:items}).then(function(r){
       b.disabled=false; b.textContent='등록';
-      if(r.ok){ box.remove(); refresh(); } else msg.textContent=r.error||'등록에 실패했습니다.';
+      if(r.ok){ box.remove(); toast((r.added||items.length)+'건 등록됐습니다'); refresh(); }
+      else msg.textContent=r.error||'등록에 실패했습니다.';
     }).catch(function(){ b.disabled=false; b.textContent='등록'; msg.textContent='전송에 실패했습니다.'; });
   };
 }
@@ -445,11 +496,15 @@ function renderList(){
     return s.cands.some(function(c){ return norm(c.e.name).indexOf(q)>=0 ||
       norm(c.e.evidence).indexOf(q)>=0 || norm(c.e.reporter).indexOf(q)>=0; });
   });
-  var ord={ok:0,vote:1,bad:2,none:3};
+  var ord={ok:0,vote:1,bad:2,none:3}, how=$('sort').value;
+  function newest(a){ var c=stateOf(a).cands[0]; return c ? c.e.ts : ''; }
+  function best(a){ var c=stateOf(a).cands[0]; return c ? c.score : -99; }
   arr.sort(function(x,y){
+    if(how==='new') return (newest(y)>newest(x)?1:newest(y)<newest(x)?-1:0);
+    if(how==='vote') return best(y)-best(x);
     var sx=stateOf(x), sy=stateOf(y);
     if(ord[sx.kind]!==ord[sy.kind]) return ord[sx.kind]-ord[sy.kind];
-    return (sy.cands[0]?sy.cands[0].score:0)-(sx.cands[0]?sx.cands[0].score:0);
+    return best(y)-best(x);
   });
   if(!arr.length){ $('list').innerHTML='<div class="empty">해당하는 지갑이 없습니다.</div>'; return; }
   $('list').innerHTML=arr.slice(0,150).map(walletCard).join('') +
@@ -479,17 +534,41 @@ $('check').onclick=function(){
   var list=parseQ();
   if(!list.length){ m.className='msg err'; m.textContent='올바른 주소(0x + 40자리)를 입력해주세요.'; return; }
   checked=list; renderResult();
+  if(innerWidth<=700) showPane('right');
 };
 $('clear').onclick=function(){ $('q').value=''; checked=[]; $('qcount').textContent='';
   $('qmsg').className='msg'; renderResult(); };
+var qT;
 $('q').addEventListener('input',function(){
-  var n=parseQ().length; $('qcount').textContent = n?n+'개 인식':''; });
+  var list=parseQ();
+  $('qcount').textContent = list.length ? list.length+'개 인식' : '';
+  // 주소를 다 붙여넣으면 따로 누르지 않아도 바로 확인해 줍니다
+  clearTimeout(qT);
+  qT=setTimeout(function(){
+    if(!list.length){ checked=[]; renderResult(); return; }
+    if(list.join()===checked.join()) return;
+    checked=list;
+    // 이름 없는 주소가 하나뿐이면 입력칸을 미리 열어 둡니다
+    if(list.length===1 && stateOf(list[0]).kind==='none') openForms[list[0]]=true;
+    renderResult();
+    var f=document.querySelector('#result .f-name'); if(f) f.focus();
+  }, 450);
+});
+$('q').addEventListener('keydown',function(e){
+  if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); $('check').click(); } });
 $('search').addEventListener('input', renderList);
 $('reload').onclick=refresh;
 $('nick').addEventListener('input',function(){ renderResult(); renderList(); });
 
+$('nick').value = recall('nick');
+$('nick').addEventListener('change', function(){ remember('nick', nick()); });
+document.querySelectorAll('#tabs a').forEach(function(a){
+  a.onclick=function(){ showPane(a.dataset.p); }; });
+$('sort').addEventListener('change', renderList);
+
 (function(){ var p=new URLSearchParams(location.search).get('add');
-  if(p) $('q').value=p.split(',').join('\n'); })();
+  if(p){ $('q').value=p.split(',').join('\n');
+    if(innerWidth<=700) showPane('right'); } })();
 
 refresh().then(function(){ if($('q').value.trim()) $('check').click(); });
 </script>
