@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>폴리곤 지갑 등록소</title>
+<style>
+:root{
+  --bg:#0f1216; --panel:#171b21; --panel2:#1e242c; --line:#2a323c;
+  --tx:#e6eaef; --tx2:#9aa5b1; --tx3:#6b7684;
+  --accent:#4c9aff; --ok:#3ecf8e; --warn:#f5a623; --danger:#f2555a;
+  --a:#3ecf8e; --b:#4c9aff; --c:#8c93a0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 18px 80px}
+h1{font-size:23px;margin:0 0 6px;letter-spacing:-.4px}
+h2{font-size:17px;margin:32px 0 12px;letter-spacing:-.3px}
+.sub{color:var(--tx2);font-size:13.5px;margin:0 0 20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.notice{background:#1a1f26;border:1px solid var(--line);border-left:3px solid var(--warn);
+  border-radius:8px;padding:13px 15px;font-size:13px;color:var(--tx2);margin-bottom:18px}
+.notice b{color:var(--tx)}
+label{display:block;font-size:12.5px;color:var(--tx2);margin:12px 0 5px;font-weight:600}
+input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--tx);
+  border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:74px}
+input.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 18px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+button:hover{filter:brightness(1.1)} button:disabled{opacity:.45;cursor:default;filter:none}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--tx2)}
+button.sm{padding:6px 12px;font-size:12.5px;font-weight:500}
+.msg{margin-top:12px;padding:11px 14px;border-radius:8px;font-size:13.5px;display:none}
+.msg.err{display:block;background:rgba(242,85,90,.12);border:1px solid rgba(242,85,90,.35);color:#ff9296}
+.msg.ok{display:block;background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.35);color:#6ee7b0}
+.alert{margin-top:10px;padding:12px 14px;border-radius:8px;font-size:13px;display:none;
+  background:rgba(242,85,90,.1);border:1px solid rgba(242,85,90,.4);color:#ff9aa0}
+.alert.on{display:block}
+.alert code{background:rgba(0,0,0,.35);padding:1px 5px;border-radius:4px;font-size:12px}
+
+.grp{border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden;background:var(--panel)}
+.grp-h{padding:13px 16px;background:var(--panel2);display:flex;align-items:center;
+  gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.addr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;
+  color:var(--tx);word-break:break-all}
+.badge{font-size:11px;padding:2.5px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.bA{background:rgba(62,207,142,.16);color:var(--a)}
+.bB{background:rgba(76,154,255,.16);color:var(--b)}
+.bC{background:rgba(140,147,160,.16);color:var(--c)}
+.bD{background:rgba(242,85,90,.16);color:var(--danger)}
+.cand{padding:13px 16px;border-top:1px solid var(--line);display:flex;gap:14px;align-items:flex-start}
+.cand:first-of-type{border-top:0}
+.cand .body{flex:1;min-width:0}
+.cand .nm{font-weight:600;font-size:14.5px}
+.cand .ev{color:var(--tx2);font-size:13px;margin-top:4px;white-space:pre-wrap;word-break:break-word}
+.cand .meta{color:var(--tx3);font-size:11.5px;margin-top:6px}
+.cand .meta a{color:var(--accent);text-decoration:none}
+.vote{text-align:center;min-width:66px;flex-shrink:0}
+.vote .n{font-size:21px;font-weight:700;line-height:1.15}
+.vote .lb{font-size:10.5px;color:var(--tx3);margin-bottom:6px}
+.vote .btns{display:flex;gap:4px;justify-content:center}
+.vote button{padding:4px 9px;font-size:12px;font-weight:600}
+.vote .no{background:transparent;border:1px solid var(--line);color:var(--tx3)}
+.lead{box-shadow:inset 3px 0 0 var(--ok)}
+.empty{color:var(--tx3);text-align:center;padding:40px 16px;font-size:14px}
+.tools{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.tools input{flex:1;min-width:180px}
+.stat{display:flex;gap:18px;flex-wrap:wrap;color:var(--tx2);font-size:12.5px;margin-bottom:14px}
+.stat b{color:var(--tx);font-size:15px}
+a.pg{color:var(--accent);text-decoration:none;font-size:11.5px}
+.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--tx3);font-size:11.5px;line-height:1.75}
+@media(max-width:640px){.row{grid-template-columns:1fr}.cand{flex-direction:row}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>폴리곤 지갑 등록소</h1>
+<p class="sub">지갑 주소에 <b>주인 이름</b>을 달아주는 곳입니다. 여기 등록된 이름이 <b>통합장부</b>에 그대로 반영돼, 거래내역이 "누가 누구에게"로 읽히게 됩니다.<br>
+한 주소에 여러 후보를 올릴 수 있고, 가장 설득력 있는 후보가 투표로 정해집니다.</p>
+
+<div class="notice">
+  <b>읽고 시작해주세요.</b><br>
+  · 여기 올라오는 라벨은 전부 <b>추정</b>입니다. 확정 사실이 아닙니다.<br>
+  · <b>실명·전화번호·주소 등 개인정보는 절대 쓰지 마세요.</b> 닉네임이나 직책만 씁니다.<br>
+  · 근거 없는 지목은 등록되지 않습니다. 어디서 본 주소인지 반드시 적어주세요.<br>
+  · 지갑 주소 자체는 블록체인에 공개된 정보지만, 특정인을 단정해 지목하면 법적 문제가 될 수 있습니다.
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">지갑 등록하기</h2>
+  <label>내 닉네임 (카페 닉으로 통일해주세요)</label>
+  <input id="nick" maxlength="20" placeholder="예: 홍길동123">
+
+  <label>지갑 주소</label>
+  <input id="addr" class="mono" maxlength="42" placeholder="0x0000000000000000000000000000000000000000" spellcheck="false">
+  <div id="poison" class="alert"></div>
+
+  <div class="row">
+    <div>
+      <label>이 지갑을 무엇으로 보시나요</label>
+      <input id="name" maxlength="60" placeholder="예: 회사 정산 지급지갑 / OO지사 총판 지갑">
+    </div>
+    <div>
+      <label>분류</label>
+      <select id="type">
+        <option value="company">회사 수금 지갑 (참여금이 모이는 곳)</option>
+        <option value="company_payout">회사 지급 지갑 (정산금이 나오는 곳)</option>
+        <option value="community">커뮤니티 대표·총판 지갑</option>
+        <option value="exchange">거래소 입출금 지갑</option>
+        <option value="otc">환전·OTC 상대</option>
+        <option value="relay">경유 지갑 (받고 바로 이체)</option>
+        <option value="scam_lookalike">사칭 주소</option>
+        <option value="personal">개인 지갑</option>
+        <option value="unknown" selected>잘 모르겠음</option>
+      </select>
+    </div>
+  </div>
+
+  <label>근거 <span style="color:var(--tx3);font-weight:400">— 어디서 이 주소를 봤는지, 왜 그렇게 보는지 (10자 이상)</span></label>
+  <textarea id="ev" maxlength="1000" placeholder="예: 2026-03-14 공지 캡처에 나온 입금 주소. 제 지갑에서도 이 주소로 3번 보냈습니다."></textarea>
+
+  <label>근거 자료 링크 (선택) <span style="color:var(--tx3);font-weight:400">— 폴리곤스캔 TX 링크, 이미지 링크 등</span></label>
+  <input id="link" maxlength="300" placeholder="https://polygonscan.com/tx/0x...">
+
+  <div style="margin-top:16px"><button id="submit">등록</button>
+    <button class="ghost" id="toggleBulk" style="margin-left:6px">여러 개 한번에 등록</button></div>
+  <div id="msg" class="msg"></div>
+</div>
+
+<div class="card" id="bulkCard" style="display:none">
+  <h2 style="margin-top:0">여러 개 한번에 등록</h2>
+  <p class="sub" style="margin:0 0 4px">폴리곤스캔에서 주소를 긁어와 붙여넣으세요. 한 줄에 하나씩,
+    <code style="font-size:12px">주소,이름</code> 형식으로 쓰면 이름까지 같이 들어갑니다.</p>
+  <label>주소 목록</label>
+  <textarea id="bulkList" style="min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px"
+    placeholder="0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c,회사 수금지갑&#10;0xf11d0da941625c2e6df119c6b30df9d42ad0a964,회사 지급지갑&#10;0x03496d8161408913fc35ed22aa839588ed4cdda8"></textarea>
+  <div class="row">
+    <div>
+      <label>이름이 안 적힌 줄에 붙일 이름 (선택)</label>
+      <input id="bulkName" maxlength="60" placeholder="예: OO지사 관련 지갑">
+    </div>
+    <div>
+      <label>분류</label>
+      <select id="bulkType">
+        <option value="unknown" selected>잘 모르겠음</option>
+        <option value="company">회사 수금 지갑</option>
+        <option value="company_payout">회사 지급 지갑</option>
+        <option value="community">커뮤니티 대표·총판</option>
+        <option value="exchange">거래소</option>
+        <option value="otc">환전·OTC</option>
+        <option value="personal">개인 지갑</option>
+        <option value="scam_lookalike">사칭 주소</option>
+      </select>
+    </div>
+  </div>
+  <label>근거 <span style="color:var(--tx3);font-weight:400">— 전체에 공통으로 붙습니다 (10자 이상)</span></label>
+  <textarea id="bulkEv" maxlength="1000" placeholder="예: 제 지갑 거래내역에 나온 주소들입니다. 2026-03월 공지 캡처와 대조했습니다."></textarea>
+  <div style="margin-top:14px"><button id="bulkGo">한번에 등록</button>
+    <span class="pg" id="bulkCount" style="margin-left:10px"></span></div>
+  <div id="bulkMsg" class="msg"></div>
+</div>
+
+<h2>등록된 지갑</h2>
+<div class="stat" id="stat"></div>
+<div class="tools">
+  <input id="q" placeholder="주소 · 이름 · 근거로 검색">
+  <select id="filter" style="width:auto">
+    <option value="">전체 분류</option>
+    <option value="company">회사 수금</option>
+    <option value="company_payout">회사 지급</option>
+    <option value="community">커뮤니티 대표</option>
+    <option value="exchange">거래소</option>
+    <option value="relay">경유</option>
+    <option value="scam_lookalike">사칭</option>
+    <option value="dust">더스트</option>
+    <option value="unknown">미상</option>
+  </select>
+  <button class="ghost sm" id="reload">새로고침</button>
+  <button class="ghost sm" id="dl">labels.json 내려받기</button>
+</div>
+<div id="list"><div class="empty">불러오는 중…</div></div>
+
+<div class="foot">
+  이 페이지의 자료는 폴리곤 블록체인의 공개 기록과 커뮤니티 제보를 모은 것으로, <b>확정된 사실이 아닌 추정</b>입니다.
+  특정 개인·법인의 위법행위를 단정하지 않으며, 오류가 있으면 즉시 정정합니다.
+  정정·삭제 요청은 카페 운영진에게 알려주세요.
+</div>
+
+</div>
+
+<script>
+/* ==========================================================
+   설정 — 아래 두 값만 본인 것으로 바꾸면 됩니다.
+   ========================================================== */
+var API_URL    = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhMWcBy9BsOXdQYMALAXKTBLMvxtjE3fzNDP6RMpl01fhMHY-NAS/exec';  // Apps Script 웹앱 /exec URL
+var LABELS_URL = 'labels.json';  // 확정 라벨 (GitHub raw URL 권장)
+
+/* ========================================================== */
+var $ = function(id){ return document.getElementById(id); };
+var TYPE_KO = {company:'회사 수금',company_payout:'회사 지급',community:'커뮤니티 대표',
+  exchange:'거래소',otc:'환전/OTC',bridge:'브릿지',relay:'경유',token:'토큰 컨트랙트',
+  scam_lookalike:'사칭 주소',dust:'더스트 스팸',personal:'개인',unknown:'미상'};
+
+var seed = {labels:{}}, entries = [], votes = {}, myVotes = {};
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function shortAddr(a){ return a.slice(0,10)+'…'+a.slice(-8); }
+function norm(a){ return String(a||'').trim().toLowerCase(); }
+function isAddr(a){ return /^0x[a-f0-9]{40}$/.test(norm(a)); }
+/** address poisoning 판정 키: 앞 4 + 뒤 4 (0x 제외) */
+function pKey(a){ a = norm(a); return a.slice(2,6)+'|'+a.slice(-4); }
+
+/* ---------- 통신 ---------- */
+function jsonp(url){
+  return new Promise(function(res, rej){
+    var cb = 'cb_' + Math.floor(Math.random()*1e9);
+    var s = document.createElement('script');
+    var t = setTimeout(function(){ cleanup(); rej(new Error('시간 초과')); }, 25000);
+    function cleanup(){ clearTimeout(t); delete window[cb]; if(s.parentNode) s.parentNode.removeChild(s); }
+    window[cb] = function(d){ cleanup(); res(d); };
+    s.onerror = function(){ cleanup(); rej(new Error('불러오기 실패')); };
+    s.src = url + (url.indexOf('?')<0?'?':'&') + 'callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+function post(payload){
+  // Content-Type을 text/plain으로 보내 CORS preflight를 피합니다.
+  return fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload), redirect:'follow'})
+    .then(function(r){ return r.json(); });
+}
+
+/* ---------- 로딩 ---------- */
+function loadSeed(){
+  return fetch(LABELS_URL, {cache:'no-store'}).then(function(r){ return r.json(); })
+    .then(function(j){ seed = j || {labels:{}}; })
+    .catch(function(){ seed = {labels:{}}; });
+}
+function loadEntries(){
+  if(!API_URL){ entries = []; votes = {}; return Promise.resolve(); }
+  return jsonp(API_URL).then(function(r){
+    if(r && r.ok){ entries = r.data.entries || []; votes = r.data.votes || {}; }
+    else throw new Error(r && r.error || '응답 오류');
+  });
+}
+function refresh(){
+  $('list').innerHTML = '<div class="empty">불러오는 중…</div>';
+  Promise.all([loadSeed(), loadEntries()]).then(render).catch(function(e){
+    $('list').innerHTML = '<div class="empty">목록을 불러오지 못했습니다.<br><span style="font-size:12px">'+esc(e.message)+'</span></div>';
+  });
+}
+
+/* ---------- 사칭 주소 감지 ---------- */
+function knownAddresses(){
+  var m = {};
+  Object.keys(seed.labels||{}).forEach(function(a){
+    m[norm(a)] = (seed.labels[a].name||'') + ' [' + (seed.labels[a].confidence||'?') + '등급]';
+  });
+  entries.forEach(function(e){ if(!m[e.address]) m[e.address] = e.name + ' [제보]'; });
+  return m;
+}
+function checkPoison(a){
+  var el = $('poison');
+  el.className = 'alert'; el.innerHTML = '';
+  if(!isAddr(a)) return;
+  a = norm(a);
+  var known = knownAddresses();
+  if(known[a]){
+    el.className = 'alert on';
+    el.style.background='rgba(76,154,255,.1)'; el.style.borderColor='rgba(76,154,255,.4)'; el.style.color='#8fc0ff';
+    el.innerHTML = '이미 등록된 주소입니다 — <b>'+esc(known[a])+'</b>. 다른 후보를 추가하거나 기존 후보에 투표해주세요.';
+    return;
+  }
+  var k = pKey(a), hits = [];
+  Object.keys(known).forEach(function(o){ if(o!==a && pKey(o)===k) hits.push(o); });
+  if(hits.length){
+    el.style.background=''; el.style.borderColor=''; el.style.color='';
+    el.className = 'alert on';
+    el.innerHTML = '<b>⚠ 사칭 주소일 수 있습니다.</b><br>' +
+      '입력하신 주소는 아래 주소와 <b>앞 4자리·뒤 4자리가 같지만 다른 주소</b>입니다. ' +
+      '가짜 주소를 거래내역에 심어 복사 실수를 유도하는 수법(address poisoning)이 이 프로젝트에서 실제로 확인됐습니다.<br>' +
+      hits.map(function(o){ return '<code>'+esc(shortAddr(o))+'</code> — '+esc(known[o]); }).join('<br>') +
+      '<br>내역에서 복사한 주소라면, 실제로 <b>금액이 0이 아닌 거래</b>가 있었는지 폴리곤스캔에서 꼭 확인해주세요.';
+  }
+}
+
+/* ---------- 렌더링 ---------- */
+function render(){
+  var q = norm($('q').value), ft = $('filter').value;
+  var groups = {};
+
+  Object.keys(seed.labels||{}).forEach(function(a){
+    var L = seed.labels[a]; a = norm(a);
+    groups[a] = groups[a] || {addr:a, seed:null, cands:[]};
+    groups[a].seed = L;
+  });
+  entries.forEach(function(e){
+    groups[e.address] = groups[e.address] || {addr:e.address, seed:null, cands:[]};
+    var v = votes[e.id] || {up:0,down:0};
+    groups[e.address].cands.push({e:e, up:v.up, down:v.down, score:v.up - v.down});
+  });
+
+  var arr = Object.keys(groups).map(function(k){ return groups[k]; });
+  arr.forEach(function(g){ g.cands.sort(function(x,y){ return y.score - x.score; }); });
+
+  if(ft) arr = arr.filter(function(g){
+    return (g.seed && g.seed.type===ft) || g.cands.some(function(c){ return c.e.type===ft; }); });
+  if(q) arr = arr.filter(function(g){
+    if(g.addr.indexOf(q)>=0) return true;
+    if(g.seed && (norm(g.seed.name).indexOf(q)>=0 || norm(g.seed.evidence).indexOf(q)>=0)) return true;
+    return g.cands.some(function(c){
+      return norm(c.e.name).indexOf(q)>=0 || norm(c.e.evidence).indexOf(q)>=0 || norm(c.e.reporter).indexOf(q)>=0; });
+  });
+
+  arr.sort(function(x,y){
+    var sx = (x.seed?1000:0) + (x.cands[0]?x.cands[0].score:0) + x.cands.length;
+    var sy = (y.seed?1000:0) + (y.cands[0]?y.cands[0].score:0) + y.cands.length;
+    return sy - sx;
+  });
+
+  var nSeed = Object.keys(seed.labels||{}).length;
+  var nVotes = Object.keys(votes).reduce(function(s,k){ return s + votes[k].up + votes[k].down; }, 0);
+  $('stat').innerHTML =
+    '<span><b>'+Object.keys(groups).length+'</b> 개 주소</span>' +
+    '<span>확정 라벨 <b>'+nSeed+'</b></span>' +
+    '<span>커뮤니티 제보 <b>'+entries.length+'</b></span>' +
+    '<span>투표 <b>'+nVotes+'</b></span>' +
+    (API_URL ? '' : '<span style="color:var(--warn)">API_URL 미설정 — 확정 라벨만 표시 중</span>');
+
+  if(!arr.length){ $('list').innerHTML = '<div class="empty">아직 등록된 지갑이 없습니다.</div>'; return; }
+
+  $('list').innerHTML = arr.map(function(g){
+    var h = '<div class="grp"><div class="grp-h">' +
+      '<span class="addr">'+esc(g.addr)+'</span>';
+    if(g.seed){
+      var cls = g.seed.type==='scam_lookalike'||g.seed.type==='dust' ? 'bD' : ('b'+(g.seed.confidence||'C'));
+      h += '<span class="badge '+cls+'">'+esc(g.seed.confidence||'C')+'등급 · '+esc(TYPE_KO[g.seed.type]||g.seed.type)+'</span>';
+    }
+    h += '<a class="pg" href="https://polygonscan.com/address/'+esc(g.addr)+'" target="_blank" rel="noopener">폴리곤스캔 ↗</a></div>';
+
+    if(g.seed){
+      h += '<div class="cand"><div class="vote"><div class="lb">확정</div><div class="n" style="color:var(--ok)">✓</div></div>' +
+        '<div class="body"><div class="nm">'+esc(g.seed.name)+'</div>' +
+        '<div class="ev">'+esc(g.seed.evidence||'')+'</div>' +
+        '<div class="meta">출처: '+esc(g.seed.source||'-')+' · '+esc(g.seed.added||'')+'</div></div></div>';
+    }
+    g.cands.forEach(function(c, i){
+      var lead = (i===0 && g.cands.length>1 && c.score>0) ? ' lead' : '';
+      var voted = myVotes[c.e.id];
+      h += '<div class="cand'+lead+'">' +
+        '<div class="vote"><div class="lb">'+(lead?'최다':'득표')+'</div>' +
+        '<div class="n">'+c.score+'</div><div class="btns">' +
+        (voted ? '<span style="font-size:11px;color:var(--tx3)">'+esc(voted)+'</span>'
+               : '<button class="sm" data-v="찬성" data-id="'+esc(c.e.id)+'">맞다</button>' +
+                 '<button class="sm no" data-v="반대" data-id="'+esc(c.e.id)+'">아니다</button>') +
+        '</div></div>' +
+        '<div class="body"><div class="nm">'+esc(c.e.name) +
+        ' <span class="badge bC">'+esc(TYPE_KO[c.e.type]||c.e.type)+'</span></div>' +
+        '<div class="ev">'+esc(c.e.evidence)+'</div>' +
+        '<div class="meta">제보 '+esc(c.e.reporter)+' · '+esc(c.e.ts) +
+        (c.e.link ? ' · <a href="'+esc(c.e.link)+'" target="_blank" rel="noopener">근거자료 ↗</a>' : '') +
+        ' · 찬성 '+c.up+' / 반대 '+c.down+'</div></div></div>';
+    });
+    return h + '</div>';
+  }).join('');
+
+  Array.prototype.forEach.call($('list').querySelectorAll('button[data-id]'), function(b){
+    b.onclick = function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v')); };
+  });
+}
+
+/* ---------- 동작 ---------- */
+function doVote(id, opinion){
+  var nick = $('nick').value.trim();
+  if(!nick){ alert('상단에 닉네임을 먼저 입력해주세요.'); $('nick').focus(); return; }
+  if(!API_URL){ alert('API_URL이 설정되지 않아 투표할 수 없습니다.'); return; }
+  post({action:'vote', id:id, voter:nick, opinion:opinion}).then(function(r){
+    if(r.ok){ myVotes[id] = opinion; return loadEntries().then(render); }
+    alert(r.error || '투표에 실패했습니다.');
+  }).catch(function(){ alert('투표 전송에 실패했습니다. 잠시 후 다시 시도해주세요.'); });
+}
+
+$('submit').onclick = function(){
+  var m = $('msg'); m.className='msg';
+  if(!API_URL){ m.className='msg err'; m.textContent='API_URL이 설정되지 않았습니다. 설치 안내를 확인해주세요.'; return; }
+  var p = {action:'submit', address:$('addr').value.trim(), name:$('name').value.trim(),
+    type:$('type').value, evidence:$('ev').value.trim(), link:$('link').value.trim(),
+    reporter:$('nick').value.trim()};
+  if(!isAddr(p.address)){ m.className='msg err'; m.textContent='지갑 주소 형식이 올바르지 않습니다 (0x + 40자리).'; return; }
+  if(!p.reporter){ m.className='msg err'; m.textContent='닉네임을 입력해주세요.'; return; }
+  if(!p.name){ m.className='msg err'; m.textContent='이 지갑을 무엇으로 보는지 적어주세요.'; return; }
+  if(p.evidence.length < 10){ m.className='msg err'; m.textContent='근거를 10자 이상 적어주세요.'; return; }
+
+  $('submit').disabled = true; $('submit').textContent = '등록 중…';
+  post(p).then(function(r){
+    $('submit').disabled = false; $('submit').textContent = '등록';
+    if(r.ok){
+      m.className='msg ok'; m.textContent='등록되었습니다. 감사합니다.';
+      $('addr').value=''; $('name').value=''; $('ev').value=''; $('link').value='';
+      $('poison').className='alert';
+      refresh();
+    } else { m.className='msg err'; m.textContent = r.error || '등록에 실패했습니다.'; }
+  }).catch(function(){
+    $('submit').disabled = false; $('submit').textContent = '등록';
+    m.className='msg err'; m.textContent='전송에 실패했습니다. 잠시 후 다시 시도해주세요.';
+  });
+};
+
+$('dl').onclick = function(){
+  var out = JSON.parse(JSON.stringify(seed));
+  out.labels = out.labels || {};
+  var byAddr = {};
+  entries.forEach(function(e){
+    var v = votes[e.id] || {up:0,down:0}, s = v.up - v.down;
+    if(!byAddr[e.address] || s > byAddr[e.address].s) byAddr[e.address] = {e:e, s:s, v:v};
+  });
+  Object.keys(byAddr).forEach(function(a){
+    if(out.labels[a]) return;                 // 확정 라벨 우선
+    var t = byAddr[a];
+    if(t.s < 1) return;                       // 순득표 1 이상만 반영
+    out.labels[a] = {name:t.e.name+' (추정)', type:t.e.type, confidence: t.s>=5?'B':'C',
+      evidence:t.e.evidence, source:'커뮤니티 제보 '+t.e.reporter+' · 찬성'+t.v.up+'/반대'+t.v.down,
+      added:t.e.ts};
+  });
+  out.updated = new Date().toISOString().slice(0,10);
+  var blob = new Blob([JSON.stringify(out, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'labels.json'; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+};
+
+/* ---------- 일괄 등록 ---------- */
+function parseBulk(){
+  var out=[], seen={};
+  $('bulkList').value.split(/\r?\n/).forEach(function(line){
+    line=line.trim(); if(!line) return;
+    var parts=line.split(/[,\t]/);
+    var a=norm(parts[0]);
+    if(!isAddr(a) || seen[a]) return;
+    seen[a]=1;
+    out.push({address:a, name:(parts.slice(1).join(',')||'').trim()});
+  });
+  return out;
+}
+$('toggleBulk').onclick=function(){
+  var c=$('bulkCard');
+  c.style.display = c.style.display==='none' ? '' : 'none';
+  if(c.style.display==='') c.scrollIntoView({behavior:'smooth', block:'nearest'});
+};
+$('bulkList').addEventListener('input', function(){
+  var n=parseBulk().length;
+  $('bulkCount').textContent = n ? '주소 '+n+'개 인식됨' : '';
+});
+$('bulkGo').onclick=function(){
+  var m=$('bulkMsg'); m.className='msg';
+  if(!API_URL){ m.className='msg err'; m.textContent='API_URL이 설정되지 않았습니다.'; return; }
+  var nick=$('nick').value.trim(), ev=$('bulkEv').value.trim();
+  var common=$('bulkName').value.trim(), type=$('bulkType').value;
+  var list=parseBulk();
+  if(!nick){ m.className='msg err'; m.textContent='상단에 닉네임을 입력해주세요.'; return; }
+  if(ev.length<10){ m.className='msg err'; m.textContent='근거를 10자 이상 적어주세요.'; return; }
+  if(!list.length){ m.className='msg err'; m.textContent='올바른 지갑 주소가 없습니다.'; return; }
+  var items=list.map(function(x){ return {address:x.address, name:x.name||common, type:type}; })
+                .filter(function(x){ return x.name; });
+  if(!items.length){ m.className='msg err'; m.textContent='이름을 적어주세요. 줄마다 "주소,이름" 으로 쓰거나 공통 이름을 입력하세요.'; return; }
+  if(items.length>60){ m.className='msg err'; m.textContent='한 번에 60개까지만 됩니다. 나눠서 올려주세요.'; return; }
+
+  $('bulkGo').disabled=true; $('bulkGo').textContent='등록 중…';
+  post({action:'bulk', reporter:nick, evidence:ev, items:items}).then(function(r){
+    $('bulkGo').disabled=false; $('bulkGo').textContent='한번에 등록';
+    if(r.ok){
+      m.className='msg ok';
+      m.textContent=r.added+'건 등록됐습니다.'+(r.skipped?' ('+r.skipped+'건은 이미 있거나 형식이 달라 건너뜀)':'');
+      $('bulkList').value=''; $('bulkEv').value=''; $('bulkCount').textContent='';
+      refresh();
+    } else { m.className='msg err'; m.textContent=r.error||'등록에 실패했습니다.'; }
+  }).catch(function(){
+    $('bulkGo').disabled=false; $('bulkGo').textContent='한번에 등록';
+    m.className='msg err'; m.textContent='전송에 실패했습니다.';
+  });
+};
+
+/* 폴리곤스캔 스크립트에서 ?add=0x... 로 넘어오면 미리 채워둡니다 */
+(function(){
+  var q=new URLSearchParams(location.search).get('add');
+  if(!q) return;
+  var list=q.split(',').map(norm).filter(isAddr);
+  if(list.length===1){ $('addr').value=list[0]; checkPoison(list[0]); $('addr').scrollIntoView(); }
+  else if(list.length>1){ $('bulkCard').style.display=''; $('bulkList').value=list.join('\n');
+    $('bulkCount').textContent='주소 '+list.length+'개 인식됨'; }
+})();
+
+$('addr').addEventListener('input', function(){ checkPoison($('addr').value); });
+$('q').addEventListener('input', render);
+$('filter').addEventListener('change', render);
+$('reload').onclick = refresh;
+refresh();
+</script>
+</body>
+</html>
