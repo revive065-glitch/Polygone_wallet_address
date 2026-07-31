@@ -132,14 +132,16 @@ button.wide{width:100%;padding:11px}
 .s-d{background:rgba(114,123,134,.2);color:var(--tx2)}
 .s-bad{background:rgba(224,74,74,.18);color:#ff8a8a}
 
-/* 후보 한 줄 */
-.c-row{display:flex;gap:9px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+/* 후보 한 줄 — 펼친 상세에서만 쓰이므로 근거는 자르지 않고 다 보여줍니다 */
+.c-row{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
 .c-row:first-child{border-top:0}
-.c-row .rk{width:24px;flex-shrink:0;text-align:center;font-size:11px;color:var(--tx3);font-weight:700}
+.c-row .rk{width:24px;flex-shrink:0;text-align:center;font-size:11px;color:var(--tx3);font-weight:700;
+  line-height:1.7}
 .c-row .rk.win{color:var(--gold)}
 .c-row .mid{flex:1;min-width:0}
-.c-row .nm{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-row .ev{color:var(--tx3);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-row .nm{font-weight:600;font-size:13.5px;line-height:1.5;word-break:break-word}
+.c-row .ev{color:var(--tx3);font-size:11.5px;line-height:1.65;margin-top:2px;
+  white-space:normal;overflow-wrap:anywhere}
 .c-row .sc{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;min-width:48px;text-align:right;
   color:var(--tx3);line-height:1.15}
 .c-row .sc.p{color:var(--green)}
@@ -149,6 +151,8 @@ button.wide{width:100%;padding:11px}
 .voted{font-size:11px;color:var(--green);font-weight:600;white-space:nowrap}
 .tag{font-size:10px;padding:1px 6px;border-radius:20px;font-weight:600;white-space:nowrap;
   background:rgba(255,255,255,.07);color:var(--tx2)}
+/* 근거 안의 출처 태그는 글보다 길 수 있으므로 줄바꿈을 허용합니다 */
+.c-row .ev .tag{white-space:normal}
 .tag.lead{background:rgba(201,133,0,.2);color:#e0b055}
 .tag.multi{background:rgba(139,111,212,.2);color:#b49df0}
 .tag.src{background:rgba(57,135,229,.14);color:#8fc0ff}
@@ -250,8 +254,11 @@ button.wide{width:100%;padding:11px}
   .top .me{flex:1 0 100%}                 /* 닉네임 칸은 줄을 통째로 씁니다 */
   .top .me input{flex:1;width:auto;min-width:0}
   .f .grid2{grid-template-columns:1fr}
-  .c-row .ev{white-space:normal}
-  .c-row .sc{min-width:42px;font-size:15px}
+  /* 좁은 화면에서는 추천 버튼이 글 자리를 뺏지 않도록 아랫줄로 내립니다 */
+  .c-row{flex-wrap:wrap;row-gap:6px}
+  .c-row .mid{flex:1 1 calc(100% - 33px)}
+  .c-row .sc{margin-left:33px;min-width:auto;text-align:left;font-size:15px}
+  .c-row .act{margin-left:auto}
   .tabs a{font-size:12.5px;padding:10px 2px}
   .wanted{gap:7px}
 }
