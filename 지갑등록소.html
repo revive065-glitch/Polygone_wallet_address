@@ -177,6 +177,37 @@ button.wide{width:100%;padding:11px}
 .f .m{font-size:11.5px;color:#ff9a9a;margin-top:5px;min-height:14px}
 .f .dupe{font-size:11.5px;color:#e0b055;margin-top:5px}
 
+/* ===== 분류 칩 ===== */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--line);
+  border-radius:20px;padding:4px 11px;font-size:12px;color:var(--tx2);cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--line2);color:var(--tx)}
+.chip.on{border-color:var(--blue);background:#20262e;color:var(--tx)}
+.chip b{font-variant-numeric:tabular-nums;color:var(--tx);font-weight:700}
+
+/* ===== 목록 (한 줄씩, 눌러서 펼치기) ===== */
+.rows{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--panel);margin-bottom:11px}
+.grp{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#1a1d22;border-top:1px solid var(--line)}
+.grp:first-child{border-top:0}
+.grp b{font-size:13px;white-space:nowrap}
+.grp .d{color:var(--tx3);font-size:11.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grp .n{color:var(--tx2);font-size:12px;font-variant-numeric:tabular-nums;font-weight:700}
+.r{display:grid;grid-template-columns:auto minmax(0,1fr) auto 16px;gap:10px;align-items:center;
+  padding:8px 12px;border-top:1px solid var(--line);cursor:pointer}
+.r:hover{background:var(--panel2)}
+.r.open{background:var(--panel2)}
+.r-nm{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-nm.none{font-weight:400;color:var(--tx3);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.r-sub{font-size:11.5px;color:var(--tx3);display:flex;align-items:center;gap:5px;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-ad{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--tx3);white-space:nowrap}
+.r-go{color:var(--tx3);font-size:9px;text-align:center;display:inline-block;transition:transform .15s}
+.r.open .r-go{transform:rotate(180deg)}
+.r-body{padding:4px 12px 12px;background:var(--panel2);border-top:1px solid var(--line)}
+.more{padding:9px 12px;border-top:1px solid var(--line);text-align:center;font-size:12px;
+  color:var(--tx3);cursor:pointer}
+.more:hover{background:var(--panel2);color:var(--blue)}
+
 /* ===== 수배 목록 ===== */
 .wanted{border:1px solid var(--line);border-radius:10px;background:var(--panel);
   padding:9px 12px;margin-bottom:7px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -223,6 +254,10 @@ button.wide{width:100%;padding:11px}
   .c-row .sc{min-width:42px;font-size:15px}
   .tabs a{font-size:12.5px;padding:10px 2px}
   .wanted{gap:7px}
+}
+@media(max-width:700px){
+  .r{grid-template-columns:auto minmax(0,1fr) 16px}
+  .r-ad{display:none}
 }
 </style>
 </head>
@@ -309,9 +344,12 @@ button.wide{width:100%;padding:11px}
   <!-- ===================== 전체 현황 ===================== -->
   <div class="pane" id="p-list">
     <h2 class="sec">전체 현황 <span class="c" id="upd"></span></h2>
+    <p class="sub">돈이 흐르는 순서대로 묶어 놓았습니다. 줄을 누르면 자세히 펼쳐집니다.</p>
+    <div class="chips" id="chips"></div>
     <div class="tools">
       <input id="search" placeholder="이름 · 주소 · 근거 · 제보자로 찾기">
       <select id="sort" style="width:auto;flex:0 0 auto;font-size:12px;padding:6px 8px">
+        <option value="flow">자금 흐름순</option>
         <option value="grade">신뢰도순</option>
         <option value="new">최신 등록순</option>
         <option value="vote">추천 많은순</option>
@@ -369,8 +407,8 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
 /* ==========================================================
    설정 — 아래 두 줄만 본인 것으로 바꾸면 됩니다.
    ========================================================== */
-var API_URL    = 'https://script.google.com/macros/s/AKfycbzaB8IwNnkQfD8zosAvz3BnCXYVPZUcRpR8ZF8iE9NKjrkVN29z7Ke9m5XOjOzoYzRB/exec';              
- // Apps Script 웹앱 /exec 주소
+// Apps Script 웹앱 /exec 주소
+var API_URL    = 'https://script.google.com/macros/s/AKfycbzaB8IwNnkQfD8zosAvz3BnCXYVPZUcRpR8ZF8iE9NKjrkVN29z7Ke9m5XOjOzoYzRB/exec';
 var LABELS_URL = 'labels.json';    // 확정 라벨 (GitHub raw 주소 권장)
 /* ========================================================== */
 
@@ -399,13 +437,35 @@ var SRC_ORDER = ['sent','recv','notice','chat','thirdparty','onchain','hearsay']
 /* 신뢰도 등급 */
 var GRADE = {A:['s-a','확정'], B:['s-b','유력'], C:['s-c','가능성'], D:['s-d','미검증']};
 
+/* 자금이 흐르는 순서대로 묶습니다.
+   목록을 이 순서로 보면 "돈이 어디서 들어와 어디로 빠졌는지"가 그대로 읽힙니다. */
+var FLOW = [
+  {k:'in',    ko:'① 돈이 모이는 곳',  d:'참여금이 들어가는 회사 주소',       t:['company'],                    c:'#d95926'},
+  {k:'relay', ko:'② 거쳐 가는 곳',    d:'받은 즉시 다른 곳으로 옮기는 주소', t:['relay','bridge'],             c:'#9a7b2f'},
+  {k:'out',   ko:'③ 돈이 나가는 곳',  d:'정산금이 빠져나오는 회사 주소',     t:['company_payout'],             c:'#e0762f'},
+  {k:'mid',   ko:'④ 받는 사람들',     d:'총판·센터·개인 지갑',               t:['community','personal'],       c:'#3987e5'},
+  {k:'cash',  ko:'⑤ 현금이 되는 곳',  d:'환전·OTC 상대',                     t:['otc'],                        c:'#8b6fd4'},
+  {k:'end',   ko:'⑥ 추적 종착점',     d:'거래소 입출금 지갑',                t:['exchange'],                   c:'#199e70'},
+  {k:'bad',   ko:'⚠ 조심할 것',       d:'사칭·스팸 주소 — 송금하지 마세요',  t:['scam_lookalike','dust'],      c:'#e04a4a'},
+  {k:'etc',   ko:'분류 안 된 것',      d:'이름은 있지만 성격을 모르는 주소',  t:['unknown','token','contract'], c:'#727b86'},
+  {k:'none',  ko:'아직 이름 없음',     d:'누구 것인지 모르는 주소',           t:[],                             c:'#525a64'}
+];
+var FLOW_BY = {}, T2F = {};
+FLOW.forEach(function(f){ FLOW_BY[f.k]=f; f.t.forEach(function(t){ T2F[t]=f.k; }); });
+
+function typeOf(s){ return s.cands[0] ? s.cands[0].type : (s.label ? s.label.type : 'unknown'); }
+function flowOf(a){ var s=stateOf(a);
+  return s.kind==='none' ? 'none' : (T2F[typeOf(s)] || 'etc'); }
+function badgeOf(s){ return s.kind==='bad' ? ['s-bad','⚠ 사칭'] : (GRADE[s.grade] || ['s-d','이름 없음']); }
+
 /* 개인정보로 보이는 입력은 아예 보내지 않습니다. */
 var RE_PHONE = /01[016789][\s.\-]?\d{3,4}[\s.\-]?\d{4}/;
 var RE_JUMIN = /\d{6}\s?[-–]\s?[1-4]\d{6}/;
 var RE_LONGNUM = /\d[\d\s.\-]{9,}\d/;
 
 var seed = {labels:{}}, entries = [], votes = {}, wanted = [];
-var filter = '', openForms = {}, checked = [], skipped = {};
+var filter = '', gFilter = '', openForms = {}, openRows = {}, checked = [], skipped = {};
+var grpMore = {}, GRP_STEP = 20;         // 단계별로 몇 줄까지 먼저 보여줄지
 var VER = null, lastSync = 0, pollTimer = null, POLL_MS = 8000, seenSent = {};
 
 /* ---------- 잡다한 도구 ---------- */
@@ -475,7 +535,7 @@ function refresh(){
   });
 }
 function renderAll(){ stCache={}; byAddr=null;
-  renderProgress(); renderHelp(); renderList(); renderResult(); renderRank(); liveTick(); }
+  renderProgress(); renderChips(); renderHelp(); renderList(); renderResult(); renderRank(); liveTick(); }
 
 /* ---------- 한 주소의 상태 ----------
    같은 이름을 여러 사람이 올리면 흩어지지 않도록 하나로 묶습니다.
@@ -550,8 +610,7 @@ function nameOf(a){ var s=stateOf(a);
 /* ---------- 지갑 카드 ---------- */
 function walletCard(a, opt){
   opt = opt || {};
-  var s = stateOf(a);
-  var G = s.kind==='bad' ? ['s-bad','⚠ 사칭·스팸'] : (GRADE[s.grade] || ['s-d','이름 없음']);
+  var s = stateOf(a), G = badgeOf(s);
   var title = s.cands[0] ? s.cands[0].name : (s.label ? s.label.name : shortA(a));
 
   var sub=[];
@@ -559,7 +618,7 @@ function walletCard(a, opt){
   if(s.label) sub.push('운영 등록');
   if(s.cands[0] && s.cands[0].period) sub.push(s.cands[0].period);
 
-  var h = '<div class="w'+(opt.hot?' hot':'')+'" data-w="'+esc(a)+'">' +
+  return '<div class="w'+(opt.hot?' hot':'')+'" data-w="'+esc(a)+'">' +
     '<div class="w-h">' +
       '<span class="state '+G[0]+'">'+esc(G[1])+'</span>' +
       '<span class="ttl'+(s.kind==='none'?' none':'')+'" title="'+esc(title)+'">'+esc(title)+'</span>' +
@@ -569,7 +628,42 @@ function walletCard(a, opt){
     '<div class="w-sub"><span title="'+esc(a)+'">'+esc(shortA(a))+'</span>' +
       (sub.length?'<span>· '+esc(sub.join(' · '))+'</span>':'') +
       '<a href="https://polygonscan.com/address/'+esc(a)+'" target="_blank" rel="noopener">폴리곤스캔 ↗</a></div>' +
-    '<div class="w-b">';
+    '<div class="w-b">' + walletBody(a) + '</div></div>';
+}
+
+/** 목록 한 줄 — 눌러야 펼쳐집니다. 800개가 쌓여도 훑어볼 수 있게. */
+function walletRow(a){
+  var s = stateOf(a), G = badgeOf(s), f = FLOW_BY[flowOf(a)], c = s.cands[0];
+  var title = c ? c.name : (s.label ? s.label.name : shortA(a));
+  var bits = [];
+  if(s.kind==='none') bits.push('이름 없음');
+  else bits.push(TYPE_KO[typeOf(s)] || '미상');
+  if(c){
+    if(c.people>1) bits.push('제보 '+c.people+'명');
+    if(c.up) bits.push('추천 '+c.up);
+    if(c.down) bits.push('아니다 '+c.down);
+    if(s.cands.length>1) bits.push('의견 '+s.cands.length+'개');
+  } else if(s.label) bits.push('운영 등록');
+
+  var open = openRows[a];
+  return '<div class="r'+(open?' open':'')+'" data-r="'+esc(a)+'">' +
+      '<span class="state '+G[0]+'">'+esc(G[1])+'</span>' +
+      '<div style="min-width:0">' +
+        '<div class="r-nm'+(s.kind==='none'?' none':'')+'" title="'+esc(title)+'">'+esc(title)+'</div>' +
+        '<div class="r-sub"><i class="dot" style="background:'+f.c+'"></i>'+esc(bits.join(' · '))+'</div>' +
+      '</div>' +
+      '<span class="r-ad" title="'+esc(a)+'">'+esc(shortA(a))+'</span>' +
+      '<span class="r-go">▼</span>' +
+    '</div>' +
+    (open ? '<div class="r-body">' +
+       '<div class="w-sub" style="padding:0 0 6px"><span>'+esc(a)+'</span>' +
+       '<a href="https://polygonscan.com/address/'+esc(a)+'" target="_blank" rel="noopener">폴리곤스캔 ↗</a></div>' +
+       walletBody(a) + '</div>' : '');
+}
+
+/** 카드와 목록 행이 같이 쓰는 알맹이 */
+function walletBody(a){
+  var s = stateOf(a), h = '';
 
   if(s.twins.length && s.kind!=='bad'){
     h += '<div class="warn"><b>⚠ 앞뒤 4자리가 같은 다른 주소가 있습니다 — 송금 전 전체 자리를 확인하세요</b><br>' +
@@ -608,7 +702,7 @@ function walletCard(a, opt){
   h += '<div style="margin-top:8px"><button class="'+(s.kind==='none'?'':'ghost')+' sm" data-open="'+esc(a)+'">' +
        (open ? '닫기' : (s.kind==='none' ? '이 지갑 이름 달기' : '다른 이름 제안')) + '</button></div>';
   if(open) h += regForm(a);
-  return h + '</div></div>';
+  return h;
 }
 
 /* ---------- 등록 폼 ---------- */
@@ -638,6 +732,15 @@ function regForm(a){
 }
 
 function bind(root){
+  /* 목록 한 줄 — 눌러서 펼치기. 안쪽 링크·버튼을 누른 것은 제외합니다. */
+  root.querySelectorAll('.r[data-r]').forEach(function(el){
+    el.onclick=function(e){
+      if(e.target.closest('a,button')) return;
+      var a=el.getAttribute('data-r');
+      openRows[a]=!openRows[a];
+      if(!openRows[a]) openForms[a]=false;
+      renderList();
+    }; });
   root.querySelectorAll('button[data-id]').forEach(function(b){
     b.onclick=function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v')); }; });
   root.querySelectorAll('button[data-open]').forEach(function(b){
@@ -880,32 +983,88 @@ function gradeBucket(s){
   return (s.grade==='A'||s.grade==='B') ? 'ok' : 'weak';
 }
 
-function renderList(){
-  var q=norm($('search').value);
-  var arr=allAddrs().filter(function(a){
-    var s=stateOf(a);
-    if(filter && gradeBucket(s)!==filter) return false;
-    if(!q) return true;
-    if(a.indexOf(q)>=0) return true;
-    if(s.label && (norm(s.label.name).indexOf(q)>=0 || norm(s.label.evidence).indexOf(q)>=0)) return true;
-    return s.cands.some(function(c){ return norm(c.name).indexOf(q)>=0 || norm(c.evidence).indexOf(q)>=0 ||
-      norm(c.org).indexOf(q)>=0 || Object.keys(c.reporters).some(function(r){ return norm(r).indexOf(q)>=0; }); });
+/** 분류 칩 — 어느 단계에 몇 개가 모였는지 한눈에 */
+function renderChips(){
+  var all=allAddrs(), c={};
+  all.forEach(function(a){ var k=flowOf(a); c[k]=(c[k]||0)+1; });
+  var h='<span class="chip'+(gFilter===''?' on':'')+'" data-g="">전체 <b>'+all.length+'</b></span>';
+  FLOW.forEach(function(f){
+    if(!c[f.k]) return;                                   // 아직 하나도 없는 단계는 숨깁니다
+    h+='<span class="chip'+(gFilter===f.k?' on':'')+'" data-g="'+f.k+'">' +
+       '<i class="dot" style="background:'+f.c+'"></i>'+esc(f.ko.replace(/^[①-⑥⚠]\s*/,''))+' <b>'+c[f.k]+'</b></span>';
   });
-  var rank={A:0,B:1,C:2,D:3,bad:4}, how=$('sort').value;
+  $('chips').innerHTML=h;
+  $('chips').querySelectorAll('.chip').forEach(function(el){
+    el.onclick=function(){ gFilter=el.getAttribute('data-g'); renderChips(); renderList(); }; });
+}
+
+function matchQ(a, q){
+  if(!q) return true;
+  var s=stateOf(a);
+  if(a.indexOf(q)>=0) return true;
+  if(s.label && (norm(s.label.name).indexOf(q)>=0 || norm(s.label.evidence).indexOf(q)>=0)) return true;
+  return s.cands.some(function(c){ return norm(c.name).indexOf(q)>=0 || norm(c.evidence).indexOf(q)>=0 ||
+    norm(c.org).indexOf(q)>=0 || Object.keys(c.reporters).some(function(r){ return norm(r).indexOf(q)>=0; }); });
+}
+
+function renderList(){
+  var q=norm($('search').value), how=$('sort').value;
+  var arr=allAddrs().filter(function(a){
+    if(filter && gradeBucket(stateOf(a))!==filter) return false;
+    if(gFilter && flowOf(a)!==gFilter) return false;
+    return matchQ(a,q);
+  });
+
+  var rank={A:0,B:1,C:2,D:3};
   function newest(a){ var c=stateOf(a).cands[0]; return c ? c.last : ''; }
   function best(a){ var c=stateOf(a).cands[0]; return c ? c.up : -1; }
+  function byGrade(x,y){
+    var sx=stateOf(x), sy=stateOf(y);
+    var rx=sx.kind==='none'?5:(rank[sx.grade]!=null?rank[sx.grade]:4);
+    var ry=sy.kind==='none'?5:(rank[sy.grade]!=null?rank[sy.grade]:4);
+    return rx-ry || best(y)-best(x);
+  }
   arr.sort(function(x,y){
     if(how==='new') return newest(y)>newest(x)?1:newest(y)<newest(x)?-1:0;
     if(how==='vote') return best(y)-best(x);
-    var sx=stateOf(x), sy=stateOf(y);
-    var rx=sx.kind==='none'?5:(rank[sx.grade]!=null?rank[sx.grade]:3);
-    var ry=sy.kind==='none'?5:(rank[sy.grade]!=null?rank[sy.grade]:3);
-    return rx-ry || best(y)-best(x);
+    return byGrade(x,y);
   });
-  if(!arr.length){ $('list').innerHTML='<div class="empty">해당하는 지갑이 없습니다.</div>'; return; }
-  $('list').innerHTML=arr.slice(0,120).map(function(a){ return walletCard(a); }).join('') +
-    (arr.length>120?'<div class="empty">…외 '+(arr.length-120)+'개. 검색으로 좁혀보세요.</div>':'');
+
+  if(!arr.length){
+    $('list').innerHTML='<div class="empty">해당하는 지갑이 없습니다.' +
+      ((filter||gFilter||q)?'<br><button class="ghost sm" id="clrF" style="margin-top:8px">조건 지우기</button>':'') + '</div>';
+    var cf=$('clrF'); if(cf) cf.onclick=function(){ filter=''; gFilter=''; $('search').value='';
+      renderProgress(); renderChips(); renderList(); };
+    return;
+  }
+
+  var h='';
+  if(how==='flow' && !gFilter){
+    /* 자금이 흐르는 순서대로 섹션을 나눕니다.
+       단계마다 따로 끊어야 뒤쪽 단계(현금화·거래소)가 통째로 잘려 안 보이는 일이 없습니다. */
+    var g={};
+    arr.forEach(function(a){ (g[flowOf(a)] = g[flowOf(a)] || []).push(a); });
+    FLOW.forEach(function(f){
+      var list=g[f.k]; if(!list) return;
+      list.sort(byGrade);
+      var lim=grpMore[f.k]||GRP_STEP, show=list.slice(0,lim);
+      h+='<div class="rows"><div class="grp"><span class="dot" style="background:'+f.c+'"></span>' +
+         '<b>'+esc(f.ko)+'</b><span class="d">'+esc(f.d)+'</span><span class="n">'+list.length+'</span></div>' +
+         show.map(walletRow).join('') +
+         (show.length<list.length
+           ? '<div class="more" data-more="'+f.k+'">…외 '+(list.length-show.length)+'개 더 보기</div>' : '') +
+         '</div>';
+    });
+  } else {
+    var LIMIT=200;
+    h='<div class="rows">'+arr.slice(0,LIMIT).map(walletRow).join('')+'</div>';
+    if(arr.length>LIMIT) h+='<div class="empty">…외 '+(arr.length-LIMIT)+'개. 검색이나 분류로 좁혀보세요.</div>';
+  }
+  $('list').innerHTML=h;
   bind($('list'));
+  $('list').querySelectorAll('.more[data-more]').forEach(function(el){
+    el.onclick=function(){ var k=el.getAttribute('data-more');
+      grpMore[k]=(grpMore[k]||GRP_STEP)+50; renderList(); }; });
 }
 
 /* ---------- 기여자 ---------- */

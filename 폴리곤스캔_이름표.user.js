@@ -24,7 +24,7 @@
    설정 — 이 두 줄만 본인 것으로 바꾸면 됩니다.
    ============================================================ */
 const LABELS_URL   = 'https://raw.githubusercontent.com/<계정>/<저장소>/main/labels.json';
-const REGISTRY_URL = '';   // 구글 Apps Script 웹앱 /exec 주소
+const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbzaB8IwNnkQfD8zosAvz3BnCXYVPZUcRpR8ZF8iE9NKjrkVN29z7Ke9m5XOjOzoYzRB/exec';
 /* ============================================================ */
 
 (function () {
