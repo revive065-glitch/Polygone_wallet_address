@@ -23,8 +23,8 @@
 /* ============================================================
    설정 — 이 두 줄만 본인 것으로 바꾸면 됩니다.
    ============================================================ */
-const LABELS_URL   = 'https://raw.githubusercontent.com/revive065-glitch/Polygone_wallet_address/refs/heads/main/labels.json';
-const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhMWcBy9BsOXdQYMALAXKTBLMvxtjE3fzNDP6RMpl01fhMHY-NAS/exec';   // 구글 Apps Script 웹앱 /exec 주소
+const LABELS_URL   = 'https://raw.githubusercontent.com/<계정>/<저장소>/main/labels.json';
+const REGISTRY_URL = '';   // 구글 Apps Script 웹앱 /exec 주소
 /* ============================================================ */
 
 (function () {
@@ -51,11 +51,27 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
   let PKEY = {};         // 앞4|뒤4 → [주소…]  (사칭 판정용)
   let loaded = false;
 
+  /* 출처 — 어떻게 알게 됐는지. 증거력을 가르는 항목이라 등록 시 반드시 고릅니다. */
+  const SRC = {
+    sent: '내가 이 주소로 보냈음', recv: '내가 이 주소에서 받았음',
+    notice: '공지·공식 안내에 있던 주소', chat: '단톡방·메신저에서 안내받음',
+    thirdparty: '다른 사람 내역·캡처에서 봄', onchain: '거래 흐름을 보고 추정',
+    hearsay: '들어서 알고 있음'
+  };
+  const SRC_ORDER = ['sent', 'recv', 'notice', 'chat', 'thirdparty', 'onchain', 'hearsay'];
+
   const norm = a => String(a || '').trim().toLowerCase();
   const short = a => a.slice(0, 8) + '…' + a.slice(-6);
   const pkey = a => { a = norm(a); return a.slice(2, 6) + '|' + a.slice(-4); };
+  const nkey = s => String(s || '').replace(/[\s()·・\-_.]/g, '').toLowerCase();
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  /* 개인정보로 보이는 입력은 아예 보내지 않습니다. */
+  const RE_PHONE = /01[016789][\s.\-]?\d{3,4}[\s.\-]?\d{4}/;
+  const RE_JUMIN = /\d{6}\s?[-–]\s?[1-4]\d{6}/;
+  const RE_LONGNUM = /\d[\d\s.\-]{9,}\d/;
+  const privacyHit = s => RE_PHONE.test(s) || RE_JUMIN.test(s) || RE_LONGNUM.test(s);
 
   /* ---------------- 통신 ---------------- */
   function req(opts) {
@@ -72,37 +88,57 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
 
   async function loadNames() {
     const next = {};
-    // 1) 확정 라벨
+    // 1) 운영진이 넣어둔 기본 이름
     try {
       const r = await req({ method: 'GET', url: LABELS_URL + '?t=' + Date.now() });
       const j = JSON.parse(r.responseText);
       for (const a in (j.labels || {})) {
         const L = j.labels[a];
-        next[norm(a)] = { name: L.name, type: L.type, conf: L.confidence || 'B', src: '확정' };
+        next[norm(a)] = { name: L.name, type: L.type, conf: L.confidence || 'B', src: '운영 등록', base: true };
       }
       for (const a in (j.tokens || {})) {
-        if (!next[norm(a)]) next[norm(a)] = { name: j.tokens[a].symbol + ' 컨트랙트', type: 'token', conf: 'A', src: '확정' };
+        if (!next[norm(a)]) next[norm(a)] = { name: j.tokens[a].symbol + ' 컨트랙트', type: 'token', conf: 'A', src: '운영 등록', base: true };
       }
     } catch (e) { console.warn('[이름표] 라벨 불러오기 실패', e); }
 
-    // 2) 커뮤니티 등록분 (투표 순득표 1 이상만 반영)
+    // 2) 커뮤니티 등록분 — 등록소와 같은 방식으로 고릅니다 (운영 등록보다 우선)
+    //    같은 이름을 여러 사람이 올렸다면 흩어뜨리지 않고 한 묶음으로 봅니다.
+    //    서로 다른 사람이 서로 다른 경로로 같은 이름을 냈다면 그게 가장 강한 근거입니다.
     if (REGISTRY_URL) {
       try {
         const r = await req({ method: 'GET', url: REGISTRY_URL });
         const j = JSON.parse(r.responseText);
         if (j && j.ok) {
-          const best = {};
+          const groups = {};                                 // 주소|이름 → 묶음
           (j.data.entries || []).forEach(e => {
+            const k = e.address + '|' + nkey(e.name);
+            const g = groups[k] || (groups[k] = {
+              addr: e.address, name: e.name, type: e.type,
+              reporters: new Set(), sources: new Set(), up: 0, down: 0, first: e.ts
+            });
+            g.reporters.add(e.reporter);
+            if (e.source) g.sources.add(e.source);
+            if (e.ts < g.first) { g.first = e.ts; g.name = e.name; g.type = e.type; }
             const v = (j.data.votes || {})[e.id] || { up: 0, down: 0 };
-            const s = v.up - v.down;
-            if (s >= 0 && (!best[e.address] || s > best[e.address].s)) best[e.address] = { e, s, v };
+            g.up += v.up; g.down += v.down;
           });
+
+          const best = {};
+          for (const k in groups) {
+            const g = groups[k];
+            if (g.down > g.up) continue;                     // 반대가 더 많으면 쓰지 않습니다
+            const people = g.reporters.size;
+            g.score = g.up * 2 - g.down * 3 + (people - 1) * 4 + Math.max(0, g.sources.size - 1) * 2;
+            const cur = best[g.addr];
+            if (!cur || g.score > cur.score) best[g.addr] = g;
+          }
           for (const a in best) {
-            if (next[a] && next[a].src === '확정') continue;
+            const g = best[a], people = g.reporters.size;
             next[a] = {
-              name: best[a].e.name, type: best[a].e.type,
-              conf: best[a].s >= 5 ? 'B' : 'C',
-              src: '제보 ' + best[a].e.reporter + ' (찬성 ' + best[a].v.up + ')'
+              name: g.name, type: g.type,
+              conf: (people >= 2 || g.up >= 3) && g.down === 0 ? 'B' : 'C',
+              src: '추천 ' + g.up + '표 · 제보 ' + people + '명(' + [...g.reporters].join(', ') + ')' +
+                   ([...g.sources].length ? ' · ' + [...g.sources].map(s => SRC[s] || s).join(', ') : '')
             };
           }
         }
@@ -157,7 +193,7 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
         a.style.color = COLOR[info.type] || COLOR.unknown;
         a.style.fontWeight = '600';
         a.title = info.name + '\n' + addr + '\n분류: ' + (TYPE_KO[info.type] || info.type) +
-                  '\n신뢰도: ' + info.conf + '등급 (추정)\n출처: ' + (info.src || '');
+                  '\n' + (info.src || '') + '\n※ 커뮤니티가 모은 추정입니다. 확정된 사실이 아닙니다.';
         a.insertAdjacentHTML('afterend',
           ' <span class="nt-dot" style="background:' + (COLOR[info.type] || COLOR.unknown) + '"></span>');
       } else if (!info) {
@@ -203,8 +239,8 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
       el.style.borderColor = COLOR[info.type] || COLOR.unknown;
       el.innerHTML = '<b style="color:' + (COLOR[info.type] || COLOR.unknown) + '">' +
         (bad ? '⚠ ' : '') + esc(info.name) + '</b>' +
-        '<span>' + esc(TYPE_KO[info.type] || info.type) + ' · ' + esc(info.conf) + '등급 <b>추정</b>' +
-        ' · ' + esc(info.src || '') + '</span>' +
+        '<span>' + esc(TYPE_KO[info.type] || info.type) + ' · ' + esc(info.src || '') +
+        ' · <b>가장 유력한 추정</b>이며 확정된 사실이 아닙니다</span>' +
         '<button class="nt-add" data-a="' + esc(addr) + '">다른 이름 제안</button>';
     } else if (twin) {
       el.style.borderColor = COLOR.scam_lookalike;
@@ -259,6 +295,11 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
            여기 등록한 이름은 커뮤니티 전체에 <b>추정</b>으로 표시됩니다.</p>
         <label>내 닉네임</label>
         <input id="nt-nick" value="${esc(nick)}" placeholder="카페 닉네임">
+        <label>어떻게 아셨나요? <span class="nt-dim">— 가장 중요한 항목입니다</span></label>
+        <select id="nt-src">
+          <option value="">선택해주세요</option>
+          ${SRC_ORDER.map(k => `<option value="${k}">${SRC[k]}</option>`).join('')}
+        </select>
         <label>근거 <span class="nt-dim">— 어디서 본 주소인지 (10자 이상, 전체 공통)</span></label>
         <textarea id="nt-ev" placeholder="예: 2026-03-14 공지 캡처에 있던 입금 주소. 제 지갑에서 3번 보냈습니다."></textarea>
         <label>이름 <span class="nt-dim">— 비워두면 그 주소는 등록하지 않습니다</span></label>
@@ -279,16 +320,22 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
       const msg = wrap.querySelector('#nt-msg');
       const nickV = wrap.querySelector('#nt-nick').value.trim();
       const evV = wrap.querySelector('#nt-ev').value.trim();
+      const srcV = wrap.querySelector('#nt-src').value;
       if (!nickV) { msg.textContent = '닉네임을 입력해주세요.'; return; }
+      if (!srcV) { msg.textContent = '어떻게 알게 됐는지 골라주세요.'; return; }
       if (evV.length < 10) { msg.textContent = '근거를 10자 이상 적어주세요.'; return; }
+      if (privacyHit(evV)) { msg.textContent = '근거에 전화번호·계좌번호로 보이는 숫자가 있습니다.'; return; }
       const items = [];
+      let leak = false;
       wrap.querySelectorAll('.nt-name').forEach(inp => {
         const nm = inp.value.trim();
         if (!nm) return;
+        if (privacyHit(nm)) leak = true;
         const a = inp.getAttribute('data-a');
         const ty = wrap.querySelector('.nt-type[data-a="' + a + '"]').value;
         items.push({ address: a, name: nm, type: ty });
       });
+      if (leak) { msg.textContent = '이름에 전화번호로 보이는 숫자가 있습니다. 개인정보는 등록할 수 없습니다.'; return; }
       if (!items.length) { msg.textContent = '이름을 하나 이상 적어주세요.'; return; }
 
       GM_setValue('nick', nickV);
@@ -297,7 +344,7 @@ const REGISTRY_URL = 'https://script.google.com/macros/s/AKfycbxm5VrjKDvu7cUOJhM
         const r = await req({
           method: 'POST', url: REGISTRY_URL,
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          data: JSON.stringify({ action: 'bulk', reporter: nickV, evidence: evV, items })
+          data: JSON.stringify({ action: 'bulk', reporter: nickV, evidence: evV, source: srcV, items })
         });
         const j = JSON.parse(r.responseText);
         if (j.ok) {
