@@ -82,7 +82,7 @@ a{color:var(--blue)}
 /* ===== 레이아웃 ===== */
 .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 #p-reg{grid-column:2;grid-row:1/span 2;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}
-#p-help{grid-column:1;grid-row:1}
+#p-live{grid-column:1;grid-row:1}
 #p-list{grid-column:1;grid-row:2}
 .pane{min-width:0}
 h2.sec{font-size:14.5px;margin:0 0 9px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -181,6 +181,43 @@ button.wide{width:100%;padding:11px}
 .f .m{font-size:11.5px;color:#ff9a9a;margin-top:5px;min-height:14px}
 .f .dupe{font-size:11.5px;color:#e0b055;margin-top:5px}
 
+/* ===== 실시간 바 (항상 위에 붙어 있음) ===== */
+.livebar{position:sticky;top:0;z-index:60;display:flex;gap:11px;align-items:center;
+  background:rgba(22,24,28,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 13px;margin-bottom:12px}
+.livebar .pulse{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+  color:#5fd6a6;white-space:nowrap}
+.livebar .pulse i{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(25,158,112,.6);animation:pulse 2s infinite}
+.livebar.off .pulse{color:var(--tx3)}
+.livebar.off .pulse i{background:var(--tx3);animation:none;box-shadow:none}
+.livebar .who{font-size:11.5px;color:var(--tx2);white-space:nowrap}
+.livebar .who b{color:var(--tx);font-variant-numeric:tabular-nums}
+.livebar .sep{width:1px;height:14px;background:var(--line);flex-shrink:0}
+.ticker{flex:1;min-width:0;height:19px;overflow:hidden;position:relative}
+.ticker .t{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:19px}
+.ticker .t.in{animation:tickIn .45s cubic-bezier(.2,.8,.3,1)}
+@keyframes tickIn{from{transform:translateY(19px);opacity:0}to{transform:translateY(0);opacity:1}}
+.ticker b{color:var(--tx);font-weight:600}
+
+/* ===== 실시간 활동 피드 ===== */
+.feed{border:1px solid var(--line);border-radius:11px;background:var(--panel);overflow:hidden}
+.fi{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-top:1px solid var(--line)}
+.fi:first-child{border-top:0}
+.fi.fresh{animation:flash 1.8s ease}
+@keyframes flash{0%{background:rgba(57,135,229,.22)}70%{background:rgba(57,135,229,.08)}100%{background:transparent}}
+.fdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.ftx{flex:1;min-width:0;font-size:12.5px;color:var(--tx2);line-height:1.55;overflow-wrap:anywhere}
+.ftx b{color:var(--tx);font-weight:600}
+.fago{font-size:11px;color:var(--tx3);white-space:nowrap;margin-top:2px}
+
+/* 숫자가 올라갈 때 살짝 튀기 */
+.bump{animation:bump .55s ease}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.16)}100%{transform:scale(1)}}
+/* 방금 바뀐 지갑 줄 표시 */
+.r.recent{box-shadow:inset 3px 0 0 var(--blue)}
+
 /* ===== 분류 칩 ===== */
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .chip{display:inline-flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--line);
@@ -243,8 +280,8 @@ button.wide{width:100%;padding:11px}
   .tabs{display:flex}
   .app{grid-template-columns:1fr}
   /* ID 선택자로 배치했으므로, 탭 전환도 같은 세기로 눌러줘야 합니다 */
-  #p-help,#p-list,#p-reg{grid-column:auto;grid-row:auto;position:static;max-height:none;overflow:visible;display:none}
-  #p-help.show,#p-list.show,#p-reg.show{display:block}
+  #p-live,#p-list,#p-reg{grid-column:auto;grid-row:auto;position:static;max-height:none;overflow:visible;display:none}
+  #p-live.show,#p-list.show,#p-reg.show{display:block}
 }
 @media(max-width:640px){
   .wrap{padding:14px 12px 70px}
@@ -279,6 +316,14 @@ button.wide{width:100%;padding:11px}
     <input id="nick" maxlength="20" placeholder="카페 닉네임" spellcheck="false" autocomplete="off">
     <span class="warnme">먼저 입력</span>
   </div>
+</div>
+
+<!-- ===================== 실시간 바 ===================== -->
+<div class="livebar off" id="livebar">
+  <span class="pulse"><i></i>실시간</span>
+  <span class="who" id="onlineN">연결 중</span>
+  <span class="sep"></span>
+  <div class="ticker" id="ticker"></div>
 </div>
 
 <!-- ===================== 목적 ===================== -->
@@ -332,18 +377,23 @@ button.wide{width:100%;padding:11px}
   <div class="bar" id="bar"></div>
   <div class="legend" id="legend"></div>
 </div>
+<div id="netmsg"></div>
 
 <div class="tabs" id="tabs">
   <a data-p="p-reg" class="on">주소 등록</a>
-  <a data-p="p-help">도와주세요 <em id="tHelp"></em></a>
+  <a data-p="p-live">실시간 <em id="tLive"></em></a>
   <a data-p="p-list">전체 현황</a>
 </div>
 
 <div class="app">
 
-  <!-- ===================== 도와주세요 (수배) ===================== -->
-  <div class="pane" id="p-help">
-    <h2 class="sec">도와주세요 <span class="c" id="helpCount"></span></h2>
+  <!-- ============ 실시간: 활동 피드 + 도와주세요 ============ -->
+  <div class="pane" id="p-live">
+    <h2 class="sec">지금 이 순간 <span class="c" id="feedCount"></span></h2>
+    <p class="sub">누가 무엇을 등록하고 추천했는지 <b>실시간으로</b> 흐릅니다.</p>
+    <div class="feed" id="feed"><div class="empty">불러오는 중…</div></div>
+
+    <h2 class="sec" style="margin-top:18px">도와주세요 <span class="c" id="helpCount"></span></h2>
     <p class="sub">여러 사람이 찾아봤지만 <b>아직 이름이 없는 주소</b>입니다. 하나라도 아시면 큰 도움이 됩니다.</p>
     <div id="helpList"><div class="empty">불러오는 중…</div></div>
   </div>
@@ -460,7 +510,12 @@ var FLOW = [
 var FLOW_BY = {}, T2F = {};
 FLOW.forEach(function(f){ FLOW_BY[f.k]=f; f.t.forEach(function(t){ T2F[t]=f.k; }); });
 
-function typeOf(s){ return s.cands[0] ? s.cands[0].type : (s.label ? s.label.type : 'unknown'); }
+/* 이름과 마찬가지로, 확정(A) 주소의 분류도 커뮤니티가 바꾸지 못하게 합니다.
+   분류가 바뀌면 자금 흐름 단계(① 수금 → ④ 개인 …)까지 옮겨져 버립니다. */
+function typeOf(s){
+  if(s.locked) return s.label.type;
+  return s.cands[0] ? s.cands[0].type : (s.label ? s.label.type : 'unknown');
+}
 function flowOf(a){ var s=stateOf(a);
   return s.kind==='none' ? 'none' : (T2F[typeOf(s)] || 'etc'); }
 function badgeOf(s){ return s.kind==='bad' ? ['s-bad','⚠ 사칭'] : (GRADE[s.grade] || ['s-d','이름 없음']); }
@@ -471,9 +526,13 @@ var RE_JUMIN = /\d{6}\s?[-–]\s?[1-4]\d{6}/;
 var RE_LONGNUM = /\d[\d\s.\-]{9,}\d/;
 
 var seed = {labels:{}}, entries = [], votes = {}, wanted = [];
+var netErr = '';
+var feed = [], online = 0, seenFeed = {}, tickKey = '', booted = false;
+var lastAct = Date.now(), recentAddrs = {};
+var FEED_C = {'new':'#199e70', up:'#3987e5', no:'#e04a4a'};
 var filter = '', gFilter = '', openForms = {}, openRows = {}, checked = [], skipped = {};
 var grpMore = {}, GRP_STEP = 20;         // 단계별로 몇 줄까지 먼저 보여줄지
-var VER = null, lastSync = 0, pollTimer = null, POLL_MS = 8000, seenSent = {};
+var VER = null, lastSync = 0, pollTimer = null, seenSent = {};
 
 /* ---------- 잡다한 도구 ---------- */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
@@ -489,6 +548,25 @@ function privacyHit(s){ return RE_PHONE.test(s)||RE_JUMIN.test(s)||RE_LONGNUM.te
 
 function remember(k,v){ try{ localStorage.setItem('reg_'+k, v); }catch(e){} }
 function recall(k){ try{ return localStorage.getItem('reg_'+k)||''; }catch(e){ return ''; } }
+
+/* 이 브라우저를 구분하는 값.
+   닉네임만으로 중복을 막으면 이름을 바꿔가며 추천을 무한정 누를 수 있어서,
+   등록·추천에 이 값을 같이 보내 서버가 한 번 더 걸러냅니다.
+   개인 정보는 아니고 이 브라우저에만 저장되는 임의의 문자열입니다. */
+var _did = null;
+function deviceId(){
+  /* 시크릿 창처럼 저장이 막힌 환경에서는 remember 가 조용히 실패합니다.
+     기억해 두지 않으면 부를 때마다 다른 값이 나와 중복 방지가 무력해지므로,
+     최소한 이 탭에서는 같은 값을 쓰도록 붙잡아 둡니다. */
+  if(_did) return _did;
+  var d = recall('did');
+  if(!d){
+    d = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2,10)
+          + Math.random().toString(36).slice(2,6);
+    remember('did', d);
+  }
+  return (_did = d);
+}
 
 var toastT;
 function toast(msg, bad){
@@ -525,24 +603,155 @@ function post(p){
     body:JSON.stringify(p),redirect:'follow'}).then(function(r){ return r.json(); });
 }
 
-/* ---------- 데이터 ---------- */
-function refresh(){
-  return Promise.all([
-    fetch(LABELS_URL,{cache:'no-store'}).then(function(r){return r.json();})
-      .then(function(j){ seed=j||{labels:{}}; }).catch(function(){ seed={labels:{}}; }),
-    (!API_URL ? Promise.resolve() : jsonp(API_URL).then(function(r){
-      if(r&&r.ok){ entries=r.data.entries||[]; votes=r.data.votes||{}; wanted=r.data.wanted||[];
-        VER=r.ver||VER; lastSync=Date.now(); }
-      else throw new Error(r&&r.error||'응답 오류');
-    }))
-  ]).then(renderAll).catch(function(e){
-    $('list').innerHTML='<div class="empty">목록을 불러오지 못했습니다.<br>'+esc(e.message)+'</div>';
-    $('helpList').innerHTML='';
-    renderProgress();
+/* ---------- 데이터 ----------
+   Apps Script 는 접속이 몰리면 간헐적으로 응답을 못 줍니다.
+   한 번 실패했다고 화면 전체를 날리지 않고, 몇 번 더 시도한 뒤
+   그래도 안 되면 최소한 운영 라벨만이라도 그려 둡니다. */
+function jsonpTry(url, tries){
+  return jsonp(url).catch(function(e){
+    if(tries<=1) throw e;
+    return new Promise(function(ok){ setTimeout(ok, 900); })
+      .then(function(){ return jsonpTry(url, tries-1); });
   });
 }
+function refresh(){
+  var pLabels = fetch(LABELS_URL,{cache:'no-store'}).then(function(r){ return r.json(); })
+    .then(function(j){ if(j) seed=j; }).catch(function(){ if(!seed.labels) seed={labels:{}}; });
+
+  var pReg = !API_URL ? Promise.resolve()
+    : jsonpTry(API_URL+'?did='+encodeURIComponent(deviceId()), 3).then(function(r){
+        if(!(r&&r.ok)) throw new Error((r&&r.error)||'응답 오류');
+        entries=r.data.entries||[]; votes=r.data.votes||{}; wanted=r.data.wanted||[];
+        feed=r.data.feed||[]; if(typeof r.online==='number') online=r.online;
+        VER=r.ver||VER; lastSync=Date.now(); netErr='';
+      }).catch(function(e){
+        /* 이전에 받아둔 목록은 그대로 두고 안내만 띄웁니다 */
+        netErr = e.message||'연결 실패';
+      });
+
+  return Promise.all([pLabels, pReg]).then(renderAll);
+}
 function renderAll(){ stCache={}; byAddr=null;
-  renderProgress(); renderChips(); renderHelp(); renderList(); renderResult(); renderRank(); liveTick(); }
+  /* 최근에 움직인 지갑은 목록에서 표시해 줍니다 (실시간으로 바뀌는 게 보이도록) */
+  recentAddrs={};
+  var cut=Date.now()-10*60*1000;
+  feed.forEach(function(f){ if(Date.parse(f.ts)>=cut) recentAddrs[f.addr]=1; });
+
+  renderNet(); renderProgress(); renderChips(); renderFeed(); renderHelp(); renderList();
+  renderResult(); renderRank(); renderLiveBar(); liveTick();
+  booted = true;
+}
+
+/* ---------- 실시간 표시 ---------- */
+function fkey(f){ return f.k+'|'+f.ts+'|'+f.who+'|'+f.addr; }
+
+function agoText(ts){
+  var t=Date.parse(ts); if(!t) return '';
+  var s=Math.max(0, Math.round((Date.now()-t)/1000));
+  return s<10 ? '방금' : s<60 ? s+'초 전' : s<3600 ? Math.floor(s/60)+'분 전'
+       : s<86400 ? Math.floor(s/3600)+'시간 전' : Math.floor(s/86400)+'일 전';
+}
+function feedHtml(f){
+  var who='<b>'+esc(f.who||'익명')+'</b>', nm='<b>'+esc(f.name||'이름 없음')+'</b>';
+  if(f.k==='new') return who+'님이 '+nm+' 등록';
+  if(f.k==='up')  return who+'님이 '+nm+' 추천';
+  return who+'님이 '+nm+'에 <b style="color:#ff9a9a">아니다</b>';
+}
+function feedPlain(f){
+  var w=f.who||'익명', n=f.name||'이름 없음';
+  return f.k==='new' ? w+'님이 "'+n+'" 등록'
+       : f.k==='up'  ? w+'님이 "'+n+'" 추천'
+                     : w+'님이 "'+n+'"에 아니다';
+}
+
+/** 한 줄짜리 최근 활동. 새 소식이 오면 아래에서 위로 올라옵니다. */
+function renderTicker(){
+  var el=$('ticker'); if(!el) return;
+  if(!feed.length){
+    if(tickKey!=='-'){ tickKey='-';
+      el.innerHTML='<div class="t">첫 등록을 기다리는 중입니다 — 아는 주소를 올려주세요</div>'; }
+    return;
+  }
+  var f=feed[0], k=fkey(f);
+  if(k===tickKey){
+    var a=el.querySelector('.tago'); if(a) a.textContent='· '+agoText(f.ts);
+    return;
+  }
+  var first=!tickKey;
+  tickKey=k;
+  el.innerHTML='<div class="t'+(first?'':' in')+'">' +
+    '<span class="fdot" style="background:'+FEED_C[f.k]+'"></span>' +
+    feedHtml(f)+' <span class="tago" style="color:var(--tx3)">· '+agoText(f.ts)+'</span></div>';
+}
+
+function renderFeed(){
+  var el=$('feed'); if(!el) return;
+  $('feedCount').textContent = feed.length ? '최근 '+feed.length+'건' : '';
+  $('tLive').textContent = '';
+  if(!feed.length){
+    el.innerHTML='<div class="empty">아직 활동이 없습니다.<br>첫 등록의 주인공이 되어주세요.</div>';
+    return;
+  }
+  var fresh=0;
+  el.innerHTML = feed.slice(0,30).map(function(f){
+    var k=fkey(f), isNew = booted && !seenFeed[k];
+    if(isNew) fresh++;
+    return '<div class="fi'+(isNew?' fresh':'')+'">' +
+      '<span class="fdot" style="background:'+FEED_C[f.k]+'"></span>' +
+      '<div class="ftx">'+feedHtml(f)+'</div>' +
+      '<span class="fago" data-ts="'+esc(f.ts)+'">'+agoText(f.ts)+'</span></div>';
+  }).join('');
+  feed.forEach(function(f){ seenFeed[fkey(f)]=1; });
+  if(fresh) $('tLive').textContent='+'+fresh;
+}
+
+/** 숫자가 바뀌면 세면서 올라갑니다 */
+function setNum(el, val){
+  if(!el) return;
+  var cur=Number(el.getAttribute('data-v'));
+  el.setAttribute('data-v', val);
+  if(!booted || isNaN(cur) || cur===val){ el.textContent=val; return; }
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+  var steps=Math.min(14, Math.abs(val-cur)), i=0;
+  if(steps<=1){ el.textContent=val; return; }
+  var t=setInterval(function(){
+    i++; el.textContent = Math.round(cur + (val-cur)*(i/steps));
+    if(i>=steps){ clearInterval(t); el.textContent=val; }
+  }, 45);
+}
+
+function renderLiveBar(){
+  var bar=$('livebar'); if(!bar) return;
+  var dead = !API_URL || netErr || !lastSync || (Date.now()-lastSync) > 60000;
+  bar.className = 'livebar' + (dead?' off':'');
+  /* 접속자 수는 백엔드가 새 버전일 때만 옵니다. 못 받으면 괜히 '확인 중'으로
+     붙잡아 두지 말고 연결됐다는 사실만 알립니다. */
+  $('onlineN').innerHTML = dead ? '연결 끊김'
+    : online>0 ? '지금 <b>'+online+'</b>명 보는 중'
+    : '연결됨';
+  renderTicker();
+}
+
+/** 화면에 보이는 상대시간을 1초마다 새로 씁니다 */
+function tickAgo(){
+  document.querySelectorAll('.fago[data-ts]').forEach(function(el){
+    el.textContent = agoText(el.getAttribute('data-ts'));
+  });
+  renderTicker();
+}
+
+/** 등록소 연결이 끊겼을 때 — 목록을 지우지 않고 위에 안내만 띄웁니다 */
+function renderNet(){
+  var el=$('netmsg'); if(!el) return;
+  if(!netErr){ el.innerHTML=''; return; }
+  el.innerHTML='<div class="warn" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">' +
+    '<b>등록소에 연결하지 못했습니다</b>' +
+    '<span style="color:var(--tx2)">지금은 운영진이 등록한 이름만 보입니다. 커뮤니티 등록분은 잠시 뒤 다시 시도해주세요.</span>' +
+    '<button class="ghost sm" id="retryNet" style="margin-left:auto">다시 시도</button></div>';
+  $('retryNet').onclick=function(){
+    $('retryNet').disabled=true; $('retryNet').textContent='시도 중…'; refresh();
+  };
+}
 
 /* ---------- 한 주소의 상태 ----------
    같은 이름을 여러 사람이 올리면 흩어지지 않도록 하나로 묶습니다.
@@ -569,8 +778,13 @@ function stateOf(a){
   var g = {};
   (byAddr[a]||[]).forEach(function(e){
     var k = nkey(e.name);
-    var c = g[k] || (g[k] = {name:e.name, repId:e.id, ids:[], reporters:{}, sources:{}, types:{},
-                             up:0, down:0, voters:{}, first:e.ts, last:e.ts, evidence:e.evidence,
+    /* reporters·voters 의 열쇠는 사용자가 정한 닉네임입니다.
+       평범한 {} 를 쓰면 '__proto__' 같은 이름이 개수 집계를 망가뜨리므로
+       상속이 없는 빈 객체를 씁니다. */
+    var c = g[k] || (g[k] = {name:e.name, repId:e.id, ids:[],
+                             reporters:Object.create(null), sources:Object.create(null),
+                             types:Object.create(null), voters:Object.create(null),
+                             up:0, down:0, first:e.ts, last:e.ts, evidence:e.evidence,
                              period:e.period||'', org:e.org||''});
     c.ids.push(e.id);
     c.reporters[e.reporter]=1;
@@ -609,16 +823,25 @@ function stateOf(a){
   /* 앞4·뒤4가 같은 주소 = 사칭(address poisoning) 후보 */
   var twins = (twinIdx[pKey(a)]||[]).filter(function(x){ return x!==a; });
 
-  return (stCache[a] = {addr:a, kind:kind, grade:grade, label:L, cands:cands, twins:twins});
+  /* 대표 이름.
+     운영진이 '확정(A)'으로 못 박아 둔 주소는 커뮤니티 제보가 이름을 못 뺏습니다.
+     등록소 주소는 누구나 알 수 있으므로, 이게 없으면 아무나 확정 라벨을 덮어쓸 수 있습니다.
+     (커뮤니티 의견은 아래 후보 목록에 그대로 남습니다) */
+  var locked = !!(L && L.confidence==='A');
+  var title = locked ? L.name
+            : cands[0] ? cands[0].name
+            : L ? L.name : shortA(a);
+
+  return (stCache[a] = {addr:a, kind:kind, grade:grade, label:L, cands:cands,
+                        twins:twins, title:title, locked:locked});
 }
-function nameOf(a){ var s=stateOf(a);
-  return s.cands[0] ? s.cands[0].name : (s.label ? s.label.name : null); }
+function nameOf(a){ var s=stateOf(a); return (s.cands[0]||s.label) ? s.title : null; }
 
 /* ---------- 지갑 카드 ---------- */
 function walletCard(a, opt){
   opt = opt || {};
   var s = stateOf(a), G = badgeOf(s);
-  var title = s.cands[0] ? s.cands[0].name : (s.label ? s.label.name : shortA(a));
+  var title = s.title;
 
   var sub=[];
   if(s.cands.length) sub.push('의견 '+s.cands.length+'개');
@@ -629,8 +852,8 @@ function walletCard(a, opt){
     '<div class="w-h">' +
       '<span class="state '+G[0]+'">'+esc(G[1])+'</span>' +
       '<span class="ttl'+(s.kind==='none'?' none':'')+'" title="'+esc(title)+'">'+esc(title)+'</span>' +
-      (s.cands[0] && s.cands[0].type!=='unknown'
-        ? '<span class="tag">'+esc(TYPE_KO[s.cands[0].type]||s.cands[0].type)+'</span>' : '') +
+      (s.kind!=='none' && typeOf(s)!=='unknown'
+        ? '<span class="tag">'+esc(TYPE_KO[typeOf(s)]||typeOf(s))+'</span>' : '') +
     '</div>' +
     '<div class="w-sub"><span title="'+esc(a)+'">'+esc(shortA(a))+'</span>' +
       (sub.length?'<span>· '+esc(sub.join(' · '))+'</span>':'') +
@@ -641,7 +864,7 @@ function walletCard(a, opt){
 /** 목록 한 줄 — 눌러야 펼쳐집니다. 800개가 쌓여도 훑어볼 수 있게. */
 function walletRow(a){
   var s = stateOf(a), G = badgeOf(s), f = FLOW_BY[flowOf(a)], c = s.cands[0];
-  var title = c ? c.name : (s.label ? s.label.name : shortA(a));
+  var title = s.title;
   var bits = [];
   if(s.kind==='none') bits.push('이름 없음');
   else bits.push(TYPE_KO[typeOf(s)] || '미상');
@@ -653,7 +876,7 @@ function walletRow(a){
   } else if(s.label) bits.push('운영 등록');
 
   var open = openRows[a];
-  return '<div class="r'+(open?' open':'')+'" data-r="'+esc(a)+'">' +
+  return '<div class="r'+(open?' open':'')+(recentAddrs[a]?' recent':'')+'" data-r="'+esc(a)+'">' +
       '<span class="state '+G[0]+'">'+esc(G[1])+'</span>' +
       '<div style="min-width:0">' +
         '<div class="r-nm'+(s.kind==='none'?' none':'')+'" title="'+esc(title)+'">'+esc(title)+'</div>' +
@@ -780,7 +1003,7 @@ function bind(root){
 function doVote(id, opinion){
   if(needNick()) return;
   if(!API_URL){ toast('API_URL이 설정되지 않았습니다', true); return; }
-  post({action:'vote', id:id, voter:nick(), opinion:opinion}).then(function(r){
+  post({action:'vote', id:id, voter:nick(), opinion:opinion, did:deviceId()}).then(function(r){
     if(r.ok){ toast(opinion==='찬성'?'추천했습니다':'"아니다"로 표시했습니다'); refresh(); }
     else toast(r.error||'실패했습니다', true);
   }).catch(function(){ toast('전송에 실패했습니다', true); });
@@ -788,7 +1011,7 @@ function doVote(id, opinion){
 
 function submitOne(a, form){
   var msg=form.querySelector('.m');
-  var p={action:'submit', address:a, reporter:nick(),
+  var p={action:'submit', address:a, reporter:nick(), did:deviceId(),
     name:form.querySelector('.f-name').value.trim(),
     type:form.querySelector('.f-type').value,
     source:form.querySelector('.f-src').value,
@@ -830,7 +1053,7 @@ function reportSeen(list){
   var fresh = list.filter(function(a){ return !seenSent[a] && stateOf(a).kind==='none'; });
   if(!fresh.length) return;
   fresh.forEach(function(a){ seenSent[a]=1; });
-  post({action:'seen', addresses:fresh}).catch(function(){});
+  post({action:'seen', addresses:fresh, did:deviceId()}).catch(function(){});
 }
 
 function renderResult(){
@@ -889,7 +1112,7 @@ function openBulk(addrs){
     if(bad){ msg.textContent='이름에 전화번호로 보이는 숫자가 있습니다.'; return; }
     if(!items.length){ msg.textContent='이름을 하나 이상 적어주세요.'; return; }
     var b=box.querySelector('#bGo'); b.disabled=true; b.textContent='등록 중';
-    post({action:'bulk', reporter:nick(), evidence:ev, source:src, items:items}).then(function(r){
+    post({action:'bulk', reporter:nick(), did:deviceId(), evidence:ev, source:src, items:items}).then(function(r){
       b.disabled=false; b.textContent='등록';
       if(r.ok){ box.remove(); toast((r.added||items.length)+'건 등록됐습니다. 고맙습니다!'); refresh(); }
       else msg.textContent=r.error||'등록에 실패했습니다.';
@@ -919,7 +1142,6 @@ function renderHelp(){
   var all=helpTargets();
   var list=all.filter(function(w){ return !skipped[w.address] || openForms[w.address]; });
   $('helpCount').textContent = all.length ? all.length+'개 남음' : '';
-  $('tHelp').textContent = all.length ? '('+all.length+')' : '';
 
   if(!list.length){
     $('helpList').innerHTML = '<div class="empty">' +
@@ -961,7 +1183,7 @@ function renderProgress(){
     else if(s.kind==='none') c.none++;
     else c[s.grade||'D']++; });
   var named = all.length - c.none;
-  $('pNamed').textContent = named;
+  setNum($('pNamed'), named);
   $('pOf').textContent = all.length ? '/ 확인된 주소 '+all.length+'개' : '';
 
   var pc=function(n){ return all.length ? (n/all.length*100).toFixed(2)+'%' : '0%'; };
@@ -1106,13 +1328,19 @@ $('dlJson').onclick=function(){
   download('labels.json', JSON.stringify(out,null,2), 'application/json');
 };
 $('dlCsv').onclick=function(){
-  var q=function(s){ return '"'+String(s==null?'':s).replace(/"/g,'""')+'"'; };
+  /* 따옴표로 감싸도 엑셀은 =, +, -, @ 로 시작하는 값을 수식으로 실행합니다.
+     내려받은 표를 여는 순간 남이 심어둔 수식이 도는 것을 막습니다. */
+  var q=function(s){
+    s=String(s==null?'':s);
+    if(/^[=+\-@\t\r]/.test(s)) s="'"+s;
+    return '"'+s.replace(/"/g,'""')+'"';
+  };
   var rows=[['주소','대표이름','분류','신뢰도','추천','아니다','제보자수','제보자','출처','시점','소속','근거','폴리곤스캔'].join(',')];
   allAddrs().forEach(function(a){
     var s=stateOf(a), c=s.cands[0];
-    var name = c ? c.name : (s.label?s.label.name:'');
+    var name = (c || s.label) ? s.title : '';
     var G = s.kind==='bad'?'사칭·스팸':(GRADE[s.grade]?GRADE[s.grade][1]:'이름 없음');
-    rows.push([q(a), q(name), q(TYPE_KO[c?c.type:(s.label?s.label.type:'unknown')]||''), q(G),
+    rows.push([q(a), q(name), q(s.kind==='none'?'':(TYPE_KO[typeOf(s)]||'')), q(G),
       c?c.up:0, c?c.down:0, c?c.people:0,
       q(c?Object.keys(c.reporters).join(' / '):''),
       q(c?c.srcList.map(function(k){return (SRC[k]||{ko:k}).ko;}).join(' / '):''),
@@ -1125,19 +1353,45 @@ $('dlCsv').onclick=function(){
 /* ---------- 실시간 갱신 ----------
    전체를 계속 받으면 Apps Script 동시 실행 한도에 걸립니다.
    "바뀌었는지"만 묻는 가벼운 요청(?v=1)을 보내고, 값이 달라졌을 때만 전체를 다시 받습니다. */
+/* 사람이 보고 있고 방금 움직였으면 자주, 가만히 있으면 뜸하게 확인합니다.
+   무료 한도를 아끼면서도 활동 중일 때는 즉각 반응하는 것처럼 느껴집니다. */
+function pollDelay(){
+  if(document.hidden) return 30000;
+  return (Date.now()-lastAct) < 90000 ? 5000 : 15000;
+}
 function poll(){
   if(!API_URL || document.hidden) return;
-  jsonp(API_URL+'?v=1').then(function(r){
+  jsonp(API_URL+'?v=1&did='+encodeURIComponent(deviceId())).then(function(r){
     if(!r || !r.ok) return;
-    lastSync=Date.now();
-    if(VER===null){ VER=r.ver; return; }
-    if(r.ver!==VER){ VER=r.ver; refresh(); toast('새 등록이 반영됐습니다'); }
-    else liveTick();
+    lastSync=Date.now(); netErr='';
+    if(typeof r.online==='number') online=r.online;
+    if(VER===null){ VER=r.ver; renderLiveBar(); return; }
+    if(r.ver!==VER){
+      VER=r.ver;
+      refresh().then(function(){
+        var f=feed[0];
+        toast(f ? feedPlain(f) : '새 등록이 반영됐습니다');
+      });
+    } else { renderLiveBar(); liveTick(); }
   }).catch(function(){});
+}
+function startLive(){
+  (function loop(){
+    clearTimeout(pollTimer);
+    pollTimer = setTimeout(function(){ poll(); loop(); }, pollDelay());
+  })();
+  setInterval(function(){ liveTick(); tickAgo(); renderLiveBar(); }, 1000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ lastAct=Date.now(); poll(); } });
+  window.addEventListener('focus', function(){ lastAct=Date.now(); poll(); });
+  ['click','keydown','input'].forEach(function(ev){
+    document.addEventListener(ev, function(){ lastAct=Date.now(); }, true); });
 }
 function liveTick(){
   var el=$('live'); if(!el) return;
   if(!API_URL){ el.className='live off'; el.innerHTML='<i></i>등록소 미연결'; return; }
+  /* 한 번도 못 받았으면 경과시간을 계산하지 않습니다 (1970년부터 세어 버립니다) */
+  if(!lastSync){ el.className='live off';
+    el.innerHTML='<i></i>'+(netErr?'연결 실패':'연결 중…'); return; }
   var sec=Math.round((Date.now()-lastSync)/1000);
   el.className='live'+(sec>40?' off':'');
   el.innerHTML='<i></i>'+(sec<10?'실시간':sec<60?sec+'초 전':Math.floor(sec/60)+'분 전');
@@ -1191,15 +1445,13 @@ if(recall('why')==='1'){ $('why').classList.add('fold'); $('whyToggle').textCont
 recall('skip').split(',').forEach(function(a){ if(a) skipped[a]=1; });
 
 (function(){ var p=new URLSearchParams(location.search).get('add');
-  if(p){ $('q').value=p.split(',').join('\n'); if(innerWidth<=980) showPane('p-reg'); } })();
+  /* 주소를 잔뜩 넣은 링크를 뿌리면, 그 링크를 연 사람마다 '도와주세요' 목록에
+     남의 주소를 대신 밀어 넣게 됩니다. 링크로 받는 개수를 제한합니다. */
+  if(p){ $('q').value=p.split(',').slice(0,20).join('\n'); if(innerWidth<=980) showPane('p-reg'); } })();
 
 refresh().then(function(){
   if($('q').value.trim()) $('check').click();
-  clearInterval(pollTimer);
-  pollTimer=setInterval(poll, POLL_MS);
-  setInterval(liveTick, 1000);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) poll(); });
-  window.addEventListener('focus', poll);
+  startLive();
 });
 </script>
 </body>
