@@ -983,25 +983,52 @@ function walletBody(a){
 }
 
 /* ---------- 등록 폼 ---------- */
+/* 적다 만 내용 보관 —
+   목록은 남이 등록할 때마다 통째로 다시 그려집니다. 그때 입력칸이 새로 만들어지므로
+   적고 있던 내용이 아무 말 없이 사라집니다. 그래서 입력할 때마다 따로 담아 두었다가
+   다시 그릴 때 되돌려 놓습니다. 창을 닫거나 새로고침해도 남도록 저장도 해 둡니다. */
+var drafts = {};
+function loadDrafts(){
+  try{ drafts = JSON.parse(localStorage.getItem('reg_drafts')||'{}') || {}; }catch(e){ drafts = {}; }
+}
+function keepDrafts(){
+  try{ localStorage.setItem('reg_drafts', JSON.stringify(drafts)); }catch(e){}
+}
+function saveDraft(a, form){
+  var g = function(s){ var el=form.querySelector(s); return el ? el.value : ''; };
+  var d = {name:g('.f-name'), type:g('.f-type'), source:g('.f-src'),
+           evidence:g('.f-ev'), period:g('.f-period'), org:g('.f-org')};
+  var empty = !d.name && !d.source && !d.evidence && !d.period && !d.org;
+  if(empty) delete drafts[a]; else drafts[a] = d;
+  keepDrafts();
+}
+function clearDraft(a){ delete drafts[a]; keepDrafts(); }
+
 function regForm(a){
+  var d = drafts[a] || {};
+  var v = function(x){ return esc(x||''); };
+  var sel = function(cur, val){ return cur===val ? ' selected' : ''; };
   return '<div class="f" data-form="'+esc(a)+'">' +
     '<div class="grid2">' +
       '<div><label>지갑 이름 <span class="req">*</span></label>' +
-        '<input class="f-name" maxlength="40" placeholder="예: 강남센터 총판 / 회사 수금지갑"></div>' +
+        '<input class="f-name" maxlength="40" value="'+v(d.name)+'" placeholder="예: 강남센터 총판 / 회사 수금지갑"></div>' +
       '<div><label>분류</label><select class="f-type">' +
-        TYPE_OPTS.map(function(o){ return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('') +
+        TYPE_OPTS.map(function(o){
+          return '<option value="'+o[0]+'"'+sel(d.type,o[0])+'>'+o[1]+'</option>'; }).join('') +
         '</select></div>' +
     '</div>' +
     '<div class="row"><label>어떻게 아셨나요? <span class="req">*</span></label>' +
       '<select class="f-src"><option value="">선택해주세요</option>' +
-      SRC_ORDER.map(function(k){ return '<option value="'+k+'">'+SRC[k].ko+'</option>'; }).join('') +
+      SRC_ORDER.map(function(k){
+        return '<option value="'+k+'"'+sel(d.source,k)+'>'+SRC[k].ko+'</option>'; }).join('') +
       '</select></div>' +
     '<div class="row"><label>근거 <span class="req">*</span> <span class="opt">— 10자 이상, 아는 만큼만</span></label>' +
-      '<input class="f-ev" maxlength="300" placeholder="예: 2026년 3월 공지 캡처에 있던 입금 주소. 제가 3번 보냈습니다."></div>' +
-    '<button type="button" class="moreBtn" data-more="'+esc(a)+'">＋ 시점·소속 적기 (선택)</button>' +
-    '<div class="more"><div class="g">' +
-      '<div><label>시점 <span class="opt">(대략)</span></label><input class="f-period" maxlength="20" placeholder="2026-03"></div>' +
-      '<div><label>소속·그룹 <span class="opt">(선택)</span></label><input class="f-org" maxlength="30" placeholder="예: 강남센터"></div>' +
+      '<input class="f-ev" maxlength="300" value="'+v(d.evidence)+'" placeholder="예: 2026년 3월 공지 캡처에 있던 입금 주소. 제가 3번 보냈습니다."></div>' +
+    '<button type="button" class="moreBtn" data-more="'+esc(a)+'"' +
+      ((d.period||d.org)?' style="display:none"':'') + '>＋ 시점·소속 적기 (선택)</button>' +
+    '<div class="more'+((d.period||d.org)?' on':'')+'"><div class="g">' +
+      '<div><label>시점 <span class="opt">(대략)</span></label><input class="f-period" maxlength="20" value="'+v(d.period)+'" placeholder="2026-03"></div>' +
+      '<div><label>소속·그룹 <span class="opt">(선택)</span></label><input class="f-org" maxlength="30" value="'+v(d.org)+'" placeholder="예: 강남센터"></div>' +
     '</div></div>' +
     '<div class="go"><button class="sm f-go" data-a="'+esc(a)+'">등록</button>' +
       '<span class="hint">실명·전화번호는 입력할 수 없습니다</span></div>' +
@@ -1033,6 +1060,14 @@ function bind(root){
     b.onclick=function(){ submitOne(b.getAttribute('data-a'), b.closest('.f')); }; });
   root.querySelectorAll('.f-ev').forEach(function(i){
     i.onkeydown=function(e){ if(e.key==='Enter') i.closest('.f').querySelector('.f-go').click(); }; });
+  /* 칸을 건드릴 때마다 적어 둡니다. 목록이 다시 그려져도 되살릴 수 있도록. */
+  root.querySelectorAll('.f').forEach(function(f){
+    var a=f.getAttribute('data-form');
+    f.querySelectorAll('input,select').forEach(function(el){
+      el.addEventListener('input', function(){ saveDraft(a, f); });
+      el.addEventListener('change', function(){ saveDraft(a, f); });
+    });
+  });
   /* 이미 같은 이름이 있으면 중복 등록 대신 추천을 권합니다 */
   root.querySelectorAll('.f-name').forEach(function(i){
     i.oninput=function(){
@@ -1082,9 +1117,18 @@ function submitOne(a, form){
   var btn=form.querySelector('.f-go'); btn.disabled=true; btn.textContent='등록 중';
   post(p).then(function(r){
     btn.disabled=false; btn.textContent='등록';
-    if(r.ok){ openForms[a]=false; toast('"'+p.name+'" 등록됐습니다. 고맙습니다!'); refresh(); }
+    if(r.ok){
+      clearDraft(a);                       // 잘 들어갔을 때만 지웁니다
+      openForms[a]=false;
+      toast('"'+p.name+'" 등록됐습니다. 고맙습니다!');
+      refresh();
+    }
     else msg.textContent=r.error||'등록에 실패했습니다.';
-  }).catch(function(){ btn.disabled=false; btn.textContent='등록'; msg.textContent='전송에 실패했습니다.'; });
+  }).catch(function(){
+    btn.disabled=false; btn.textContent='등록';
+    /* 적은 내용은 그대로 남아 있습니다. 다시 눌러도 중복으로 들어가지 않습니다. */
+    msg.textContent='보내지 못했습니다. 적으신 내용은 그대로 있으니 잠시 뒤 등록을 다시 눌러주세요.';
+  });
 }
 
 /* ---------- 주소 추출 ---------- */
@@ -1486,6 +1530,11 @@ $('whyToggle').onclick=function(){
 $('myName').textContent = nick();
 if(recall('why')==='1'){ $('why').classList.add('fold'); $('whyToggle').textContent='자세히'; }
 recall('skip').split(',').forEach(function(a){ if(a) skipped[a]=1; });
+
+/* 적다 만 게 있으면 그 지갑을 펼친 채로 시작합니다.
+   창을 닫았거나 전송이 실패했어도 이어서 쓸 수 있게. */
+loadDrafts();
+Object.keys(drafts).forEach(function(a){ openForms[a]=true; openRows[a]=true; });
 
 (function(){ var p=new URLSearchParams(location.search).get('add');
   /* 주소를 잔뜩 넣은 링크를 뿌리면, 그 링크를 연 사람마다 '도와주세요' 목록에
