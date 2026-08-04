@@ -25,9 +25,8 @@ a{color:var(--blue)}
 .top .tag{color:var(--tx3);font-size:12.5px;flex:1;min-width:150px}
 .top .me{display:flex;gap:7px;align-items:center}
 .top .me label{font-size:12px;color:var(--tx2);font-weight:600;white-space:nowrap;margin:0}
-.top .me input{width:148px}
-.top .me .warnme{color:var(--gold);font-size:11px;font-weight:600;display:none}
-.top .me.empty .warnme{display:inline}
+.top .me .myname{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+  padding:6px 11px;font-size:13px;font-weight:700;color:#8fc0ff;white-space:nowrap;cursor:default}
 
 /* ===== 목적 카드 ===== */
 .why{background:linear-gradient(180deg,#1d222a,#1a1d22);border:1px solid var(--line2);
@@ -288,8 +287,7 @@ button.wide{width:100%;padding:11px}
   .why-grid{grid-template-columns:1fr}
   .top{gap:9px}
   .top h1{font-size:17px} .top .tag{display:none}
-  .top .me{flex:1 0 100%}                 /* 닉네임 칸은 줄을 통째로 씁니다 */
-  .top .me input{flex:1;width:auto;min-width:0}
+  .top .me{margin-left:auto}              /* 이름표는 짧으므로 한 줄에 같이 둡니다 */
   .f .grid2{grid-template-columns:1fr}
   /* 좁은 화면에서는 추천 버튼이 글 자리를 뺏지 않도록 아랫줄로 내립니다 */
   .c-row{flex-wrap:wrap;row-gap:6px}
@@ -312,9 +310,8 @@ button.wide{width:100%;padding:11px}
   <h1>폴리곤 지갑 등록소</h1>
   <span class="tag">주소에 이름을 붙여, 돈이 어디서 와서 어디로 갔는지 따라갑니다</span>
   <div class="me" id="mebox">
-    <label for="nick">내 닉네임</label>
-    <input id="nick" maxlength="20" placeholder="카페 닉네임" spellcheck="false" autocomplete="off">
-    <span class="warnme">먼저 입력</span>
+    <label>내 이름</label>
+    <span class="myname" id="myName" title="이 브라우저에 자동으로 붙은 이름입니다. 따로 가입하지 않아도 됩니다.">—</span>
   </div>
 </div>
 
@@ -360,8 +357,10 @@ button.wide{width:100%;padding:11px}
     <section>
       <h3><i>4</i>꼭 지켜주세요</h3>
       <p class="no">실명 · 전화번호 · 계좌번호 · 주민번호는 <b>절대 쓰지 마세요.</b></p>
-      <p style="margin-top:5px">닉네임이나 직책만 씁니다(예: <span class="mono">강남센터 총판</span>).
-         모든 이름은 <b style="color:var(--tx)">확정이 아닌 추정</b>으로 표시됩니다.</p>
+      <p style="margin-top:5px">지갑 이름에는 <b style="color:var(--tx)">직책이나 별칭만</b> 씁니다
+         (예: <span class="mono">강남센터 총판</span>). 모든 이름은
+         <b style="color:var(--tx)">확정이 아닌 추정</b>으로 표시됩니다.</p>
+      <p style="margin-top:5px">내 이름은 <b style="color:var(--tx)">따로 가입 없이 자동으로</b> 붙습니다.</p>
     </section>
   </div>
 </div>
@@ -527,7 +526,7 @@ var RE_LONGNUM = /\d[\d\s.\-]{9,}\d/;
 
 var seed = {labels:{}}, entries = [], votes = {}, wanted = [];
 var netErr = '';
-var feed = [], online = 0, seenFeed = {}, tickKey = '', booted = false;
+var feed = [], online = 0, seenFeed = {}, tickKey = '', booted = false, feedSeeded = false;
 var lastAct = Date.now(), recentAddrs = {};
 var FEED_C = {'new':'#199e70', up:'#3987e5', no:'#e04a4a'};
 var filter = '', gFilter = '', openForms = {}, openRows = {}, checked = [], skipped = {};
@@ -542,7 +541,24 @@ function isAddr(a){ return /^0x[a-f0-9]{40}$/.test(norm(a)); }
 function shortA(a){ return a.slice(0,10)+'…'+a.slice(-8); }
 function pKey(a){ a=norm(a); return a.slice(2,6)+'|'+a.slice(-4); }
 function nkey(s){ return String(s||'').replace(/[\s()·・\-_.]/g,'').toLowerCase(); }
-function nick(){ return $('nick').value.trim(); }
+/* 서버(Code.gs)의 handleOf 와 같은 규칙입니다. 화면에 미리 보여주기 위한 것이고,
+   실제로 기록되는 이름은 서버가 did 로 다시 계산해 붙입니다. */
+var H_ADJ = ['푸른','붉은','하얀','검은','노란','초록','보라','잿빛','금빛','은빛',
+             '조용한','바쁜','작은','커다란','재빠른','느긋한'];
+var H_ANI = ['너구리','수달','올빼미','다람쥐','고라니','두루미','살쾡이','거북이',
+             '비버','오소리','까치','참새','여우','토끼','사슴','물범'];
+function hashStr(s){
+  var h = 2166136261;
+  for(var i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = (h * 16777619) >>> 0; }
+  return h >>> 0;
+}
+function handleOf(did){
+  if(!did) return '익명';
+  var h = hashStr('arc:' + did);
+  return H_ADJ[h % H_ADJ.length] + H_ANI[(h >>> 4) % H_ANI.length] +
+         ('000' + ((h >>> 12) % 4096).toString(16)).slice(-3);
+}
+function nick(){ return handleOf(deviceId()); }
 function today(){ var d=new Date(); return d.toISOString().slice(0,10); }
 function privacyHit(s){ return RE_PHONE.test(s)||RE_JUMIN.test(s)||RE_LONGNUM.test(s); }
 
@@ -550,9 +566,28 @@ function remember(k,v){ try{ localStorage.setItem('reg_'+k, v); }catch(e){} }
 function recall(k){ try{ return localStorage.getItem('reg_'+k)||''; }catch(e){ return ''; } }
 
 /* 이 브라우저를 구분하는 값.
-   닉네임만으로 중복을 막으면 이름을 바꿔가며 추천을 무한정 누를 수 있어서,
+   이 값으로 이름이 정해지고 중복 참여도 걸러집니다.
    등록·추천에 이 값을 같이 보내 서버가 한 번 더 걸러냅니다.
    개인 정보는 아니고 이 브라우저에만 저장되는 임의의 문자열입니다. */
+/* 지난번에 받아둔 내용을 담아 둡니다.
+   다시 들어왔을 때 네트워크를 기다리지 않고 곧바로 보여주고,
+   새 자료가 도착하면 조용히 갈아 끼웁니다. */
+function saveCache(){
+  try{
+    var s = JSON.stringify({v:VER, t:Date.now(), s:seed, e:entries, o:votes, w:wanted, f:feed});
+    if(s.length < 400000) localStorage.setItem('reg_cache', s);
+  }catch(e){}
+}
+function loadCache(){
+  try{
+    var c = JSON.parse(localStorage.getItem('reg_cache')||'null');
+    if(!c || !c.s) return false;
+    seed = c.s || {labels:{}};
+    entries = c.e || []; votes = c.o || {}; wanted = c.w || []; feed = c.f || [];
+    return true;
+  }catch(e){ return false; }
+}
+
 var _did = null;
 function deviceId(){
   /* 시크릿 창처럼 저장이 막힌 환경에서는 remember 가 조용히 실패합니다.
@@ -578,19 +613,16 @@ function showPane(p){
   document.querySelectorAll('.pane').forEach(function(c){ c.classList.toggle('show', c.id===p); });
   if(innerWidth<=980) window.scrollTo({top:0, behavior:'smooth'});
 }
-function needNick(){
-  if(nick()) return false;
-  $('mebox').classList.add('empty');
-  toast('먼저 위쪽에 닉네임을 입력해주세요', true);
-  $('nick').focus();
-  return true;
-}
+/* 이름이 자동으로 붙으므로 더 재촉할 것이 없습니다. 호출부를 그대로 두기 위해 남깁니다. */
+function needNick(){ return false; }
 
 /* ---------- 통신 ---------- */
 function jsonp(url){
   return new Promise(function(res,rej){
     var cb='cb_'+Math.floor(Math.random()*1e9), s=document.createElement('script');
-    var t=setTimeout(function(){cl();rej(new Error('시간 초과'));},25000);
+    /* 정상이면 1~2초면 옵니다. 25초씩 기다리면 재시도가 너무 늦게 시작되므로
+       넉넉하되 지나치지 않게 잡습니다. */
+    var t=setTimeout(function(){cl();rej(new Error('시간 초과'));},14000);
     function cl(){clearTimeout(t);delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);}
     window[cb]=function(d){cl();res(d);};
     s.onerror=function(){cl();rej(new Error('불러오기 실패'));};
@@ -614,11 +646,22 @@ function jsonpTry(url, tries){
       .then(function(){ return jsonpTry(url, tries-1); });
   });
 }
+/* 둘 다 기다렸다가 그리면, 0.2초면 오는 라벨을 손에 쥐고도
+   1.5초 이상 걸리는 등록소를 기다리느라 빈 화면이 됩니다.
+   먼저 온 쪽으로 일단 그리고, 나머지가 오면 다시 그립니다. */
 function refresh(){
-  var pLabels = fetch(LABELS_URL,{cache:'no-store'}).then(function(r){ return r.json(); })
-    .then(function(j){ if(j) seed=j; }).catch(function(){ if(!seed.labels) seed={labels:{}}; });
+  var pending = 0;
+  function done(){
+    if(--pending <= 0) saveCache();   // 둘 다 도착했을 때만 저장
+    renderAll();                      // 먼저 온 쪽만으로도 일단 그림
+  }
 
-  var pReg = !API_URL ? Promise.resolve()
+  pending = 2;
+  var pLabels = fetch(LABELS_URL,{cache:'no-store'}).then(function(r){ return r.json(); })
+    .then(function(j){ if(j) seed=j; }).catch(function(){ if(!seed.labels) seed={labels:{}}; })
+    .then(done);
+
+  var pReg = !API_URL ? Promise.resolve().then(done)
     : jsonpTry(API_URL+'?did='+encodeURIComponent(deviceId()), 3).then(function(r){
         if(!(r&&r.ok)) throw new Error((r&&r.error)||'응답 오류');
         entries=r.data.entries||[]; votes=r.data.votes||{}; wanted=r.data.wanted||[];
@@ -627,9 +670,9 @@ function refresh(){
       }).catch(function(e){
         /* 이전에 받아둔 목록은 그대로 두고 안내만 띄웁니다 */
         netErr = e.message||'연결 실패';
-      });
+      }).then(done);
 
-  return Promise.all([pLabels, pReg]).then(renderAll);
+  return Promise.all([pLabels, pReg]);
 }
 function renderAll(){ stCache={}; byAddr=null;
   /* 최근에 움직인 지갑은 목록에서 표시해 줍니다 (실시간으로 바뀌는 게 보이도록) */
@@ -694,7 +737,10 @@ function renderFeed(){
   }
   var fresh=0;
   el.innerHTML = feed.slice(0,30).map(function(f){
-    var k=fkey(f), isNew = booted && !seenFeed[k];
+    /* booted 로 판단하면, 라벨만 먼저 그린 뒤 등록소가 도착했을 때
+       기존 활동까지 전부 '새 소식'으로 번쩍입니다. 피드를 한 번이라도
+       받아본 뒤부터만 새 것으로 봅니다. */
+    var k=fkey(f), isNew = feedSeeded && !seenFeed[k];
     if(isNew) fresh++;
     return '<div class="fi'+(isNew?' fresh':'')+'">' +
       '<span class="fdot" style="background:'+FEED_C[f.k]+'"></span>' +
@@ -702,6 +748,7 @@ function renderFeed(){
       '<span class="fago" data-ts="'+esc(f.ts)+'">'+agoText(f.ts)+'</span></div>';
   }).join('');
   feed.forEach(function(f){ seenFeed[fkey(f)]=1; });
+  if(feed.length) feedSeeded = true;
   if(fresh) $('tLive').textContent='+'+fresh;
 }
 
@@ -778,7 +825,7 @@ function stateOf(a){
   var g = {};
   (byAddr[a]||[]).forEach(function(e){
     var k = nkey(e.name);
-    /* reporters·voters 의 열쇠는 사용자가 정한 닉네임입니다.
+    /* reporters·voters 의 열쇠는 서버가 붙인 이름입니다.
        평범한 {} 를 쓰면 '__proto__' 같은 이름이 개수 집계를 망가뜨리므로
        상속이 없는 빈 객체를 씁니다. */
     var c = g[k] || (g[k] = {name:e.name, repId:e.id, ids:[],
@@ -1427,10 +1474,7 @@ $('q').addEventListener('keydown',function(e){
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); $('check').click(); } });
 $('search').addEventListener('input', renderList);
 $('reload').onclick=refresh;
-$('nick').addEventListener('input',function(){
-  $('mebox').classList.toggle('empty', !nick());
-  renderResult(); renderList(); renderHelp(); });
-$('nick').addEventListener('change', function(){ remember('nick', nick()); });
+
 $('sort').addEventListener('change', renderList);
 document.querySelectorAll('#tabs a').forEach(function(a){ a.onclick=function(){ showPane(a.dataset.p); }; });
 $('whyToggle').onclick=function(){
@@ -1439,8 +1483,7 @@ $('whyToggle').onclick=function(){
 };
 
 /* ---------- 시작 ---------- */
-$('nick').value = recall('nick');
-$('mebox').classList.toggle('empty', !nick());
+$('myName').textContent = nick();
 if(recall('why')==='1'){ $('why').classList.add('fold'); $('whyToggle').textContent='자세히'; }
 recall('skip').split(',').forEach(function(a){ if(a) skipped[a]=1; });
 
@@ -1448,6 +1491,10 @@ recall('skip').split(',').forEach(function(a){ if(a) skipped[a]=1; });
   /* 주소를 잔뜩 넣은 링크를 뿌리면, 그 링크를 연 사람마다 '도와주세요' 목록에
      남의 주소를 대신 밀어 넣게 됩니다. 링크로 받는 개수를 제한합니다. */
   if(p){ $('q').value=p.split(',').slice(0,20).join('\n'); if(innerWidth<=980) showPane('p-reg'); } })();
+
+/* 지난번 내용이 있으면 네트워크를 기다리지 않고 먼저 보여줍니다.
+   화면이 비어 있는 시간을 없애는 것이 목적이고, 곧바로 새로 받아 덮어씁니다. */
+if(loadCache()) renderAll();
 
 refresh().then(function(){
   if($('q').value.trim()) $('check').click();
