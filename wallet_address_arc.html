@@ -317,10 +317,10 @@ button.wide{width:100%;padding:11px}
 
 <!-- ===================== 실시간 바 ===================== -->
 <div class="livebar off" id="livebar">
-  <span class="pulse"><i></i>실시간</span>
-  <span class="who" id="onlineN">연결 중</span>
+  <span class="pulse"><i></i><span id="syncWhen">불러오는 중</span></span>
   <span class="sep"></span>
   <div class="ticker" id="ticker"></div>
+  <button class="ghost sm" id="syncNow" title="지금 다시 불러옵니다">새로고침</button>
 </div>
 
 <!-- ===================== 목적 ===================== -->
@@ -380,7 +380,7 @@ button.wide{width:100%;padding:11px}
 
 <div class="tabs" id="tabs">
   <a data-p="p-reg" class="on">주소 등록</a>
-  <a data-p="p-live">실시간 <em id="tLive"></em></a>
+  <a data-p="p-live">최근 활동 <em id="tLive"></em></a>
   <a data-p="p-list">전체 현황</a>
 </div>
 
@@ -388,8 +388,9 @@ button.wide{width:100%;padding:11px}
 
   <!-- ============ 실시간: 활동 피드 + 도와주세요 ============ -->
   <div class="pane" id="p-live">
-    <h2 class="sec">지금 이 순간 <span class="c" id="feedCount"></span></h2>
-    <p class="sub">누가 무엇을 등록하고 추천했는지 <b>실시간으로</b> 흐릅니다.</p>
+    <h2 class="sec">최근 활동 <span class="c" id="feedCount"></span></h2>
+    <p class="sub">누가 무엇을 등록하고 추천했는지 시간순으로 보여줍니다.
+       <b>새로고침</b>을 누르면 그때까지의 활동을 다시 받아옵니다.</p>
     <div class="feed" id="feed"><div class="empty">불러오는 중…</div></div>
 
     <h2 class="sec" style="margin-top:18px">도와주세요 <span class="c" id="helpCount"></span></h2>
@@ -525,7 +526,7 @@ var RE_JUMIN = /\d{6}\s?[-–]\s?[1-4]\d{6}/;
 var RE_LONGNUM = /\d[\d\s.\-]{9,}\d/;
 
 var seed = {labels:{}}, entries = [], votes = {}, wanted = [];
-var netErr = '';
+var netErr = '', labelErr = '';
 var feed = [], online = 0, seenFeed = {}, tickKey = '', booted = false, feedSeeded = false;
 var lastAct = Date.now(), recentAddrs = {};
 var FEED_C = {'new':'#199e70', up:'#3987e5', no:'#e04a4a'};
@@ -685,7 +686,15 @@ function refresh(){
 
   pending = 2;
   var pLabels = fetch(LABELS_URL,{cache:'no-store'}).then(function(r){ return r.json(); })
-    .then(function(j){ if(j) seed=j; }).catch(function(){ if(!seed.labels) seed={labels:{}}; })
+    .then(function(j){ if(j) seed=j; labelErr=''; })
+    .catch(function(){
+      /* HTML 파일을 그냥 두 번 눌러 열면(file://) 브라우저가 옆 파일 읽기를 막습니다.
+         등록소는 <script> 방식이라 열리므로 '엑셀값만 보이는' 상태가 됩니다.
+         조용히 넘어가면 원인을 알 수 없으니 알려 줍니다. */
+      labelErr = (location.protocol === 'file:')
+        ? 'file' : 'net';
+      if(!seed.labels) seed={labels:{}};
+    })
     .then(done);
 
   var pReg = !API_URL ? Promise.resolve().then(done)
@@ -794,15 +803,19 @@ function setNum(el, val){
   }, 45);
 }
 
+/* 계속 물어보지 않으므로 '실시간'이라 말하지 않습니다.
+   언제 받아온 내용인지 정직하게 보여주고, 지금 보려면 새로고침을 누르게 합니다. */
 function renderLiveBar(){
   var bar=$('livebar'); if(!bar) return;
-  var dead = !API_URL || netErr || !lastSync || (Date.now()-lastSync) > 60000;
-  bar.className = 'livebar' + (dead?' off':'');
-  /* 접속자 수는 백엔드가 새 버전일 때만 옵니다. 못 받으면 괜히 '확인 중'으로
-     붙잡아 두지 말고 연결됐다는 사실만 알립니다. */
-  $('onlineN').innerHTML = dead ? '연결 끊김'
-    : online>0 ? '지금 <b>'+online+'</b>명 보는 중'
-    : '연결됨';
+  var bad = !API_URL || netErr;
+  bar.className = 'livebar' + ((bad || !lastSync) ? ' off' : '');
+  var el=$('syncWhen');
+  if(el) el.textContent = bad ? '불러오지 못함'
+    : !lastSync ? '불러오는 중'
+    : (function(sec){
+        return sec<60 ? '방금 기준' : sec<3600 ? Math.floor(sec/60)+'분 전 기준'
+             : Math.floor(sec/3600)+'시간 전 기준';
+      })(Math.round((Date.now()-lastSync)/1000));
   renderTicker();
 }
 
@@ -817,14 +830,29 @@ function tickAgo(){
 /** 등록소 연결이 끊겼을 때 — 목록을 지우지 않고 위에 안내만 띄웁니다 */
 function renderNet(){
   var el=$('netmsg'); if(!el) return;
-  if(!netErr){ el.innerHTML=''; return; }
-  el.innerHTML='<div class="warn" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">' +
-    '<b>등록소에 연결하지 못했습니다</b>' +
-    '<span style="color:var(--tx2)">지금은 운영진이 등록한 이름만 보입니다. 커뮤니티 등록분은 잠시 뒤 다시 시도해주세요.</span>' +
-    '<button class="ghost sm" id="retryNet" style="margin-left:auto">다시 시도</button></div>';
-  $('retryNet').onclick=function(){
-    $('retryNet').disabled=true; $('retryNet').textContent='시도 중…'; refresh();
-  };
+  var h='';
+
+  /* 두 곳에서 자료를 받아옵니다. 어느 쪽이 안 됐는지 각각 알려 줍니다. */
+  if(labelErr){
+    h += '<div class="warn" style="line-height:1.7">' +
+      '<b>운영진이 등록해 둔 이름을 읽지 못했습니다 (labels.json)</b><br>' +
+      (labelErr==='file'
+        ? 'HTML 파일을 그냥 두 번 눌러 열면, 브라우저가 같은 폴더의 파일 읽기를 막습니다. ' +
+          '등록소 자료는 다른 방식이라 보이지만 이 목록만 빠집니다. ' +
+          '<b>GitHub Pages 에 올려 주소로 열면</b> 정상입니다.'
+        : 'labels.json 을 불러오지 못했습니다. 같은 폴더에 있는지 확인해주세요.') +
+      '</div>';
+  }
+  if(netErr){
+    h += '<div class="warn" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">' +
+      '<b>등록소에 연결하지 못했습니다</b>' +
+      '<span style="color:var(--tx2)">커뮤니티 등록분이 빠져 있습니다. 잠시 뒤 다시 시도해주세요.</span>' +
+      '<button class="ghost sm" id="retryNet" style="margin-left:auto">다시 시도</button></div>';
+  }
+
+  el.innerHTML = h;
+  var rb = $('retryNet');
+  if(rb) rb.onclick = function(){ rb.disabled=true; rb.textContent='시도 중…'; refresh(); };
 }
 
 /* ---------- 한 주소의 상태 ----------
@@ -852,12 +880,12 @@ function stateOf(a){
   var g = {};
   (byAddr[a]||[]).forEach(function(e){
     var k = nkey(e.name);
-    /* reporters·voters 의 열쇠는 서버가 붙인 이름입니다.
+    /* reporters 의 열쇠는 서버가 붙인 이름입니다.
        평범한 {} 를 쓰면 '__proto__' 같은 이름이 개수 집계를 망가뜨리므로
        상속이 없는 빈 객체를 씁니다. */
     var c = g[k] || (g[k] = {name:e.name, repId:e.id, ids:[],
                              reporters:Object.create(null), sources:Object.create(null),
-                             types:Object.create(null), voters:Object.create(null),
+                             types:Object.create(null),
                              up:0, down:0, first:e.ts, last:e.ts, evidence:e.evidence,
                              period:e.period||'', org:e.org||''});
     c.ids.push(e.id);
@@ -868,9 +896,8 @@ function stateOf(a){
     if(e.ts > c.last) c.last=e.ts;
     if(e.period && !c.period) c.period=e.period;
     if(e.org && !c.org) c.org=e.org;
-    var v = votes[e.id] || {up:0,down:0,voters:[]};
+    var v = votes[e.id] || {up:0,down:0};
     c.up += v.up; c.down += v.down;
-    (v.voters||[]).forEach(function(x){ c.voters[x]=1; });
   });
 
   var cands = Object.keys(g).map(function(k){
@@ -984,7 +1011,7 @@ function walletBody(a){
 
   var me = nick();
   s.cands.forEach(function(c,i){
-    var did = me && (c.voters[me] || c.reporters[me]), win = (i===0 && !s.label);
+    var did = myVotes[voteKey(a, c.name)] || (me && c.reporters[me]), win = (i===0 && !s.label);
     h += '<div class="c-row">' +
       '<div class="rk'+(win?' win':'')+'">'+(win?'▲':(i+1))+'</div>' +
       '<div class="mid"><div class="nm">'+esc(c.name) +
@@ -997,8 +1024,8 @@ function walletBody(a){
       '<div class="sc'+(c.up>0?' p':'')+'">'+c.up+'<span class="u">추천</span>' +
         (c.down ? '<span class="dn">아니다 '+c.down+'</span>' : '') + '</div>' +
       '<div class="act">' + (did ? '<span class="voted">참여함</span>'
-        : '<button class="sm ok" data-v="찬성" data-id="'+esc(c.repId)+'">추천</button>' +
-          '<button class="sm no" data-v="반대" data-id="'+esc(c.repId)+'">아니다</button>') +
+        : '<button class="sm ok" data-v="찬성" data-id="'+esc(c.repId)+'" data-a="'+esc(a)+'" data-n="'+esc(c.name)+'">추천</button>' +
+          '<button class="sm no" data-v="반대" data-id="'+esc(c.repId)+'" data-a="'+esc(a)+'" data-n="'+esc(c.name)+'">아니다</button>') +
       '</div></div>';
   });
 
@@ -1030,6 +1057,18 @@ function saveDraft(a, form){
   keepDrafts();
 }
 function clearDraft(a){ delete drafts[a]; keepDrafts(); }
+
+/* 내가 어디에 참여했는지는 내 브라우저만 알면 됩니다.
+   (투표 자체가 브라우저 단위라 서버가 남의 투표자 명단까지 보낼 이유가 없습니다) */
+var myVotes = {};
+function voteKey(addr, name){ return norm(addr)+'|'+nkey(name); }
+function loadMyVotes(){
+  try{ myVotes = JSON.parse(localStorage.getItem('reg_myvotes')||'{}') || {}; }catch(e){ myVotes = {}; }
+}
+function markVoted(addr, name){
+  myVotes[voteKey(addr,name)] = 1;
+  try{ localStorage.setItem('reg_myvotes', JSON.stringify(myVotes)); }catch(e){}
+}
 
 function regForm(a){
   var d = drafts[a] || {};
@@ -1073,7 +1112,8 @@ function bind(root){
       renderList();
     }; });
   root.querySelectorAll('button[data-id]').forEach(function(b){
-    b.onclick=function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v')); }; });
+    b.onclick=function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v'),
+                                 b.getAttribute('data-a'), b.getAttribute('data-n')); }; });
   root.querySelectorAll('button[data-open]').forEach(function(b){
     b.onclick=function(){
       var a=b.getAttribute('data-open');
@@ -1109,14 +1149,18 @@ function bind(root){
 }
 
 /* ---------- 동작 ---------- */
-function doVote(id, opinion){
+function doVote(id, opinion, addr, name){
+  var voteMark = (addr && name) ? {addr:addr, name:name} : null;
   if(needNick()) return;
   if(!API_URL){ toast('API_URL이 설정되지 않았습니다', true); return; }
   postRetry({action:'vote', id:id, voter:nick(), opinion:opinion, did:deviceId()},
     function(sec){ toast('접속이 몰려 있어 '+sec+'초 뒤 다시 보냅니다'); }
   ).then(function(r){
     var already = r._retried && /이미 의견을 남기/.test(r.error||'');
-    if(r.ok || already){ toast(opinion==='찬성'?'추천했습니다':'"아니다"로 표시했습니다'); refresh(); }
+    if(r.ok || already){
+      if(voteMark) markVoted(voteMark.addr, voteMark.name);   // 내 브라우저에 남김
+      toast(opinion==='찬성'?'추천했습니다':'"아니다"로 표시했습니다'); refresh();
+    }
     else toast(r.error||'실패했습니다', true);
   }).catch(function(){ toast('전송에 실패했습니다. 잠시 뒤 다시 눌러주세요', true); });
 }
@@ -1489,34 +1533,22 @@ $('dlCsv').onclick=function(){
    "바뀌었는지"만 묻는 가벼운 요청(?v=1)을 보내고, 값이 달라졌을 때만 전체를 다시 받습니다. */
 /* 사람이 보고 있고 방금 움직였으면 자주, 가만히 있으면 뜸하게 확인합니다.
    무료 한도를 아끼면서도 활동 중일 때는 즉각 반응하는 것처럼 느껴집니다. */
-function pollDelay(){
-  if(document.hidden) return 60000;
-  return (Date.now()-lastAct) < 90000 ? 15000 : 30000;
-}
-function poll(){
-  if(!API_URL || document.hidden) return;
-  jsonp(API_URL+'?v=1&did='+encodeURIComponent(deviceId())).then(function(r){
-    if(!r || !r.ok) return;
-    lastSync=Date.now(); netErr='';
-    if(typeof r.online==='number') online=r.online;
-    if(VER===null){ VER=r.ver; renderLiveBar(); return; }
-    if(r.ver!==VER){
-      VER=r.ver;
-      refresh().then(function(){
-        var f=feed[0];
-        toast(f ? feedPlain(f) : '새 등록이 반영됐습니다');
-      });
-    } else { renderLiveBar(); liveTick(); }
-  }).catch(function(){});
-}
+/* 계속 물어보지 않습니다.
+   이름은 추천이 쌓여 정해지는 것이라 몇 초 늦게 보여도 달라지는 게 없는데,
+   30명이 15초마다 물으면 시간당 7천 번입니다. 그래서 필요할 때만 확인합니다.
+
+   확인하는 때: 페이지를 열 때 · 새로고침을 누를 때 · 내가 등록·추천한 직후 ·
+                다른 일 보다 돌아왔는데 3분 넘게 지났을 때 */
+var STALE_MS = 3*60*1000;
 function startLive(){
-  (function loop(){
-    clearTimeout(pollTimer);
-    pollTimer = setTimeout(function(){ poll(); loop(); }, pollDelay());
-  })();
   setInterval(function(){ liveTick(); tickAgo(); renderLiveBar(); }, 1000);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ lastAct=Date.now(); poll(); } });
-  window.addEventListener('focus', function(){ lastAct=Date.now(); poll(); });
+
+  function backAgain(){
+    lastAct = Date.now();
+    if(!lastSync || Date.now()-lastSync > STALE_MS) poll();
+  }
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) backAgain(); });
+  window.addEventListener('focus', backAgain);
   ['click','keydown','input'].forEach(function(ev){
     document.addEventListener(ev, function(){ lastAct=Date.now(); }, true); });
 }
@@ -1561,6 +1593,10 @@ $('q').addEventListener('keydown',function(e){
   if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); $('check').click(); } });
 $('search').addEventListener('input', renderList);
 $('reload').onclick=refresh;
+$('syncNow').onclick=function(){
+  var b=$('syncNow'); b.disabled=true; b.textContent='불러오는 중';
+  refresh().then(function(){ b.disabled=false; b.textContent='새로고침'; });
+};
 
 $('sort').addEventListener('change', renderList);
 document.querySelectorAll('#tabs a').forEach(function(a){ a.onclick=function(){ showPane(a.dataset.p); }; });
@@ -1576,6 +1612,7 @@ recall('skip').split(',').forEach(function(a){ if(a) skipped[a]=1; });
 
 /* 적다 만 게 있으면 그 지갑을 펼친 채로 시작합니다.
    창을 닫았거나 전송이 실패했어도 이어서 쓸 수 있게. */
+loadMyVotes();
 loadDrafts();
 Object.keys(drafts).forEach(function(a){ openForms[a]=true; openRows[a]=true; });
 
