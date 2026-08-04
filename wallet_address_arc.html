@@ -156,6 +156,15 @@ button.wide{width:100%;padding:11px}
 .tag.multi{background:rgba(139,111,212,.2);color:#b49df0}
 .tag.src{background:rgba(57,135,229,.14);color:#8fc0ff}
 
+/* 후보 아래 작은 조작 줄 — 내 것 지우기 / 정정·삭제 요청 */
+.c-foot{padding:0 0 6px 33px}
+.lnk{background:none;border:0;padding:0;font-size:11px;color:var(--tx3);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-weight:500}
+.lnk:hover{color:var(--blue)}
+.repbox{margin-top:7px;padding:9px 11px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:9px;max-width:460px}
+.repbox .m{font-size:11.5px;color:#ff9a9a;margin-top:5px;min-height:14px}
+
 .warn{background:rgba(224,74,74,.1);border:1px solid rgba(224,74,74,.35);border-radius:8px;
   padding:8px 11px;font-size:11.5px;color:#ffa8a8;margin:7px 0}
 .warn code{background:rgba(0,0,0,.35);padding:1px 4px;border-radius:3px}
@@ -1066,7 +1075,14 @@ function walletBody(a){
       '<div class="act">' + (did ? '<span class="voted">참여함</span>'
         : '<button class="sm ok" data-v="찬성" data-id="'+esc(c.repId)+'" data-a="'+esc(a)+'" data-n="'+esc(c.name)+'">추천</button>' +
           '<button class="sm no" data-v="반대" data-id="'+esc(c.repId)+'" data-a="'+esc(a)+'" data-n="'+esc(c.name)+'">아니다</button>') +
-      '</div></div>';
+      '</div></div>' +
+      /* 내가 올린 것은 내가 지울 수 있고, 남이 올린 것은 사유를 적어 요청합니다.
+         화면에서는 이름으로 '내 것'을 가리지만, 실제 판정은 서버가 브라우저 값으로 합니다. */
+      '<div class="c-foot">' +
+        (me && c.reporters[me]
+          ? '<button class="lnk" data-del="'+esc(a)+'" data-n="'+esc(c.name)+'">내가 올린 것 지우기</button>'
+          : '<button class="lnk" data-rep="'+esc(a)+'" data-n="'+esc(c.name)+'" data-id="'+esc(c.repId)+'">정정·삭제 요청</button>') +
+      '</div>';
   });
 
   var open = openForms[a];
@@ -1177,6 +1193,11 @@ function bind(root){
   root.querySelectorAll('button[data-id]').forEach(function(b){
     b.onclick=function(){ doVote(b.getAttribute('data-id'), b.getAttribute('data-v'),
                                  b.getAttribute('data-a'), b.getAttribute('data-n')); }; });
+  root.querySelectorAll('button[data-del]').forEach(function(b){
+    b.onclick=function(){ delMine(b.getAttribute('data-del'), b.getAttribute('data-n')); }; });
+  root.querySelectorAll('button[data-rep]').forEach(function(b){
+    b.onclick=function(){ openReport(b, b.getAttribute('data-rep'),
+                                     b.getAttribute('data-n'), b.getAttribute('data-id')); }; });
   root.querySelectorAll('button[data-open]').forEach(function(b){
     b.onclick=function(){
       var a=b.getAttribute('data-open');
@@ -1226,6 +1247,54 @@ function doVote(id, opinion, addr, name){
     }
     else toast(r.error||'실패했습니다', true);
   }).catch(function(){ toast('전송에 실패했습니다. 잠시 뒤 다시 눌러주세요', true); });
+}
+
+var REASONS = [['mine','내 지갑인데 잘못 올라감'],['wrong','사실과 다름'],
+               ['privacy','개인정보가 들어 있음'],['abuse','욕설·비방'],['other','기타']];
+
+function delMine(a, name){
+  if(!confirm(name + ' 을(를) 지울까요? 내가 올린 것만 지워집니다.')) return;
+  postRetry({action:'delMine', address:a, name:name, did:deviceId()},
+    function(sec){ toast('접속이 몰려 있어 '+sec+'초 뒤 다시 보냅니다'); }
+  ).then(function(r){
+    if(r.ok){ toast('지웠습니다'); refresh(); }
+    else toast(r.error||'지우지 못했습니다', true);
+  }).catch(function(){ toast('전송에 실패했습니다', true); });
+}
+
+/** 남이 올린 것 — 바로 지우지 않고 사유와 함께 접수합니다 */
+function openReport(btn, a, name, id){
+  var box = btn.parentNode.querySelector('.repbox');
+  if(box){ box.remove(); return; }
+  box = document.createElement('div');
+  box.className = 'repbox';
+  box.innerHTML =
+    '<div style="margin-bottom:5px"><label>어떤 점이 문제인가요?</label>' +
+      '<select class="r-why">' + REASONS.map(function(o){
+        return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('') + '</select></div>' +
+    '<input class="r-txt" maxlength="300" placeholder="자세한 내용 (5자 이상)">' +
+    '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">' +
+      '<button class="sm r-go">요청 보내기</button>' +
+      '<span class="hint">운영진이 확인 후 처리합니다</span></div>' +
+    '<div class="m"></div>';
+  btn.parentNode.appendChild(box);
+  var txt = box.querySelector('.r-txt'); txt.focus();
+  box.querySelector('.r-go').onclick=function(){
+    var msg = box.querySelector('.m');
+    var detail = txt.value.trim();
+    if(detail.length<5){ msg.textContent='어떤 점이 문제인지 5자 이상 적어주세요.'; return; }
+    if(privacyHit(detail)){ msg.textContent='전화번호·계좌번호로 보이는 숫자가 있습니다.'; return; }
+    var go = box.querySelector('.r-go'); go.disabled=true; go.textContent='보내는 중';
+    postRetry({action:'report', address:a, name:name, id:id,
+               reason:box.querySelector('.r-why').value, detail:detail, did:deviceId()},
+      function(sec){ msg.textContent='접속이 몰려 있어 '+sec+'초 뒤 다시 보냅니다'; }
+    ).then(function(r){
+      go.disabled=false; go.textContent='요청 보내기';
+      if(r.ok){ box.remove(); toast('요청을 접수했습니다. 운영진이 확인합니다'); }
+      else msg.textContent=r.error||'접수하지 못했습니다.';
+    }).catch(function(){ go.disabled=false; go.textContent='요청 보내기';
+      msg.textContent='보내지 못했습니다. 잠시 뒤 다시 눌러주세요.'; });
+  };
 }
 
 function submitOne(a, form){
