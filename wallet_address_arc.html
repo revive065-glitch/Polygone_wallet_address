@@ -6,14 +6,21 @@
 <title>폴리곤 지갑 등록소 — 주소에 이름 붙이기</title>
 <meta name="description" content="폴리곤 체인 지갑 주소가 누구 것인지 함께 기록합니다. 이름이 붙은 주소가 많아질수록 돈의 흐름을 따라갈 수 있습니다.">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 :root{
-  --bg:#16181c; --panel:#1e2126; --panel2:#262a30; --line:#333940; --line2:#3f4650;
-  --tx:#e8ecf1; --tx2:#a5aeb9; --tx3:#727b86;
-  --blue:#3987e5; --green:#199e70; --red:#e04a4a; --gold:#c98500; --purple:#8b6fd4;
+  /* Nocturne — 어두운 청회색 바탕에 블러플 액센트 하나.
+     채도는 액센트에만 두고 면은 전부 뉴트럴 계단에서 가져옵니다. */
+  --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+  --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+  --ac:#9184d9; --ac2:#b5abfc; --ac3:#d2cefd; --ac-dim:#423a6a;
+  --blue:#9184d9; --green:#3f9d78; --red:#d05a5a; --gold:#c9a227; --purple:#9184d9;
+  --n300:#cfd3e5; --n400:#b2b6ca; --n500:#9397ab; --n600:#75798c; --n700:#595d6c;
 }
 *{box-sizing:border-box}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+::selection{background:rgba(145,132,217,.32)}
 body{margin:0;background:var(--bg);color:var(--tx);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   font-size:14px;line-height:1.55;-webkit-text-size-adjust:100%}
 .wrap{max-width:1280px;margin:0 auto;padding:16px 16px 70px}
 a{color:var(--blue)}
@@ -72,22 +79,18 @@ a{color:var(--blue)}
   100%{box-shadow:0 0 0 0 rgba(25,158,112,0)}}
 
 /* ===== 탭 ===== */
-.tabs{display:none;gap:6px;margin-bottom:12px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
 .tabs a{flex:1;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:10px;
   font-size:13px;font-weight:600;color:var(--tx2);cursor:pointer;background:var(--panel);white-space:nowrap}
 .tabs a.on{border-color:var(--blue);color:var(--tx);background:#20262e}
 .tabs a em{font-style:normal;color:var(--gold);font-size:11.5px}
 
 /* ===== 레이아웃 ===== */
-.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
-#p-reg{grid-column:2;grid-row:1/span 2;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}
-#p-live{grid-column:1;grid-row:1}
-#p-list{grid-column:1;grid-row:2}
-#p-tree{grid-column:1/-1;grid-row:3;position:relative;z-index:3;background:var(--bg);
-  padding-top:14px;border-top:1px solid var(--line)}
-#p-find{grid-column:1/-1;grid-row:4;position:relative;z-index:3;background:var(--bg);
-  padding-top:14px;border-top:1px solid var(--line)}
-.pane{min-width:0}
+.app{display:block}
+.pane{min-width:0;display:none}
+.pane.show{display:block}
+.sub{display:block;margin-top:20px}
+.sub > h2.sec:first-child{padding-top:14px;border-top:1px solid var(--line)}
 h2.sec{font-size:14.5px;margin:0 0 9px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 h2.sec .c{font-size:12px;color:var(--tx3);font-weight:500}
 .sub{color:var(--tx3);font-size:12px;margin:-4px 0 10px}
@@ -289,12 +292,7 @@ button.wide{width:100%;padding:11px}
 
 @media(max-width:1180px){ .why-grid{grid-template-columns:repeat(2,1fr)} }
 @media(max-width:980px){
-  .tabs{display:flex}
-  .app{grid-template-columns:1fr}
-  /* ID 선택자로 배치했으므로, 탭 전환도 같은 세기로 눌러줘야 합니다 */
-  #p-live,#p-list,#p-reg,#p-tree,#p-find{grid-column:auto;grid-row:auto;position:static;
-    max-height:none;overflow:visible;display:none}
-  #p-live.show,#p-list.show,#p-reg.show,#p-tree.show,#p-find.show{display:block}
+  .why-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:640px){
   .wrap{padding:14px 12px 70px}
@@ -401,6 +399,159 @@ button.wide{width:100%;padding:11px}
   .tw-tbl .h-hide{display:none}
   .tw-tbl td.h-hide{display:none}
 }
+
+/* ===== 통합 검색 ===== */
+.find{display:flex;gap:8px;margin:0 0 12px}
+.find input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:12px;padding:13px 15px;color:var(--tx);font-size:14.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.find input::placeholder{font-family:inherit;color:var(--tx3);font-size:13px}
+.find button{background:transparent;border:1px solid var(--ac);border-radius:10px;padding:13px 22px;
+  color:var(--ac3);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.find button:hover{background:rgba(145,132,217,.14)}
+.gr{display:grid;gap:8px}
+.gr-i{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:11px 13px;text-decoration:none}
+.gr-i:hover{border-color:var(--blue)}
+.gr-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:3px}
+.gr-h b{color:var(--tx);font-size:13.5px}
+.gr-a{font-family:ui-monospace,monospace;font-size:12px;color:var(--tx2);word-break:break-all}
+.gr-m{font-size:11.5px;color:var(--tx3);margin-top:4px}
+
+/* ===== 공통 조각 ===== */
+.lead{background:linear-gradient(180deg,#1d222a,#1a1d22);border:1px solid var(--line2);
+  border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.lead h2{margin:0 0 6px;font-size:17px;letter-spacing:-.3px}
+.lead h2 .dim{font-size:12.5px;color:var(--tx3);font-weight:400}
+.lead p{margin:0;color:var(--tx2);font-size:13px;max-width:940px}
+.lead p b{color:var(--tx)}
+.note{color:var(--tx3);font-size:12.5px;margin:6px 0 0;line-height:1.75}
+.note b{color:var(--tx2)}
+.sec2{font-size:14px;margin:18px 0 8px;letter-spacing:-.2px}
+.sec2 span{color:var(--tx3);font-weight:400;font-size:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px;margin-top:14px}
+.oc-s{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.oc-s span{display:block;font-size:11.5px;color:var(--tx3);white-space:nowrap;margin-bottom:3px}
+.oc-s b{font-size:16px;letter-spacing:-.4px;font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;line-height:1.3}
+.oc-s b i{font-style:normal;font-size:11px;color:var(--tx3);margin-left:3px;font-weight:500}
+.oc-s u{display:block;text-decoration:none;font-size:11px;color:var(--tx3);margin-top:2px}
+
+/* ===== 순위 표 ===== */
+.rk-t{width:100%;border-collapse:collapse;font-size:13px}
+.rk-t th{text-align:right;padding:7px 8px;color:var(--tx3);font-size:11.5px;font-weight:600;
+  border-bottom:1px solid var(--line2);white-space:nowrap}
+.rk-t th:nth-child(2){text-align:left}
+.rk-t th u{display:block;text-decoration:none;font-weight:400;font-size:10.5px;margin-top:1px}
+.rk-t td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk-t td:nth-child(2){text-align:left;white-space:normal}
+.rk-t td i{font-style:normal;font-size:11px;color:var(--tx3);margin-left:3px}
+.rk-t tr[data-go]{cursor:pointer}
+.rk-t tr[data-go]:hover{background:#20262e}
+.rk-t .rk{color:var(--tx3);font-size:12px;width:42px}
+.rk-t .big{font-weight:700;color:var(--tx)}
+.r-n{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.r-n b{color:var(--tx);font-size:13.5px}
+.r-a{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--tx2);word-break:break-all}
+
+/* ===== 주소 상세 안의 온체인 카드 ===== */
+.oc{margin:10px 0 4px;padding:12px 13px;background:rgba(0,0,0,.2);
+  border:1px solid var(--line);border-radius:12px}
+.oc-top{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.oc-tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;
+  border:1px solid transparent;white-space:nowrap}
+.oc-free{color:#ffb4b4;background:rgba(208,59,59,.16);border-color:rgba(208,59,59,.5)}
+.oc-ghost{color:#ffb4b4;background:rgba(208,59,59,.12);border-color:rgba(208,59,59,.4)}
+.oc-bot{color:#ffd98a;background:rgba(250,178,25,.14);border-color:rgba(250,178,25,.45)}
+.oc-own{color:#9fe3c4;background:rgba(12,163,12,.13);border-color:rgba(12,163,12,.4)}
+.oc-co{color:#a9c8ff;background:rgba(57,135,229,.14);border-color:rgba(57,135,229,.45)}
+.oc-esc{color:#ffd98a;background:rgba(250,178,25,.10);border-color:rgba(250,178,25,.35)}
+.oc-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.oc-kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;
+  color:var(--tx2);margin-top:11px}
+.oc-kv b{color:var(--tx);font-variant-numeric:tabular-nums;font-weight:600}
+.oc-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.btnlike{display:inline-block;text-decoration:none;line-height:normal}
+.oc-dim{color:var(--tx3);font-size:12px}
+.oc-warn{font-style:normal;color:#ffd98a}
+.oc-bad{font-style:normal;color:#ffb4b4}
+.oc-more:empty{display:none}
+
+/* ===== 자금 흐름 ===== */
+.fl{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.fl h4{margin:13px 0 6px;font-size:12.5px;color:var(--tx);display:flex;align-items:center;gap:7px}
+.fl h4 i{font-style:normal;width:17px;height:17px;border-radius:5px;display:grid;place-items:center;
+  font-size:10px;font-weight:700;color:#0b0b0b;flex:none}
+.fl h4 i.d1{background:#fab219} .fl h4 i.d2{background:#3987e5} .fl h4 i.d3{background:#eb6834}
+.fl h4 span{color:var(--tx3);font-weight:400;font-size:11.5px}
+.fl-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:baseline;
+  padding:7px 0;border-bottom:1px solid var(--line)}
+.fl-row:last-child{border-bottom:0}
+.fl-a{font-family:ui-monospace,monospace;font-size:12px;color:var(--tx2);word-break:break-all}
+.fl-a b{font-family:inherit;color:var(--tx)}
+.fl-a a{color:var(--tx2);text-decoration:none;border-bottom:1px dotted var(--line2)}
+.fl-a a:hover{color:var(--blue)}
+.fl-v{font-size:12px;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.fl-m{grid-column:1/-1;font-size:11.5px;color:var(--tx3)}
+.fl-m b{color:var(--tx2)}
+.fl-hi{background:rgba(250,178,25,.07);border-left:2px solid #fab219;padding-left:9px;margin-left:-11px}
+.fl-sum{display:flex;gap:16px;flex-wrap:wrap;background:rgba(0,0,0,.22);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;margin:4px 0 6px}
+.fl-sum div{font-size:12px}
+.fl-sum b{display:block;font-variant-numeric:tabular-nums;font-size:13px}
+.fl-sum b.p{color:#7fb3f2} .fl-sum b.m{color:#f0a184}
+.tk{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tk i{width:7px;height:7px;border-radius:2px;display:inline-block;flex:none}
+.tk-SUT i{background:#3987e5} .tk-USDT i{background:#d95926}
+.tk-KWT i{background:#199e70} .tk-MPC i{background:#c98500}
+.tk b{font-weight:600;color:var(--tx)} .tk em{font-style:normal;color:var(--tx3);font-size:11px}
+
+@media(max-width:820px){
+  .rk-t .hcol{display:none}
+  .find{flex-wrap:wrap}
+  .find button{width:100%}
+}
+
+/* ===== 주소 한 장 (서랍) ===== */
+.dw{position:fixed;inset:0;z-index:80;display:flex;justify-content:flex-end}
+.dw[hidden]{display:none}
+.dw-bg{position:absolute;inset:0;background:rgba(10,11,18,.66);backdrop-filter:blur(2px)}
+.dw-p{position:relative;width:min(560px,100%);height:100%;overflow-y:auto;
+  background:#1a1c28;border-left:1px solid var(--line2);
+  box-shadow:-18px 0 46px rgba(0,0,0,.55);animation:dwIn .18s ease-out}
+@keyframes dwIn{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+.dw-h{position:sticky;top:0;z-index:2;display:flex;gap:8px;align-items:center;
+  background:rgba(26,28,40,.96);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:13px 16px}
+.dw-k{font-size:11px;font-weight:600;color:var(--tx3);letter-spacing:.4px}
+.dw-b{padding:12px 16px 40px}
+.dw-b .oc-stats{grid-template-columns:repeat(auto-fit,minmax(116px,1fr))}
+.dw-b .oc-s b{font-size:15px;word-break:normal;overflow-wrap:anywhere}
+.dw-b .oc-kv{grid-template-columns:auto 1fr;gap:4px 10px}
+.dw-b .oc{padding:11px 12px}
+.dw-p::-webkit-scrollbar{width:9px}
+.dw-p::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+.dw-p::-webkit-scrollbar-track{background:transparent}
+body.dw-on{overflow:hidden}
+@media(max-width:640px){ .dw-p{width:100%} }
+
+.cfg{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;
+  background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:11px;padding:9px 12px}
+.cfg-k{font-size:11.5px;color:var(--tx3)}
+.cfg-k b{color:var(--tx2);font-weight:600}
+.cfg label{font-size:12px;color:var(--tx2);display:inline-flex;align-items:center;gap:5px}
+.cfg input{width:74px;background:var(--panel2);border:1px solid var(--line2);border-radius:7px;
+  padding:5px 8px;color:var(--tx);font-size:12.5px;font-variant-numeric:tabular-nums}
+
+/* ===== 돈의 길 위치 ===== */
+.fw{display:flex;gap:10px;align-items:center;background:var(--panel2);
+  border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin:8px 0 0}
+.fw i{width:10px;height:10px;border-radius:50%;flex:none}
+.fw-t{min-width:0;flex:1}
+.fw-t b{display:block;font-size:13.5px;font-weight:600;color:var(--tx)}
+.fw-t span{display:block;font-size:11.5px;color:var(--tx3);margin-top:1px}
+.fw-k{font-size:11.5px;color:var(--tx2);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -478,15 +629,90 @@ button.wide{width:100%;padding:11px}
 </div>
 <div id="netmsg"></div>
 
+<div class="find">
+  <input id="gq" placeholder="주소 · 조각 아무거나 —  0x9a1f…f458  ·  0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c">
+  <button id="gGo">찾기</button>
+</div>
+<div id="gout"></div>
+
+<!-- 주소 한 장 — 모든 화면이 여기로 모입니다 -->
+<div class="dw" id="dw" hidden>
+  <div class="dw-bg" id="dwBg"></div>
+  <aside class="dw-p" role="dialog" aria-label="주소 상세">
+    <div class="dw-h">
+      <span class="dw-k">지금 보는 주소</span>
+      <div style="flex:1"></div>
+      <button class="ghost sm" id="dwBack" hidden>← 뒤로</button>
+      <button class="ghost sm" id="dwClose">닫기 ✕</button>
+    </div>
+    <div class="dw-b" id="result"></div>
+  </aside>
+</div>
+
 <div class="tabs" id="tabs">
-  <a data-p="p-reg" class="on">주소 등록</a>
-  <a data-p="p-live">최근 활동 <em id="tLive"></em></a>
-  <a data-p="p-list">전체 현황</a>
-  <a data-p="p-tree">소개 계보 <em id="tTree"></em></a>
-  <a data-p="p-find">주소 조각 찾기</a>
+  <a data-p="p-home" class="on">현황</a>
+  <a data-p="p-rank">순위</a>
+  <a data-p="p-help">기여 <em id="tLive"></em></a>
 </div>
 
 <div class="app">
+
+  <!-- ============ 현황 ============ -->
+  <div class="pane show" id="p-home">
+    <div class="lead">
+      <h2>온체인으로 확인된 것</h2>
+      <p>슈퍼세이브 참여금이 모이는 CC2C 지갑, 외매권(DeCT Right) 발급 기록, MPC 거래를
+         전량 훑어 <b>주소 <span id="hAddrs">–</span>개</b>를 모았습니다. 아래 숫자는 전부 체인에 남은 사실입니다.</p>
+      <div class="tiles" id="hStat"></div>
+      <div class="cfg">
+        <span class="cfg-k">환산 기준 <b id="hGen">—</b></span>
+        <label>USDT <input id="cUsdt" type="number" min="1" step="10"> 원</label>
+        <label>신용 배율 <input id="cMult" type="number" min="0.1" step="0.1"> 배</label>
+        <button class="ghost sm" id="cApply">적용</button>
+        <button class="ghost sm" id="cReset">기본값</button>
+        <span class="note" style="width:100%;margin:2px 0 0">신용대금은 <b>낸 결제대금 × 배율</b>로 계산합니다.
+          배율 2.4는 앱 화면 3건으로 맞춘 값이라 시기가 다르면 어긋날 수 있어 여기서 바꿔볼 수 있게 뒀습니다.</span>
+      </div>
+      <p class="note" id="hGas" style="margin-top:12px"></p>
+      <p class="note" id="hMpc"></p>
+      <p class="note" style="margin-top:10px"><b>신용대금</b>은 앱의 「신용매매 결제대금」으로,
+        온체인에 남은 실제 결제대금의 <b>2.4배</b>로 잡힙니다. 현금(계좌이체) 참여는 체인에 안 남으므로
+        여기 합계는 <b>실제보다 낮게 잡힌 값</b>입니다.</p>
+    </div>
+
+    <h3 class="sec2">DeCT 수령 상위 <span>— 전체는 순위 탭에서</span></h3>
+    <table class="rk-t">
+      <thead><tr><th class="rk">#</th><th>주소 / 이름</th><th>DeCT 합계<u>SUT</u></th>
+        <th class="hcol">DeCT 순위</th><th class="hcol">신용대금<u>원</u></th>
+        <th class="hcol">DeCT 1당<u>원</u></th></tr></thead>
+      <tbody id="hRank"></tbody>
+    </table>
+  </div>
+
+  <!-- ============ 순위 ============ -->
+  <div class="pane" id="p-rank">
+    <div class="lead">
+      <h2>순위 <span class="dim">— 보고 싶은 축을 고르세요</span></h2>
+      <p class="note" id="rDesc"></p>
+      <div class="chips" id="rAxis" style="margin-top:10px"></div>
+    </div>
+    <table class="rk-t">
+      <thead><tr><th class="rk">#</th><th>주소 / 이름</th>
+        <th><span id="rCol">DeCT 합계</span><u id="rUnit">SUT</u></th>
+        <th class="hcol">DeCT 순위</th><th class="hcol">신용대금<u>원</u></th>
+        <th class="hcol">DeCT 1당<u>원</u></th></tr></thead>
+      <tbody id="rBody"></tbody>
+    </table>
+    <div class="tools" style="margin:12px 0">
+      <button class="ghost sm" id="rMore">더 보기</button>
+      <span class="hint" id="rCount"></span>
+    </div>
+    <p class="note">줄을 누르면 그 주소의 상세가 위쪽에 열립니다 —
+      신용대금·참여 유형·자금 흐름·가스비 관계·이름 달기가 한 화면에 모입니다.</p>
+  </div>
+
+  <!-- ============ 기여 ============ -->
+  <div class="pane" id="p-help"></div>
 
   <!-- ============ 실시간: 활동 피드 + 도와주세요 ============ -->
   <div class="pane" id="p-live">
@@ -524,8 +750,13 @@ button.wide{width:100%;padding:11px}
         <button class="ghost sm" id="dlJson">labels.json 내려받기</button>
         <button class="ghost sm" id="dlCsv">CSV 내려받기 (분석용)</button>
       </div>
-      <div class="hint" style="margin-top:6px">
-        labels.json 은 폴리곤스캔 이름표 확장에 쓰는 파일이고, CSV 는 자금 흐름을 정리할 때 쓰는 표입니다.
+      <div class="hint" style="margin-top:6px;line-height:1.8">
+        <b>labels.json</b> — 지금 화면의 확정 라벨에 <b>커뮤니티가 모은 이름 중 기준을 넘은 것</b>을
+        <code>(추정)</code>을 붙여 합친 파일입니다. 받아서 저장소의 같은 이름 파일에 덮어쓰면
+        모두의 폴리곤스캔 화면과 이 페이지에 함께 반영됩니다.<br>
+        <b>CSV</b> — 주소·대표이름·분류·신뢰도·추천수·근거·링크가 든 표입니다. 엑셀에서 흐름을 정리할 때 씁니다.
+        <br><span style="color:var(--tx3)">덮어쓰기 전에 한 번 훑어보세요. 확정(A)으로 박은 것은 커뮤니티 제보가 못 바꾸지만,
+        그 아래 등급은 추천이 몰리면 바뀔 수 있습니다.</span>
       </div>
     </div>
   </div>
@@ -550,141 +781,8 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
       </div>
       <div id="qmsg" class="msg"></div>
     </div>
-    <div id="result"></div>
   </div>
 
-  <!-- ============ 소개 계보 (DeCT Right 수령 랭킹) ============ -->
-  <div class="pane" id="p-tree">
-    <div class="tw-lead">
-      <h2>DeCT Right 수령 랭킹 <span style="font-size:12px;color:var(--tx3);font-weight:400">단위 — DeCT·SUT는 개, 신용대금은 원</span></h2>
-      <p>DeCT Right(외매권)는 토큰이 아니라 <b>값 0짜리 트랜잭션의 메모(IDM)</b>로 발급됩니다.
-         발급 지갑이 참여자에게 <code>DeCT,시작일,만료일,SUT 209,USDT</code> 같은 글자를 적어 보내는 방식이라
-         토큰 목록에는 안 잡힙니다. 이 표는 그 메모를 <b>전량 수집해</b> 주소별로 합친 것입니다.</p>
-      <p>같이 보는 값이 <b>「DeCT 1당 낸 돈」</b>입니다. 참여할 때 결제대금(KWT·USDT)을 함께 낸 기록이 있으면
-         제 돈으로 산 것이고, <b>SUT만 넣고 참여</b>했다면 이미 확보해 둔 권리를 소진한 것입니다.
-         그래서 이 값이 <b>바닥에 붙은 주소일수록 남의 참여에서 흘러온 권리로 쌓았다</b>는 뜻이 됩니다.</p>
-      <div class="tw-stat">
-        <div><b id="twA">–</b><span>수령 주소 (개)</span></div>
-        <div><b id="twB">–</b><span>DeCT 합계 (SUT)</span></div>
-        <div><b id="twC">–</b><span>발급 기록 (건)</span></div>
-        <div><b id="twD">–</b><span>자기돈 없는 주소 (개)</span></div>
-        <div><b id="twE">–</b><span>신용대금 합계 (KWT)</span></div>
-        <div><b id="twF">–</b><span>신용대금 합계 (USDT)</span></div>
-      </div>
-      <p class="tw-note" style="margin-top:10px"><b>신용대금</b>은 앱의 「신용매매 결제대금」입니다.
-        온체인에 남은 실제 결제대금의 <b>2.4배</b>로 잡히며, 앱 화면 3건(1,040 SUT→62,400,000 KWT ·
-        262 SUT→15,720,000 KWT · 209 SUT→8,400 USDT)과 맞춰 확인했습니다.
-        현금(계좌이체)으로 낸 참여는 체인에 안 남으므로 여기 합계에서 빠집니다 — <b>실제보다 낮게 잡힌 값</b>입니다.</p>
-    </div>
-
-    <div class="tw-find">
-      <input id="twQ" placeholder="주소를 넣으면 순위와 성격을 봅니다  0x…">
-      <button id="twGo">확인</button>
-    </div>
-    <div class="tw-me" id="twMe"></div>
-
-    <div class="chips" id="twChips"></div>
-    <div class="chips" id="twSort" style="margin-top:-4px"></div>
-    <table class="tw-tbl">
-      <thead><tr>
-        <th class="rk">#</th><th>주소 / 이름</th>
-        <th>DeCT 합계<u>SUT</u></th>
-        <th>신용대금<u>원</u></th>
-        <th class="h-hide">발급<u>건</u></th>
-        <th class="h-hide">자기돈 참여<u>건</u></th>
-        <th class="h-hide">SUT 단독<u>건</u></th>
-        <th>DeCT 1당 낸 돈<u>원</u></th>
-      </tr></thead>
-      <tbody id="twBody"><tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:26px">
-        불러오는 중…</td></tr></tbody>
-    </table>
-    <div class="tools" style="margin:12px 0">
-      <button class="ghost sm" id="twMore">더 보기</button>
-      <span class="hint" id="twCount"></span>
-    </div>
-    <p class="tw-note">순위는 온체인 기록만으로 계산한 것입니다. 누가 누구를 소개했는지는 체인에 적히지 않으므로,
-      줄을 펼쳤을 때 나오는 <b>SUT를 보내준 주소</b>가 관계를 읽는 단서입니다.
-      이름은 <b>주소 등록</b> 탭에서 함께 채워집니다.</p>
-
-    <div class="tw-lead" style="margin-top:22px">
-      <h2>SUT 공급 허브 — 계보의 뼈대</h2>
-      <p>SUT만 넣고 참여하려면 그 SUT가 <b>미리 지갑에 있어야</b> 합니다. 그래서 상위 600위 지갑이
-         SUT를 <b>어디서 받았는지</b>를 거꾸로 훑었습니다. 아래는 그 결과 <b>여러 사람에게 SUT를 보낸 주소</b>입니다.
-         한 주소가 수십·수백 명에게 SUT를 보내고 있다면, 그 아래가 곧 조직입니다.</p>
-      <p class="tw-note">보낸 SUT가 <b>전부 0</b>인 주소는 자금 이동이 아니라 <b>주소 사칭(0원 전송)</b>입니다.
-         복사 실수를 노린 것이니 절대 그 주소로 보내지 마세요.</p>
-    </div>
-    <table class="tw-tbl">
-      <thead><tr>
-        <th class="rk">#</th><th>주소 / 이름</th>
-        <th>받은 사람</th><th>보낸 SUT</th><th class="h-hide">본인 DeCT 순위</th>
-      </tr></thead>
-      <tbody id="hbBody"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:22px">
-        불러오는 중…</td></tr></tbody>
-    </table>
-    <div class="tools" style="margin:12px 0 4px">
-      <button class="ghost sm" id="hbMore">더 보기</button>
-      <span class="hint" id="hbCount"></span>
-    </div>
-  </div>
-
-  <!-- ============ 주소 조각 찾기 ============ -->
-  <div class="pane" id="p-find">
-    <div class="tw-lead">
-      <h2>주소 조각으로 찾기</h2>
-      <p>영상·캡처·기사에 <b>앞뒤 몇 글자만 가려지지 않은</b> 주소가 나올 때 씁니다.
-         폴리곤스캔 검색창은 42자리를 다 넣어야 하지만, 여기서는 <b>조각만으로</b> 찾습니다.
-         모아둔 주소 <b id="fdN">–</b>개 안에서 맞는 것을 골라내고, 그 주소가 무엇을 했는지도 같이 보여줍니다.</p>
-      <p class="tw-note"><b>앞 4자 + 뒤 4자</b>면 거의 항상 하나로 좁혀집니다. 앞뒤 2자씩뿐이면 여러 개가 걸리니
-         금액·시점으로 더 걸러야 합니다. 대소문자는 상관없습니다.</p>
-    </div>
-    <div class="tw-find">
-      <input id="fdQ" placeholder="0x9a1f…f458  ·  9a1f f458  ·  0x9a1f  ·  f458">
-      <button id="fdGo">찾기</button>
-    </div>
-    <div id="fdOut"></div>
-
-    <div class="tw-lead" style="margin-top:22px">
-      <h2>MPC 에스크로 현황</h2>
-      <p>MPC 개인거래는 에스크로 지갑 <span class="ad">0x958eed8b…27e5972</span>를 거칩니다.
-         파는 쪽이 MPC를 맡기면 사는 쪽이 값을 치르고 찾아가는 구조입니다.
-         그런데 <b>맡긴 것을 그대로 도로 찾아간 경우가 압도적</b>입니다 — 매물은 쌓이는데 안 팔립니다.</p>
-      <div class="tw-stat" id="mlStat"></div>
-      <p class="tw-note" style="margin-top:10px"><b>USDT 값은 체인에 안 남습니다.</b>
-        에스크로를 거친 USDT 전송은 전체 기간 통틀어 10건뿐이라, 대금은 계좌이체나 다른 경로로 오갑니다.
-        그래서 「얼마에 팔렸는지」는 온체인만으로 알 수 없고, <b>누가 누구에게 몇 개를 넘겼는지</b>까지가 확인 가능한 범위입니다.</p>
-    </div>
-    <h3 style="font-size:14px;margin:14px 0 6px">지금 에스크로에 잠겨 있는 매물</h3>
-    <table class="tw-tbl">
-      <thead><tr><th class="rk">#</th><th>주소 / 이름</th><th>잠긴 MPC<u>개</u></th>
-        <th class="h-hide">예치<u>건</u></th><th>경과<u>일</u></th><th class="h-hide">DeCT 순위</th></tr></thead>
-      <tbody id="mlBody"><tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:22px">불러오는 중…</td></tr></tbody>
-    </table>
-    <div class="tools" style="margin:12px 0"><button class="ghost sm" id="mlMore">더 보기</button>
-      <span class="hint" id="mlCount"></span></div>
-
-    <h3 style="font-size:14px;margin:18px 0 6px">실제로 남에게 넘어간 거래</h3>
-    <div id="mtOut" class="tw-src"></div>
-
-    <div class="tw-lead" style="margin-top:22px">
-      <h2>가스비를 여러 지갑에 대준 주소</h2>
-      <p>새로 판 지갑은 <b>가스비(POL)가 없으면 아무것도 못 합니다.</b> 그래서 계정을 굴리는 사람은
-         반드시 자기 지갑에서 POL을 넣어줍니다. <b>이 흔적은 위조할 수 없습니다.</b></p>
-      <p>아래는 에스크로 참여자 <b id="ghT">–</b>명의 가스비 유입을 거꾸로 훑어,
-         <b>둘 이상의 지갑에 POL을 대준 주소</b>를 모은 것입니다. 대상 지갑이 많을수록
-         한 사람이 여러 계정을 운영한다는 뜻이 됩니다.</p>
-      <p class="tw-note">본인 참여 기록이 <b>전혀 없는데</b> 여러 지갑에 가스비만 대는 주소가 특히 눈여겨볼 대상입니다.
-        자기 이름으로는 아무것도 안 하면서 남의 계정만 굴린다는 뜻이니까요.</p>
-    </div>
-    <table class="tw-tbl">
-      <thead><tr><th class="rk">#</th><th>주소 / 이름</th>
-        <th>가스비 준 지갑<u>개</u></th><th class="h-hide">보낸 POL</th>
-        <th>신용대금<u>원</u></th><th class="h-hide">DeCT 순위</th></tr></thead>
-      <tbody id="ghBody"><tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:22px">불러오는 중…</td></tr></tbody>
-    </table>
-    <div class="tools" style="margin:12px 0"><button class="ghost sm" id="ghMore">더 보기</button>
-      <span class="hint" id="ghCount"></span></div>
-  </div>
 </div>
 
 <div class="foot">
@@ -1268,8 +1366,23 @@ function walletRow(a){
 }
 
 /** 카드와 목록 행이 같이 쓰는 알맹이 */
+/* 이 주소가 돈의 길 어디쯤인가 — 커뮤니티가 붙인 분류로 판단합니다 */
+function flowLine(a){
+  var k = flowOf(a), f = FLOW_BY[k];
+  if(!f) return '';
+  var s = stateOf(a);
+  var t = typeOf(s);
+  return '<div class="fw">'+
+    '<i style="background:'+f.c+'"></i>'+
+    '<div class="fw-t"><b>'+esc(f.ko)+'</b><span>'+esc(f.d)+'</span></div>'+
+    '<span class="fw-k">'+esc(TYPE_KO[t]||'분류 모름')+'</span></div>';
+}
 function walletBody(a){
   var s = stateOf(a), h = '';
+  /* 돈의 길에서 어디쯤인지 먼저 — 이름보다 이게 먼저 궁금합니다 */
+  h += flowLine(a);
+  /* 온체인으로 확인된 것 — 제보보다 먼저 보여줍니다 */
+  if(typeof OC!=='undefined') h += OC.card(a);
 
   if(s.twins.length && s.kind!=='bad'){
     h += '<div class="warn"><b>⚠ 앞뒤 4자리가 같은 다른 주소가 있습니다 — 송금 전 전체 자리를 확인하세요</b><br>' +
@@ -2046,18 +2159,22 @@ refresh().then(function(){
 });
 
 /* ==========================================================
-   소개 계보 — DeCT Right 수령 랭킹
-   데이터는 같은 폴더의 dect_top_c.json / dect_idx.json / sut_src.json
+   온체인 모듈 — 주소 하나를 중심으로 모든 자료를 모읍니다.
+   파일: addr_idx.json · dect_top_c.json · flow.json · gas_hub.json
+        sut_hub.json · sut_src.json · mpc_lock.json · mpc_esc.json
    ========================================================== */
-(function(){
-  var TOP=null, IDX=null, SRC=null, F={}, shown=60, filt='all', openRow={}, sortBy='dect';
-  var COMPANY={
+var OC = (function(){
+  var D = {};                 // 파일 캐시
+  var IX = null, IXF = null, IXM = null;   // 통합 주소 인덱스
+  var TP = null, TPF = null, TPM = null;   // DeCT 상세(상위 1500)
+  var FL = null, SS = null;                // 자금흐름 · SUT 유입처
+  var KNOWN = {
     '0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c':'CC2C 회사 수금지갑',
     '0xf11d0da941625c2e6df119c6b30df9d42ad0a964':'회사 지급지갑 #1',
     '0xe6e7ec8dfbacc0dbfc8e838ff2a49a252ab4ff85':'회사 지급지갑 #2 / 멀티샌드',
-    '0x31c9342baf01f941d9eeeed11eb09815602f747b':'DeCT 발급지갑',
-    '0x3fbebfb25c4b9d8a2a6b37640f4c59d407fa0484':'DeCT 발급지갑',
-    '0xdc7f40a3244ca87d82c065204360b9fb5ba65069':'DeCT 발급지갑',
+    '0x31c9342baf01f941d9eeeed11eb09815602f747b':'DeCT Right 발급지갑 #1',
+    '0x3fbebfb25c4b9d8a2a6b37640f4c59d407fa0484':'DeCT Right 발급지갑 #2',
+    '0xdc7f40a3244ca87d82c065204360b9fb5ba65069':'DeCT Right 발급지갑 #3',
     '0x5a7317b12e4b1e8b4be8fff9eba090e03fafc4ca':'경유 지갑',
     '0x0d0707963952f2fba59dd06f2b425ace40b492fe':'Gate.io',
     '0x958eed8b9c77f79420c3cde1998df4efb27e5972':'MPC 개인거래 에스크로',
@@ -2066,285 +2183,197 @@ refresh().then(function(){
     '0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8':'MPC 대량 보유지갑',
     '0x2d854416d2749b1f0eb8a4b2ab9027989f2ba262':'MPC 토큰 컨트랙트'
   };
-  function num(n){ return (n||0).toLocaleString('ko-KR'); }
+  var TOKS = ['SUT','KWT','USDT','MPC'];
+  /* 환산율·배율은 config.json 에서 읽습니다. 화면에서 바꾸면 즉시 다시 계산합니다. */
+  var CFG = {usdt_krw:1400, credit_mult:2.4, free_kpd:5000, bot_n:1000};
+  var META = {g:0, gen:''};
+  function cfg(){ return CFG; }
+  function setCfg(k, v){
+    CFG[k]=v;
+    try{ localStorage.setItem('reg_cfg', JSON.stringify(CFG)); }catch(e){}
+  }
+  function nowRef(){ return META.g || Math.floor(Date.now()/1000); }
+
+  function n(v){ return (v||0).toLocaleString('ko-KR'); }
   function ymd(t){ if(!t) return ''; var d=new Date(t*1000);
-    return (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2); }
-  function get(r,k){ return r[F[k]]; }
-
-  /* 성격 판정 — 온체인 수치만으로 나눕니다 */
-  function kind(r){
-    var a=get(r,'addr');
-    if(COMPANY[a]) return {k:'co', t:'회사·발급', c:'tag-co'};
-    var dect=get(r,'dect'), kpd=get(r,'kpd'), n=get(r,'n');
-    if(dect>=50000 && kpd<5000)  return {k:'free', t:'자기돈 거의 없음', c:'tag-free'};
-    if(n>=1000)                  return {k:'bot',  t:'초고빈도', c:'tag-bot'};
-    return {k:'own', t:'자기돈 참여', c:'tag-own'};
+    return (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2); }
+  function E(s){ return (typeof esc==='function') ? esc(s) : String(s==null?'':s); }
+  function labelOf(a){
+    var nm = (typeof nameOf==='function') ? nameOf(a) : null;
+    return nm || KNOWN[a] || '';
   }
-  function srcOf(a){ return SRC ? SRC[a] : null; }
+  function fmap(j){ var m={}; j.f.forEach(function(k,i){ m[k]=i; }); return m; }
 
-  function rowHtml(r,i){
-    var a=get(r,'addr'), K=kind(r), nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
-    var kpd=get(r,'kpd'), dect=get(r,'dect');
-    var pct=Math.max(0, Math.min(100, Math.round(kpd/30000*100)));
-    var h='<tr class="hd" data-a="'+a+'">'+
-      '<td class="rk">'+get(r,'rank')+'</td>'+
-      '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+
-        '<span class="ad">'+a+'</span> <span class="tag-x '+K.c+'">'+K.t+'</span></td>'+
-      '<td class="big">'+num(dect)+'<span class="tw-unit">SUT</span></td>'+
-      '<td class="big">'+num(get(r,'cr_krw'))+'<span class="tw-unit">원</span></td>'+
-      '<td class="h-hide">'+num(get(r,'n'))+'<span class="tw-unit">건</span></td>'+
-      '<td class="h-hide">'+num(get(r,'paid_n'))+'<span class="tw-unit">건</span></td>'+
-      '<td class="h-hide">'+num(get(r,'solo_n'))+'<span class="tw-unit">건</span></td>'+
-      '<td>'+num(kpd)+'<span class="tw-unit">원</span><div class="tw-bar"><i style="width:'+pct+'%"></i></div></td></tr>';
-    if(openRow[a]){
-      var s=srcOf(a), inner='';
-      if(s && s.length){
-        inner='<b>이 지갑에 SUT를 보내준 주소</b> — 참여에 쓸 SUT가 어디서 왔는지가 관계의 단서입니다.'+
-          '<div class="tw-src">'+s.slice(0,12).map(function(x){
-            var lb=(typeof nameOf==='function'? nameOf(x[0]):null) || COMPANY[x[0]] || '';
-            return '<a href="https://polygonscan.com/address/'+x[0]+'" target="_blank" rel="noopener">'+
-              '<span>'+(lb?'<b style="color:var(--tx)">'+esc(lb)+'</b> ':'')+x[0]+'</span>'+
-              '<em>SUT '+num(Math.round(x[1]))+'개 · '+x[2]+'회</em></a>';
-          }).join('')+'</div>';
-      } else {
-        inner='<span style="color:var(--tx3)">SUT 유입 추적은 상위 600위까지만 준비돼 있습니다.</span>';
-      }
-      h+='<tr class="tw-open"><td colspan="8">'+
-         '<b>신용대금</b> — 실제 낸 결제대금의 2.4배가 신용으로 잡힙니다'+
-         '<div class="tw-kv">'+
-           '<span>KWT 결제분</span><b>'+num(get(r,'cr_kwt'))+' KWT</b>'+
-           '<span>USDT 결제분</span><b>'+num(get(r,'cr_usdt'))+' USDT</b>'+
-           '<span>원화 환산 합계</span><b>'+num(get(r,'cr_krw'))+' 원</b>'+
-         '</div>'+
-         '<b>실제 낸 돈 (온체인 입금)</b>'+
-         '<div class="tw-kv">'+
-           '<span>KWT</span><b>'+num(get(r,'kwt'))+' KWT</b>'+
-           '<span>USDT</span><b>'+num(get(r,'usdt'))+' USDT</b>'+
-           '<span>SUT</span><b>'+num(get(r,'sut_in'))+' 개</b>'+
-         '</div>'+
-         '<b>받은 DeCT Right</b>'+
-         '<div class="tw-kv">'+
-           '<span>합계</span><b>'+num(get(r,'dect'))+' SUT · '+num(get(r,'n'))+'건</b>'+
-           '<span>KWT 결제 건</span><b>'+num(get(r,'d_kwt'))+' SUT</b>'+
-           '<span>USDT 결제 건</span><b>'+num(get(r,'d_usdt'))+' SUT</b>'+
-           '<span>현금(KRW) 결제 건</span><b>'+num(get(r,'d_krw'))+' SUT</b>'+
-           '<span>참여 유형</span><b>결제대금 동반 '+num(get(r,'paid_n'))+'건 · '+
-             'SUT 단독 '+num(get(r,'solo_n'))+'건 · 온체인 입금 없음 '+num(get(r,'krw_n'))+'건</b>'+
-           '<span>활동 기간</span><b>'+ymd(get(r,'first'))+' ~ '+ymd(get(r,'last'))+'</b>'+
-         '</div>'+inner+
-         '<div style="margin-top:9px"><a href="https://polygonscan.com/address/'+a+
-         '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
-         ' · <a href="#" data-flow2="'+a+'">자금 흐름 보기</a>'+
-         ' · <a href="#" data-reg="'+a+'">이 주소에 이름 달기</a></div>'+
-         '<div id="fx-'+a.slice(2,10)+'"></div></td></tr>';
-    }
-    return h;
+  function load(name){
+    if(D[name]) return D[name];
+    D[name] = fetch(name+'.json', {cache:'force-cache'})
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .catch(function(){ return null; });
+    return D[name];
   }
-
-  function pass(r){
-    if(filt==='all') return true;
-    return kind(r).k===filt;
-  }
-  function render(){
-    if(!TOP){ return; }
-    var list=TOP.r.filter(pass), body=$('twBody');
-    if(sortBy!=='dect'){
-      list=list.slice().sort(function(x,y){ return get(y,sortBy)-get(x,sortBy); });
-    }
-    body.innerHTML = list.slice(0,shown).map(rowHtml).join('') ||
-      '<tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:26px">해당 없음</td></tr>';
-    $('twCount').textContent = Math.min(shown,list.length)+' / '+list.length+'개';
-    $('twMore').style.display = shown<list.length ? '' : 'none';
-    body.querySelectorAll('tr.hd').forEach(function(tr){
-      tr.onclick=function(){ var a=tr.dataset.a; openRow[a]=!openRow[a]; render(); };
-    });
-    body.querySelectorAll('a[data-reg]').forEach(function(el){
-      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
-        $('q').value=el.dataset.reg; showPane('p-reg'); $('check').click(); };
-    });
-    body.querySelectorAll('a[data-flow2]').forEach(function(el){
-      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
-        window.__showFlow(el.dataset.flow2,'fx-'); };
+  function idx(){
+    if(IX) return Promise.resolve(IX);
+    return load('addr_idx').then(function(j){
+      if(!j) return null;
+      IX=j; IXF=fmap(j); IXM={};
+      j.r.forEach(function(r){ IXM[r[IXF.addr]]=r; });
+      return IX;
     });
   }
-  function chips(){
-    var C=[['all','전체'],['free','자기돈 거의 없음'],['bot','초고빈도'],['own','자기돈 참여'],['co','회사·발급']];
-    $('twChips').innerHTML=C.map(function(c){
-      var n=TOP?TOP.r.filter(function(r){return c[0]==='all'||kind(r).k===c[0];}).length:0;
-      return '<a class="chip'+(filt===c[0]?' on':'')+'" data-f="'+c[0]+'">'+c[1]+' <em>'+n+'</em></a>';
-    }).join('');
-    $('twChips').querySelectorAll('a').forEach(function(a){
-      a.onclick=function(){ filt=a.dataset.f; shown=60; chips(); render(); };
-    });
-    var S=[['dect','DeCT 합계순'],['cr_krw','신용대금순'],['n','발급 건수순'],['solo_n','SUT 단독 건수순']];
-    $('twSort').innerHTML='<span class="hint" style="align-self:center;margin-right:2px">정렬</span>'+
-      S.map(function(s){ return '<a class="chip'+(sortBy===s[0]?' on':'')+'" data-s="'+s[0]+'">'+s[1]+'</a>'; }).join('');
-    $('twSort').querySelectorAll('a').forEach(function(a){
-      a.onclick=function(){ sortBy=a.dataset.s; shown=60; chips(); render(); };
+  function top(){
+    if(TP) return Promise.resolve(TP);
+    return load('dect_top_c').then(function(j){
+      if(!j) return null;
+      TP=j; TPF=fmap(j); TPM={};
+      j.r.forEach(function(r,i){ r._rank=i+1; TPM[r[TPF.addr]]=r; });
+      return TP;
     });
   }
-
-  function find(){
-    var q=($('twQ').value||'').trim().toLowerCase();
-    var m=q.match(/0x[0-9a-f]{40}/); var box=$('twMe');
-    if(!m){ box.className='tw-me'; return; }
-    var a=m[0];
-    function show(row, fields){
-      var g=function(k){ return row[fields[k]]; };
-      var K=kind(row), nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
-      box.className='tw-me on';
-      box.innerHTML='<div style="font-size:12px;color:var(--tx3)">'+ (nm?esc(nm)+' · ':'') + a +'</div>'+
-        '<div style="margin-top:6px;font-size:15px"><b>'+num(g('rank'))+'위</b> · DeCT <b>'+num(g('dect'))+
-        '</b> SUT · 발급 '+num(g('n'))+'건 · <span class="tag-x '+K.c+'">'+K.t+'</span></div>'+
-        '<div style="margin-top:4px;color:var(--tx2);font-size:12.5px">결제대금 동반 '+num(g('paid_n'))+
-        '건 · SUT단독 '+num(g('solo_n'))+'건 · DeCT 1당 낸 돈 <b>'+num(g('kpd'))+'원</b></div>';
-    }
-    var hit=null;
-    if(TOP) TOP.r.forEach(function(r){ if(get(r,'addr')===a) hit=r; });
-    if(hit){ var f2={}; Object.keys(F).forEach(function(k){f2[k]=F[k];}); f2.rank=null;
-      box.className='tw-me on';
-      var K=kind(hit), nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
-      box.innerHTML='<div style="font-size:12px;color:var(--tx3)">'+(nm?esc(nm)+' · ':'')+a+'</div>'+
-        '<div style="margin-top:6px;font-size:15px"><b>'+num(get(hit,'rank'))+'위</b> · DeCT <b>'+
-        num(get(hit,'dect'))+'</b> SUT · 발급 '+num(get(hit,'n'))+'건 · <span class="tag-x '+K.c+'">'+K.t+'</span></div>'+
-        '<div style="margin-top:4px;color:var(--tx2);font-size:12.5px">결제대금 동반 '+num(get(hit,'paid_n'))+
-        '건 · SUT 단독 '+num(get(hit,'solo_n'))+'건 · DeCT 1당 낸 돈 <b>'+num(get(hit,'kpd'))+'원</b><br>'+
-        '신용대금 <b>'+num(get(hit,'cr_kwt'))+' KWT</b> + <b>'+num(get(hit,'cr_usdt'))+' USDT</b>'+
-        ' (원화 환산 <b>'+num(get(hit,'cr_krw'))+'원</b>)</div>';
-      return;
-    }
-    box.className='tw-me on'; box.innerHTML='<span style="color:var(--tx3)">전체 목록에서 찾는 중…</span>';
-    (IDX ? Promise.resolve(IDX) : fetch('dect_idx.json').then(function(r){return r.json();})
-      .then(function(j){ IDX=j; var m2={}; j.f.forEach(function(k,i){m2[k]=i;}); IDX.F=m2; return j; }))
-    .then(function(j){
-      var row=null; j.r.forEach(function(r){ if(r[j.F?j.F.addr:0]===a) row=r; });
-      if(!row){ box.innerHTML='<span style="color:var(--tx3)">DeCT 수령 기록이 없는 주소입니다.</span>'; return; }
-      show(row, j.F);
-    }).catch(function(){ box.innerHTML='<span style="color:var(--tx3)">목록을 불러오지 못했습니다.</span>'; });
+  function flow(){
+    if(FL) return Promise.resolve(FL);
+    return load('flow').then(function(j){
+      if(!j) return null;
+      FL={}; j.r.forEach(function(x){ FL[x.addr]=x; }); return FL;
+    });
   }
-
+  function sutsrc(){
+    if(SS) return Promise.resolve(SS);
+    return load('sut_src').then(function(j){ SS=j||{}; return SS; });
+  }
+  /* 첫 화면에 필요한 것만 미리 */
   function boot(){
-    fetch('dect_top_c.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
-      if(!j || !j.r || !j.f) throw 0;
-      TOP=j; j.f.forEach(function(k,i){ F[k]=i; });
-      TOP.r.forEach(function(r,i){ r.push(i+1); }); F.rank=j.f.length;
-      $('twA').textContent=num(j.n); $('twB').textContent=num(j.sum);
-      $('twC').textContent=num(j.idm);
-      $('twD').textContent=num(TOP.r.filter(function(r){return kind(r).k==='free';}).length);
-      $('twE').textContent=num(j.crk||0); $('twF').textContent=num(j.cru||0);
-      $('tTree').textContent=num(j.n);
-      chips(); render();
-    }).catch(function(){
-      $('twBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:26px">'+
-        'dect_top_c.json 을 찾지 못했습니다. 페이지와 같은 폴더에 올려주세요.</td></tr>';
-    });
-    fetch('sut_src.json',{cache:'no-store'}).then(function(r){ return r.json(); })
-      .then(function(j){ SRC=j; }).catch(function(){});
-  }
-  /* ---- SUT 공급 허브 ---- */
-  var HUB=null, hbShown=40, hbOpen={};
-  function hubRow(r,i){
-    var a=r.addr, nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
-    var fake = r.sut===0 && r.zero>0;
-    var tag = fake ? '<span class="tag-x tag-free">0원 전송 · 사칭</span>'
-            : (COMPANY[a] ? '<span class="tag-x tag-co">회사·발급</span>'
-            : (r.targets>=100 ? '<span class="tag-x tag-bot">대량 공급</span>'
-            : '<span class="tag-x tag-own">공급</span>'));
-    var h='<tr class="hd" data-h="'+a+'">'+
-      '<td class="rk">'+(i+1)+'</td>'+
-      '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+'<span class="ad">'+a+'</span> '+tag+'</td>'+
-      '<td class="big">'+num(r.targets)+'명</td>'+
-      '<td>'+num(r.sut)+'</td>'+
-      '<td class="h-hide">'+(r.rank?num(r.rank)+'위':'—')+'</td></tr>';
-    if(hbOpen[a]){
-      h+='<tr class="tw-open"><td colspan="5">'+
-        '<b>이 주소가 SUT를 보낸 곳</b> (상위 600위 안에서 확인된 것만, 금액순)'+
-        '<div class="tw-src">'+r.to.map(function(x){
-          var lb=(typeof nameOf==='function'? nameOf(x[0]):null) || COMPANY[x[0]] || '';
-          return '<a href="https://polygonscan.com/address/'+x[0]+'" target="_blank" rel="noopener">'+
-            '<span>'+(lb?'<b style="color:var(--tx)">'+esc(lb)+'</b> ':'')+x[0]+'</span>'+
-            '<em>SUT '+num(x[1])+'</em></a>';
-        }).join('')+'</div>'+
-        '<div style="margin-top:9px"><a href="https://polygonscan.com/address/'+a+
-        '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
-        ' · <a href="#" data-reg2="'+a+'">이 주소에 이름 달기</a></div></td></tr>';
-    }
-    return h;
-  }
-  function hubRender(){
-    if(!HUB) return;
-    var body=$('hbBody');
-    body.innerHTML=HUB.r.slice(0,hbShown).map(hubRow).join('');
-    $('hbCount').textContent=Math.min(hbShown,HUB.r.length)+' / '+HUB.r.length+'개 · 상위 '+num(HUB.traced)+'위 추적분';
-    $('hbMore').style.display = hbShown<HUB.r.length ? '' : 'none';
-    body.querySelectorAll('tr.hd').forEach(function(tr){
-      tr.onclick=function(){ var a=tr.dataset.h; hbOpen[a]=!hbOpen[a]; hubRender(); };
-    });
-    body.querySelectorAll('a[data-reg2]').forEach(function(el){
-      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
-        $('q').value=el.dataset.reg2; showPane('p-reg'); $('check').click(); };
-    });
+    try{ var s=localStorage.getItem('reg_cfg'); if(s){ var o=JSON.parse(s);
+      Object.keys(o).forEach(function(k){ if(typeof o[k]==='number') CFG[k]=o[k]; }); } }catch(e){}
+    return Promise.all([
+      load('config').then(function(j){ if(j) Object.keys(CFG).forEach(function(k){
+        if(typeof j[k]==='number' && localStorage.getItem('reg_cfg')===null) CFG[k]=j[k]; }); }),
+      load('meta').then(function(j){ if(j) META=j; }),
+      top(), load('gas_hub'), load('mpc_lock')
+    ]).then(function(r){ return [r[2], r[3], r[4]]; });
   }
 
-  $('twGo').onclick=find;
-  $('twQ').addEventListener('keydown',function(e){ if(e.key==='Enter') find(); });
-  $('twMore').onclick=function(){ shown+=60; render(); };
-  $('hbMore').onclick=function(){ hbShown+=40; hubRender(); };
-  boot();
-  fetch('sut_hub.json',{cache:'no-store'}).then(function(r){ return r.json(); })
-    .then(function(j){ HUB=j; hubRender(); })
-    .catch(function(){ $('hbBody').innerHTML='<tr><td colspan="5" style="text-align:center;'+
-      'color:var(--tx3);padding:22px">sut_hub.json 을 찾지 못했습니다.</td></tr>'; });
-
-  /* ---- 주소 조각 찾기 ---- */
-  var ALL=null, BUCK={};
-  function parseFrag(s){
-    s=(s||'').toLowerCase().replace(/0x/g,'').replace(/[^0-9a-f.…\s]/g,' ').trim();
-    var parts=s.split(/[.…\s]+/).filter(Boolean);
-    if(!parts.length) return null;
-    if(parts.length===1){
-      // 한 덩어리 — 4자 이하면 앞으로, 아니면 앞으로 두고 뒤는 비움
-      return {head:parts[0], tail:''};
+  /* ---------- 주소 한 건의 온체인 요약 ---------- */
+  function of(a){
+    var o = { addr:a, known:KNOWN[a]||'', rank:0, dect:0, n:0,
+              kwt:0, usdt:0, sut:0, mpc:0, esc:0,
+              gas:0, paid_n:0, solo_n:0, krw_n:0, kpd:0,
+              cr_kwt:0, cr_usdt:0, credit:0, d_kwt:0, d_usdt:0, d_krw:0,
+              first:0, last:0, has:false, detail:false };
+    var r = IXM && IXM[a];
+    if(r){
+      o.has=true;
+      o.rank=r[IXF.rank]; o.dect=r[IXF.dect]; o.n=r[IXF.n];
+      o.kwt=r[IXF.kwt]; o.usdt=r[IXF.usdt]; o.sut=r[IXF.sut];
+      o.mpc=r[IXF.mpc]; o.esc=r[IXF.esc]; o.gas=r[IXF.gas]||0;
+      o.cr_kwt=Math.round(o.kwt*CFG.credit_mult);
+      o.cr_usdt=Math.round(o.usdt*CFG.credit_mult);
+      o.credit=Math.round(o.cr_kwt + o.cr_usdt*CFG.usdt_krw);
     }
-    return {head:parts[0], tail:parts[parts.length-1]};
+    var t = TPM && TPM[a];
+    if(t){
+      o.detail=true;
+      o.paid_n=t[TPF.paid_n]; o.solo_n=t[TPF.solo_n]; o.krw_n=t[TPF.krw_n];
+      o.first=t[TPF.first]; o.last=t[TPF.last];
+      /* 낸 돈과 DeCT 는 사실이고, 환산은 설정이라 여기서 다시 계산합니다 */
+      o.kpd=o.dect ? Math.round((o.kwt + o.usdt*CFG.usdt_krw)/o.dect) : 0;
+      o.d_kwt=t[TPF.d_kwt]; o.d_usdt=t[TPF.d_usdt]; o.d_krw=t[TPF.d_krw];
+      if(!o.rank) o.rank=t._rank;
+    }
+    return o;
   }
-  /* 주소 한 줄 요약 — 신용대금까지 */
-  function miniOf(a){
-    if(!ALL) return '';
-    if(!ALL._m){ ALL._m={}; var f={}; ALL.f.forEach(function(k,i){f[k]=i;}); ALL._f=f;
-      ALL.r.forEach(function(r){ ALL._m[r[f.addr]]=r; }); }
-    var r=ALL._m[a]; if(!r) return '<em style="color:var(--tx3)">수집 범위 밖</em>';
-    var f=ALL._f, bits=[];
-    var cr=(r[f.kwt]+r[f.usdt]*1400)*2.4;
-    if(r[f.rank]) bits.push('DeCT <b>'+num(r[f.rank])+'위</b>');
-    if(cr>0) bits.push('신용대금 <b>'+num(Math.round(cr))+'원</b>');
-    if(r[f.dect]) bits.push('<b>'+num(r[f.dect])+'</b> SUT');
-    if(r[f.mpc]) bits.push('MPC <b>'+num(r[f.mpc])+'</b>');
-    if(r[f.esc]) bits.push('<em style="color:#ffd98a">에스크로</em>');
-    if(!r[f.rank] && !r[f.kwt] && !r[f.usdt] && !r[f.sut])
-      bits.push('<em style="color:#ffb4b4">껍데기 (참여기록 없음)</em>');
-    return bits.join(' · ');
+  /* 성격 판정 — 온체인 수치만으로 */
+  function kind(o){
+    if(o.known) return {k:'co', t:'회사·발급', c:'oc-co'};
+    var noSelf = !o.rank && !o.kwt && !o.usdt && !o.sut;
+    if(noSelf && o.gas>=2) return {k:'oper', t:'참여 없이 계정만 굴림', c:'oc-free'};
+    if(!o.has || noSelf) return {k:'ghost', t:'참여기록 없음', c:'oc-ghost'};
+    if(o.dect>=50000 && o.kpd && o.kpd<CFG.free_kpd) return {k:'free', t:'자기돈 거의 없음', c:'oc-free'};
+    if(o.n>=CFG.bot_n) return {k:'bot', t:'초고빈도', c:'oc-bot'};
+    return {k:'own', t:'자기돈 참여', c:'oc-own'};
   }
-  function flRow(a, val, hi){
-    var nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
-    return '<div class="fl-row'+(hi?' fl-hi':'')+'">'+
-      '<div class="fl-a">'+(nm?'<b>'+esc(nm)+'</b><br>':'')+
-        '<a href="https://polygonscan.com/address/'+a+'" target="_blank" rel="noopener" '+
-        'style="color:var(--tx2)">'+a+'</a></div>'+
-      '<div class="fl-v">'+val+'</div>'+
-      '<div class="fl-m">'+miniOf(a)+'</div></div>';
+  /* 한 줄 요약 (관계도 안에서 씀) */
+  function mini(a){
+    if(!IXM) return '';
+    var o=of(a), b=[];
+    if(!o.has) return '<em class="oc-dim">수집 범위 밖</em>';
+    if(o.rank) b.push('DeCT <b>'+n(o.rank)+'위</b>');
+    if(o.credit) b.push('신용 <b>'+n(o.credit)+'원</b>');
+    if(o.dect) b.push('<b>'+n(o.dect)+'</b> SUT');
+    if(o.mpc) b.push('MPC <b>'+n(o.mpc)+'</b>');
+    if(o.gas>=2) b.push('가스비 <b>'+n(o.gas)+'</b>곳');
+    if(o.esc) b.push('<em class="oc-warn">에스크로</em>');
+    var K=kind(o);
+    if(K.k==='ghost'||K.k==='free') b.push('<em class="oc-bad">'+K.t+'</em>');
+    return b.join(' · ');
   }
-  var TOKS=['SUT','KWT','USDT','MPC'], flTok='all';
+
+  /* ---------- 주소 상세: 온체인 카드 ---------- */
+  function stat(label, val, unit, hint){
+    return '<div class="oc-s"><span>'+label+'</span><b>'+val+
+      (unit?'<i>'+unit+'</i>':'')+'</b>'+(hint?'<u>'+hint+'</u>':'')+'</div>';
+  }
+  function card(a){
+    if(!IXM){
+      Promise.all([idx(), top()]).then(function(){
+        if(typeof renderResult==='function') renderResult();
+      });
+      return '<div class="oc"><p class="oc-dim">온체인 자료 불러오는 중…</p></div>';
+    }
+    var o=of(a), K=kind(o);
+    if(!o.has && !o.known && !o.gas)
+      return '<div class="oc"><p class="oc-dim">온체인 수집 범위('+n(META.addrs||0)+'개 주소) 밖입니다. '+
+             'CC2C 참여·DeCT 수령·MPC 거래 기록이 모두 없는 주소입니다.</p></div>';
+    var h='<div class="oc">';
+    h+='<div class="oc-top"><span class="oc-tag '+K.c+'">'+K.t+'</span>'+
+       (o.esc?'<span class="oc-tag oc-esc">MPC 에스크로 참여</span>':'')+'</div>';
+    if(K.k==='oper') h+='<p class="oc-dim" style="margin:0 0 10px">본인 이름으로는 참여·입금 기록이 '+
+      '전혀 없는데 <b style="color:var(--tx2)">'+n(o.gas)+'개 지갑</b>에 가스비(POL)를 대주고 있습니다. '+
+      '새 지갑은 POL 없이는 아무것도 못 하므로, 이 흔적은 위조할 수 없습니다.</p>';
+    h+='<div class="oc-stats">';
+    h+=stat('DeCT Right', o.dect?n(o.dect):'—', o.dect?'SUT':'', o.rank?n(o.rank)+'위':'');
+    h+=stat('신용대금', n(o.credit), '원', '낸 결제대금 × '+CFG.credit_mult);
+    h+=stat('실제 낸 돈', n(Math.round(o.kwt+o.usdt*CFG.usdt_krw)), '원', 'KWT '+n(o.kwt)+' · USDT '+n(o.usdt));
+    if(o.kpd) h+=stat('DeCT 1당 낸 돈', n(o.kpd), '원', o.kpd<CFG.free_kpd?'정상의 1/5 이하':'정상 범위');
+    if(o.mpc) h+=stat('MPC 수령', n(o.mpc), '개', '');
+    if(o.gas) h+=stat('가스비를 댄 지갑', n(o.gas), '곳', o.gas>=10?'여러 계정을 굴립니다':'');
+    h+='</div>';
+    if(o.detail){
+      h+='<div class="oc-kv">'+
+        '<span>참여 유형</span><b>결제대금 동반 '+n(o.paid_n)+'건 · SUT 단독 '+n(o.solo_n)+
+          '건 · 온체인 입금 없음 '+n(o.krw_n)+'건</b>'+
+        '<span>결제통화별 DeCT</span><b>KWT '+n(o.d_kwt)+' · USDT '+n(o.d_usdt)+' · 현금 '+n(o.d_krw)+' SUT</b>'+
+        '<span>신용대금 내역</span><b>'+n(o.cr_kwt)+' KWT + '+n(o.cr_usdt)+' USDT</b>'+
+        '<span>활동 기간</span><b>'+ymd(o.first)+' ~ '+ymd(o.last)+'</b>'+
+        '</div>';
+    }
+    h+='<div class="oc-acts">'+
+       '<button class="ghost sm" data-oc-flow="'+a+'">자금 흐름</button>'+
+       '<button class="ghost sm" data-oc-sut="'+a+'">SUT 유입처</button>'+
+       '<a class="ghost sm btnlike" href="https://polygonscan.com/address/'+a+
+       '" target="_blank" rel="noopener">폴리곤스캔</a></div>';
+    h+='<div class="oc-more" id="ocm-'+a.slice(2,10)+'"></div>';
+    return h+'</div>';
+  }
+
+  /* ---------- 자금 흐름 ---------- */
+  var flTok='all';
   function amt(o){
     var s=[];
     TOKS.forEach(function(k){
       if(!o[k]) return;
       if(flTok!=='all' && flTok!==k) return;
-      s.push('<span class="tk tk-'+k+'"><i></i><b>'+num(Math.round(o[k]))+'</b> <em>'+k+'</em></span>');
+      s.push('<span class="tk tk-'+k+'"><i></i><b>'+n(Math.round(o[k]))+'</b> <em>'+k+'</em></span>');
     });
     return s.join('<br>');
   }
-  function hasTok(o){ return flTok==='all' || !!o[flTok]; }
+  function row(a, val, hi){
+    var nm=labelOf(a);
+    return '<div class="fl-row'+(hi?' fl-hi':'')+'">'+
+      '<div class="fl-a">'+(nm?'<b>'+E(nm)+'</b><br>':'')+
+        '<a href="#" data-go="'+a+'">'+a+'</a></div>'+
+      '<div class="fl-v">'+val+'</div>'+
+      '<div class="fl-m">'+mini(a)+'</div></div>';
+  }
   function flowHtml(fl){
     var sum={};
     ['in','out'].forEach(function(side){
@@ -2352,227 +2381,366 @@ refresh().then(function(){
         TOKS.forEach(function(k){ if(x[1][k]){ sum[k]=sum[k]||[0,0]; sum[k][side==='in'?0:1]+=x[1][k]; } });
       });
     });
-    var h='<div class="fl">';
-    var chips=['all'].concat(TOKS).map(function(k){
-      var on = flTok===k ? ' on':'';
-      if(k!=='all' && !sum[k]) return '';
-      return '<a class="chip'+on+'" data-ft="'+k+'" data-fa="'+fl.addr+'">'+(k==='all'?'전체':k)+'</a>';
-    }).join('');
-    h+='<div class="chips" style="margin:2px 0 8px">'+chips+'</div>';
     var sk=TOKS.filter(function(k){ return sum[k]; });
+    var h='<div class="fl">';
+    h+='<div class="chips" style="margin:2px 0 8px">'+
+      ['all'].concat(sk).map(function(k){
+        return '<a class="chip'+(flTok===k?' on':'')+'" data-ft="'+k+'" data-fa="'+fl.addr+'">'+
+               (k==='all'?'전체':k)+'</a>';
+      }).join('')+'</div>';
     if(sk.length){
       h+='<div class="fl-sum">'+sk.map(function(k){
-        var i=Math.round(sum[k][0]), o=Math.round(sum[k][1]);
         return '<div><span class="tk tk-'+k+'"><i></i>'+k+'</span>'+
-          '<b style="color:#7fb3f2">＋'+num(i)+'</b>'+
-          '<b style="color:#f0a184">－'+num(o)+'</b></div>';
+          '<b class="p">＋'+n(Math.round(sum[k][0]))+'</b>'+
+          '<b class="m">－'+n(Math.round(sum[k][1]))+'</b></div>';
       }).join('')+'</div>';
-      h+='<p class="tw-note" style="margin-bottom:6px">＋는 이 지갑으로 들어온 양, －는 나간 양입니다.</p>';
     }
     var POL=(fl.pol||[]).filter(function(p){ return p[1]>=0.001; });
     if(POL.length){
-      h+='<h4><i style="background:#fab219">⛽</i>가스비를 넣어준 곳 '+
-         '<span>— 지갑을 만들어 굴리는 쪽입니다. 본계정일 가능성이 가장 높습니다</span></h4>';
+      h+='<h4><i class="d1">⛽</i>가스비를 넣어준 곳 <span>— 지갑을 만들어 굴리는 쪽. 본계정일 가능성이 큽니다</span></h4>';
       h+=POL.map(function(p){
-        var d=new Date(p[2]*1000);
-        return flRow(p[0], p[1]+' POL<br><span style="color:var(--tx3);font-size:11px">'+
-          (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2)+'</span>', true);
+        return row(p[0], p[1]+' POL<br><em class="oc-dim">'+ymd(p[2])+'</em>', true);
       }).join('');
     }
-    var IN=(fl['in']||[]).filter(function(x){ return hasTok(x[1]); });
-    var OUT=(fl.out||[]).filter(function(x){ return hasTok(x[1]); });
-    if(IN.length){
-      h+='<h4><i style="background:#3987e5">↓</i>자금이 들어온 곳 <span>'+IN.length+'곳</span></h4>';
-      h+=IN.map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
-    }
-    if(OUT.length){
-      h+='<h4><i style="background:#eb6834">↑</i>자금이 나간 곳 <span>'+OUT.length+'곳</span></h4>';
-      h+=OUT.map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
-    }
-    if(!IN.length && !OUT.length)
-      h+='<p class="tw-note" style="margin-top:8px">고른 토큰으로 오간 기록이 없습니다.</p>';
-    if(fl.first){
-      var d2=new Date(fl.first*1000);
-      h+='<p class="tw-note" style="margin-top:10px">첫 거래 '+
-        (''+d2.getFullYear()).slice(2)+'.'+('0'+(d2.getMonth()+1)).slice(-2)+'.'+('0'+d2.getDate()).slice(-2)+
-        ' · 전체 트랜잭션 '+num(fl.ntx)+'건 · 상대는 금액 큰 순 12곳까지</p>';
-    }
+    var IN=(fl['in']||[]).filter(function(x){ return flTok==='all'||x[1][flTok]; });
+    var OUT=(fl.out||[]).filter(function(x){ return flTok==='all'||x[1][flTok]; });
+    if(IN.length){ h+='<h4><i class="d2">↓</i>자금이 들어온 곳 <span>'+IN.length+'곳</span></h4>';
+      h+=IN.map(function(x){ return row(x[0], amt(x[1]), false); }).join(''); }
+    if(OUT.length){ h+='<h4><i class="d3">↑</i>자금이 나간 곳 <span>'+OUT.length+'곳</span></h4>';
+      h+=OUT.map(function(x){ return row(x[0], amt(x[1]), false); }).join(''); }
+    if(!IN.length && !OUT.length) h+='<p class="oc-dim">고른 토큰으로 오간 기록이 없습니다.</p>';
+    if(fl.first) h+='<p class="oc-dim" style="margin-top:8px">첫 거래 '+ymd(fl.first)+
+      ' · 전체 트랜잭션 '+n(fl.ntx)+'건 · 상대는 금액 큰 순 12곳까지</p>';
     return h+'</div>';
   }
-  function fdCard(r,f){
-    var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
-    var bits=[];
-    if(r[f.rank]) bits.push('DeCT <b>'+num(r[f.rank])+'위</b> · '+num(r[f.dect])+' SUT · '+num(r[f.n])+'건');
-    else bits.push('<span style="color:var(--tx3)">DeCT 수령 기록 없음</span>');
-    var pay=[];
-    if(r[f.kwt]) pay.push('KWT '+num(r[f.kwt]));
-    if(r[f.usdt]) pay.push('USDT '+num(r[f.usdt]));
-    if(r[f.sut]) pay.push('SUT '+num(r[f.sut]));
-    bits.push('CC2C 입금 ' + (pay.length? pay.join(' · ') : '<span style="color:var(--tx3)">없음</span>'));
-    var cr=(r[f.kwt]+r[f.usdt]*1400)*2.4;
-    bits.push('신용대금 <b>'+num(Math.round(cr))+'원</b>'+
-      (cr?' <span style="color:var(--tx3)">(낸 결제대금 × 2.4)</span>':''));
-    if(r[f.mpc]) bits.push('MPC 수령 <b>'+num(r[f.mpc])+'</b>개');
-    if(r[f.esc]) bits.push('<span class="tag-x tag-bot">MPC 에스크로 참여</span>');
-    return '<div class="tw-me on" style="margin-bottom:10px">'+
-      (nm?'<b class="nm">'+esc(nm)+'</b>':'')+
-      '<div class="ad" style="font-size:13px;color:var(--tx);word-break:break-all">'+a+'</div>'+
-      '<div style="margin-top:6px;color:var(--tx2);font-size:12.5px;line-height:1.9">'+bits.join('<br>')+'</div>'+
-      '<div style="margin-top:8px"><a href="https://polygonscan.com/address/'+a+
-      '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
-      ' · <a href="#" data-flow="'+a+'">자금 흐름 보기</a>'+
-      ' · <a href="#" data-reg3="'+a+'">이 주소에 이름 달기</a></div>'+
-      '<div id="fl-'+a.slice(2,10)+'"></div></div>';
-  }
-  function fdSearch(){
-    var q=parseFrag($('fdQ').value), out=$('fdOut');
-    if(!q){ out.innerHTML='<p class="tw-note">주소 조각을 넣어주세요.</p>'; return; }
-    out.innerHTML='<p class="tw-note">찾는 중…</p>';
-    var src = ALL ? Promise.resolve(ALL)
-      : fetch('addr_idx.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
-          .then(function(j){ ALL=j; return j; });
-    src.then(function(j){
-      var f={}; j.f.forEach(function(k,i){ f[k]=i; });
-      var hits=j.r.filter(function(r){
-        var a=r[f.addr].slice(2);
-        return (!q.head || a.indexOf(q.head)===0) && (!q.tail || a.slice(-q.tail.length)===q.tail);
-      });
-      if(!hits.length){
-        out.innerHTML='<p class="tw-note">모아둔 주소 안에는 없습니다. '+
-          '이 프로젝트와 무관한 지갑이거나, 아직 수집 범위 밖입니다.</p>'; return;
-      }
-      hits.sort(function(x,y){ return (y[f.dect]||0)-(x[f.dect]||0); });
-      out.innerHTML='<p class="tw-note" style="margin-bottom:10px"><b>'+hits.length+'개</b> 일치'+
-        (hits.length===1?' — 조각이 충분해 하나로 좁혀졌습니다.':' — 조각을 더 넣으면 좁혀집니다.')+'</p>'+
-        hits.slice(0,40).map(function(r){ return fdCard(r,f); }).join('');
-      out.querySelectorAll('a[data-reg3]').forEach(function(el){
-        el.onclick=function(e){ e.preventDefault();
-          $('q').value=el.dataset.reg3; showPane('p-reg'); $('check').click(); };
-      });
-      out.querySelectorAll('a[data-flow]').forEach(function(el){
-        el.onclick=function(e){ e.preventDefault(); showFlow(el.dataset.flow); };
-      });
-    }).catch(function(){
-      out.innerHTML='<p class="tw-note">주소 목록을 불러오지 못했습니다. '+
-        'addr_idx.json 을 페이지와 같은 폴더에 올렸는지 확인해주세요.</p>';
+  function showFlow(a){
+    var box=document.getElementById('ocm-'+a.slice(2,10)); if(!box) return;
+    if(box.dataset.k==='flow'){ box.innerHTML=''; box.dataset.k=''; return; }
+    box.dataset.k='flow'; box.innerHTML='<p class="oc-dim">불러오는 중…</p>';
+    Promise.all([flow(), idx()]).then(function(res){
+      var m=res[0]; if(!m){ box.innerHTML='<p class="oc-dim">flow.json 을 불러오지 못했습니다.</p>'; return; }
+      var fl=m[a];
+      if(!fl){ box.innerHTML='<p class="oc-dim">이 주소는 자금 흐름을 미리 훑어둔 1,084명 밖입니다.</p>'; return; }
+      box.innerHTML=flowHtml(fl); bindFlow(box);
     });
   }
-  var FLOW=null;
-  function bindFlowChips(box){
+  function bindFlow(box){
     box.querySelectorAll('a[data-ft]').forEach(function(el){
       el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
         flTok=el.dataset.ft;
-        box.innerHTML=flowHtml(FLOW[el.dataset.fa]); bindFlowChips(box); };
+        box.innerHTML=flowHtml(FL[el.dataset.fa]); bindFlow(box); };
     });
   }
-  function showFlow(a, pfx){
-    var box=$((pfx||'fl-')+a.slice(2,10)); if(!box) return;
-    if(box.innerHTML){ box.innerHTML=''; return; }
-    box.innerHTML='<p class="tw-note">불러오는 중…</p>';
-    (FLOW ? Promise.resolve(FLOW)
-      : fetch('flow.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
-          .then(function(j){ FLOW={}; j.r.forEach(function(x){ FLOW[x.addr]=x; }); return FLOW; }))
-    .then(function(m){
-      return (ALL ? Promise.resolve() :
-        fetch('addr_idx.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
-          .then(function(j){ ALL=j; })).then(function(){ return m; });
-    })
-    .then(function(m){
-      var fl=m[a];
-      if(!fl){ box.innerHTML='<p class="tw-note">이 주소는 자금 흐름을 미리 훑어둔 범위 밖입니다. '+
-        '알려주시면 추가로 훑겠습니다.</p>'; return; }
-      box.innerHTML=flowHtml(fl); bindFlowChips(box);
-    }).catch(function(){ box.innerHTML='<p class="tw-note">flow.json 을 불러오지 못했습니다.</p>'; });
+  function showSut(a){
+    var box=document.getElementById('ocm-'+a.slice(2,10)); if(!box) return;
+    if(box.dataset.k==='sut'){ box.innerHTML=''; box.dataset.k=''; return; }
+    box.dataset.k='sut'; box.innerHTML='<p class="oc-dim">불러오는 중…</p>';
+    Promise.all([sutsrc(), idx()]).then(function(res){
+      var s=res[0][a];
+      if(!s || !s.length){ box.innerHTML='<p class="oc-dim">SUT 유입 추적은 DeCT 상위 600위까지만 준비돼 있습니다.</p>'; return; }
+      box.innerHTML='<div class="fl"><h4><i class="d2">↓</i>이 지갑에 SUT를 보내준 곳 '+
+        '<span>— 참여에 쓸 SUT가 어디서 왔는지가 관계의 단서입니다</span></h4>'+
+        s.map(function(x){ return row(x[0], '<span class="tk tk-SUT"><i></i><b>'+
+          n(Math.round(x[1]))+'</b> <em>SUT</em></span><br><em class="oc-dim">'+x[2]+'회</em>', false); }).join('')+
+        '</div>';
+    });
   }
-  window.__showFlow=showFlow;
-  $('fdGo').onclick=fdSearch;
-  $('fdQ').addEventListener('keydown',function(e){ if(e.key==='Enter') fdSearch(); });
-  (function(){ var n=$('fdN'); if(n) n.textContent='44,516'; })();
 
-  /* ---- MPC 에스크로 ---- */
-  var LOCK=null, mlShown=25;
-  function mlRender(){
-    if(!LOCK) return;
-    var f={}; LOCK.f.forEach(function(k,i){ f[k]=i; });
-    var now=Math.floor(Date.now()/1000);
-    $('mlBody').innerHTML=LOCK.r.slice(0,mlShown).map(function(r,i){
-      var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
-      var days=Math.floor((now-r[f.first])/86400);
-      return '<tr><td class="rk">'+(i+1)+'</td>'+
-        '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+'<span class="ad">'+a+'</span></td>'+
-        '<td class="big">'+num(r[f.mpc])+'</td>'+
-        '<td class="h-hide">'+num(r[f.n])+'</td>'+
-        '<td>'+days+'<span class="tw-unit">일</span></td>'+
-        '<td class="h-hide">'+(r[f.rank]?num(r[f.rank])+'위':'—')+'</td></tr>';
-    }).join('');
-    $('mlCount').textContent=Math.min(mlShown,LOCK.r.length)+' / '+LOCK.r.length+'명';
-    $('mlMore').style.display = mlShown<LOCK.r.length ? '' : 'none';
+  return { boot:boot, idx:idx, top:top, flow:flow, of:of, kind:kind, mini:mini,
+           cfg:cfg, setCfg:setCfg, nowRef:nowRef, get META(){ return META; },
+           card:card, showFlow:showFlow, showSut:showSut, load:load,
+           KNOWN:KNOWN, TOKS:TOKS, n:n, ymd:ymd, labelOf:labelOf, fmap:fmap,
+           get IXM(){ return IXM; }, get IXF(){ return IXF; },
+           get TPM(){ return TPM; }, get TPF(){ return TPF; },
+           get IX(){ return IX; }, get TP(){ return TP; } };
+})();
+
+/* ==========================================================
+   화면 — 현황 / 순위 / 기여, 그리고 상단 통합 검색
+   ========================================================== */
+(function(){
+  var $$ = function(id){ return document.getElementById(id); };
+  var n = OC.n;
+
+  /* ---------- 상단 통합 검색 ---------- */
+  function parseFrag(s){
+    s=(s||'').toLowerCase().replace(/0x/g,'').replace(/[^0-9a-f.…\s]/g,' ').trim();
+    var p=s.split(/[.…\s]+/).filter(Boolean);
+    if(!p.length) return null;
+    return {head:p[0], tail:p.length>1?p[p.length-1]:''};
   }
-  $('mlMore').onclick=function(){ mlShown+=25; mlRender(); };
-  fetch('mpc_lock.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
-    LOCK=j;
-    $('mlStat').innerHTML=
-      '<div><b>'+num(j.total)+'</b><span>지금 잠긴 MPC (개)</span></div>'+
-      '<div><b>'+num(j.n)+'</b><span>매물 낸 사람 (명)</span></div>'+
-      '<div><b>'+num(j.selfn)+'</b><span>도로 찾아감 (건)</span></div>'+
-      '<div><b>'+num(j.tn)+'</b><span>남에게 넘어감 (건)</span></div>';
-    mlRender();
-  }).catch(function(){ $('mlBody').innerHTML='<tr><td colspan="6" style="text-align:center;'+
-    'color:var(--tx3);padding:22px">mpc_lock.json 을 찾지 못했습니다.</td></tr>'; });
-  /* ---- 가스비 허브 ---- */
-  var GH=null, ghShown=25, ghOpen={};
-  function ghRender(){
-    if(!GH) return;
-    var f={}; GH.f.forEach(function(k,i){ f[k]=i; });
-    $('ghBody').innerHTML=GH.r.slice(0,ghShown).map(function(r,i){
-      var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
-      var ghost = !r[f.rank] && !r[f.credit];
-      var h='<tr class="hd" data-g="'+a+'"><td class="rk">'+(i+1)+'</td>'+
-        '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+'<span class="ad">'+a+'</span> '+
-          (ghost?'<span class="tag-x tag-free">본인 참여기록 없음</span>':'')+'</td>'+
-        '<td class="big">'+num(r[f.targets])+'<span class="tw-unit">개</span></td>'+
-        '<td class="h-hide">'+num(Math.round(r[f.pol]))+'<span class="tw-unit">POL</span></td>'+
-        '<td>'+num(r[f.credit])+'<span class="tw-unit">원</span></td>'+
-        '<td class="h-hide">'+(r[f.rank]?num(r[f.rank])+'위':'—')+'</td></tr>';
-      if(ghOpen[a]){
-        h+='<tr class="tw-open"><td colspan="6"><b>가스비를 대준 지갑</b>'+
-          '<div class="tw-src">'+r[f.to].map(function(x){
-            var l2=(typeof nameOf==='function'? nameOf(x):null)||COMPANY[x]||'';
-            return '<a href="https://polygonscan.com/address/'+x+'" target="_blank" rel="noopener">'+
-              '<span>'+(l2?'<b style="color:var(--tx)">'+esc(l2)+'</b> ':'')+x+'</span>'+
-              '<em>'+miniOf(x)+'</em></a>';
-          }).join('')+'</div></td></tr>';
+  var trail=[];
+  function openDrawer(){
+    var d=$$('dw'); if(!d) return;
+    d.hidden=false; document.body.classList.add('dw-on');
+    var b=$$('dwBack'); if(b) b.hidden = trail.length<2;
+  }
+  function closeDrawer(){
+    var d=$$('dw'); if(!d) return;
+    d.hidden=true; document.body.classList.remove('dw-on'); trail=[];
+  }
+  function draw(a){
+    var q=$$('q'); if(!q) return;
+    Promise.all([OC.idx(), OC.top()]).then(function(){
+      q.value=a;
+      var c=$$('check'); if(c) c.click();
+      openDrawer();
+      var p=document.querySelector('.dw-p'); if(p) p.scrollTop=0;
+    });
+  }
+  function goAddr(a){
+    if(trail[trail.length-1]!==a) trail.push(a);
+    if(trail.length>12) trail.shift();
+    draw(a);
+  }
+  function backAddr(){
+    if(trail.length<2) return;
+    trail.pop();
+    draw(trail[trail.length-1]);
+  }
+  window.__goAddr = goAddr;
+
+  function search(){
+    var v=($$('gq').value||'').trim(), out=$$('gout');
+    if(!v){ out.innerHTML=''; return; }
+    var full=v.toLowerCase().match(/0x[0-9a-f]{40}/);
+    if(full){ out.innerHTML=''; goAddr(full[0]); return; }
+    var q=parseFrag(v);
+    if(!q){ out.innerHTML='<p class="oc-dim">주소나 조각을 넣어주세요.</p>'; return; }
+    out.innerHTML='<p class="oc-dim">찾는 중…</p>';
+    Promise.all([OC.idx(), OC.top()]).then(function(){
+      var IX=OC.IX, F=OC.IXF;
+      if(!IX){ out.innerHTML='<p class="oc-dim">addr_idx.json 을 불러오지 못했습니다.</p>'; return; }
+      var hit=IX.r.filter(function(r){
+        var a=r[F.addr].slice(2);
+        return (!q.head || a.indexOf(q.head)===0) && (!q.tail || a.slice(-q.tail.length)===q.tail);
+      });
+      if(!hit.length){
+        out.innerHTML='<p class="oc-dim">모아둔 주소 '+n((OC.META&&OC.META.addrs)||0)+'개 안에는 없습니다. '+
+          '이 프로젝트와 무관한 지갑이거나 아직 수집 범위 밖입니다.</p>'; return;
       }
-      return h;
-    }).join('');
-    $('ghCount').textContent=Math.min(ghShown,GH.r.length)+' / '+GH.r.length+'개';
-    $('ghMore').style.display = ghShown<GH.r.length ? '' : 'none';
-    $('ghBody').querySelectorAll('tr.hd').forEach(function(tr){
-      tr.onclick=function(){ var a=tr.dataset.g; ghOpen[a]=!ghOpen[a];
-        (ALL?Promise.resolve():fetch('addr_idx.json',{cache:'force-cache'})
-          .then(function(r){return r.json();}).then(function(j){ALL=j;}))
-        .then(ghRender); };
+      hit.sort(function(x,y){ return (y[F.dect]||0)-(x[F.dect]||0); });
+      out.innerHTML='<p class="oc-dim" style="margin-bottom:8px"><b>'+hit.length+'개</b> 일치'+
+        (hit.length===1?' — 조각이 충분해 하나로 좁혀졌습니다. 눌러서 상세를 보세요.'
+                       :' — 조각을 더 넣으면 좁혀집니다.')+'</p>'+
+        '<div class="gr">'+hit.slice(0,30).map(function(r){
+          var a=r[F.addr], o=OC.of(a), K=OC.kind(o), nm=OC.labelOf(a);
+          return '<a class="gr-i" href="#" data-go="'+a+'">'+
+            '<div class="gr-h">'+(nm?'<b>'+esc(nm)+'</b>':'')+
+              '<span class="oc-tag '+K.c+'">'+K.t+'</span></div>'+
+            '<div class="gr-a">'+a+'</div>'+
+            '<div class="gr-m">'+OC.mini(a)+'</div></a>';
+        }).join('')+'</div>';
+      bindGo(out);
     });
   }
-  $('ghMore').onclick=function(){ ghShown+=25; ghRender(); };
-  fetch('gas_hub.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
-    GH=j; var t=$('ghT'); if(t) t.textContent=num(j.traced); ghRender();
-  }).catch(function(){ $('ghBody').innerHTML='<tr><td colspan="6" style="text-align:center;'+
-    'color:var(--tx3);padding:22px">gas_hub.json 을 찾지 못했습니다.</td></tr>'; });
+  function bindGo(root){
+    root.querySelectorAll('a[data-go]').forEach(function(el){
+      el.onclick=function(e){ e.preventDefault(); e.stopPropagation(); goAddr(el.dataset.go); };
+    });
+  }
+  window.__bindGo = bindGo;
 
-  fetch('mpc_esc.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
-    var f={}; j.f.forEach(function(k,i){ f[k]=i; });
-    $('mtOut').innerHTML=j.r.map(function(r){
-      var d=new Date(r[f.dep_ts]*1000);
-      var ds=(''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2);
-      function lb(x){ var n=(typeof nameOf==='function'? nameOf(x):null)||COMPANY[x];
-        return n? '<b style="color:var(--tx)">'+esc(n)+'</b> ':''; }
-      return '<a href="https://polygonscan.com/address/'+r[f.buyer]+'" target="_blank" rel="noopener">'+
-        '<span>'+ds+' &nbsp; '+lb(r[f.seller])+r[f.seller].slice(0,10)+'… → '+
-        lb(r[f.buyer])+r[f.buyer].slice(0,10)+'…</span>'+
-        '<em>'+num(r[f.mpc])+' MPC · '+(r[f.gap]/3600).toFixed(1)+'시간</em></a>';
+  /* ---------- 현황 ---------- */
+  function home(){
+    OC.boot().then(function(res){
+      var tp=res[0], gh=res[1], lk=res[2];
+      var s=$$('hStat');
+      if(tp){
+        /* 신용대금은 저장값이 아니라 지금 설정으로 다시 계산합니다 — 배율을 바꾸면 여기가 같이 움직입니다 */
+        OC.idx().then(function(ix){
+          var c=OC.cfg(), kwt=0, usdt=0, free=0;
+          if(ix){ var f=OC.IXF;
+            ix.r.forEach(function(r){ kwt+=r[f.kwt]; usdt+=r[f.usdt]; }); }
+          var tf=OC.TPF;
+          tp.r.forEach(function(r){
+            var d=r[tf.dect], paid=r[tf.kwt]+r[tf.usdt]*c.usdt_krw;
+            if(d>=50000 && d && paid/d < c.free_kpd) free++;
+          });
+          s.innerHTML=
+            tile(n(tp.n), '수령 주소', '개') +
+            tile(n(tp.sum), 'DeCT 합계', 'SUT') +
+            tile(n(Math.round(kwt*c.credit_mult)), '신용대금', 'KWT') +
+            tile(n(Math.round(usdt*c.credit_mult)), '신용대금', 'USDT') +
+            tile(n(tp.idm), '발급 기록', '건') +
+            tile(n(free), '자기돈 없는 주소', '개');
+        });
+      }
+      var g=$$('hGas');
+      if(gh){
+        var gf=OC.fmap(gh);
+        var ghost=gh.r.filter(function(r){ return !r[gf.rank] && !r[gf.credit]; });
+        g.innerHTML='<b>'+n(gh.r.length)+'</b>개 주소가 둘 이상의 지갑에 가스비를 댔고, '+
+          '그중 <b>'+n(ghost.length)+'</b>개는 <b>본인 참여기록이 전혀 없습니다.</b> '+
+          '가장 많은 곳은 <b>'+n(gh.r[0][gf.targets])+'개 지갑</b>을 굴립니다.';
+      }
+      var m=$$('hMpc');
+      if(lk) m.innerHTML='MPC 에스크로에 <b>'+n(lk.total)+'개</b>가 <b>'+n(lk.n)+'명</b> 몫으로 잠겨 있습니다. '+
+        '맡겼다 도로 찾아간 것이 <b>'+n(lk.selfn)+'건</b>인데 남에게 넘어간 것은 <b>'+n(lk.tn)+'건</b>뿐입니다.';
+      rank('dect', 'hRank', 8);
+    });
+  }
+  function tile(v, lab, unit){
+    return '<div class="oc-s"><span>'+lab+'</span><b>'+v+(unit?'<i>'+unit+'</i>':'')+'</b></div>';
+  }
+
+  /* ---------- 순위 — 축만 바꿔 보는 표 하나 ---------- */
+  var AXES = {
+    dect:   {t:'DeCT 수령', col:'DeCT 합계', unit:'SUT',
+             desc:'외매권을 많이 받아 쥔 순서입니다.'},
+    credit: {t:'신용대금',  col:'신용대금',  unit:'원',
+             desc:'실제 낸 결제대금의 2.4배로 잡히는 신용 규모입니다.'},
+    gas:    {t:'가스비 허브', col:'가스비 준 지갑', unit:'개',
+             desc:'둘 이상의 지갑에 POL을 대준 주소입니다. 계정을 굴리는 쪽이 드러납니다.'},
+    sut:    {t:'SUT 공급',  col:'받은 사람', unit:'명',
+             desc:'여러 사람에게 SUT를 보낸 주소입니다. 그 아래가 곧 조직입니다.'},
+    lock:   {t:'에스크로 매물', col:'잠긴 MPC', unit:'개',
+             desc:'MPC를 팔려고 내놨는데 아직 안 팔린 물량입니다.'}
+  };
+  var axis='dect', shown=40;
+
+  function rows(kind){
+    return new Promise(function(res){
+      if(kind==='dect'||kind==='credit'){
+        OC.top().then(function(j){
+          if(!j) return res([]);
+          var f=OC.TPF, key = kind==='dect' ? f.dect : f.cr_krw;
+          var r=j.r.slice().sort(function(x,y){ return y[key]-x[key]; });
+          res(r.map(function(x){ return {a:x[f.addr], v:x[key]}; }));
+        });
+      } else if(kind==='gas'){
+        OC.load('gas_hub').then(function(j){
+          if(!j) return res([]);
+          var f=OC.fmap(j);
+          res(j.r.map(function(x){ return {a:x[f.addr], v:x[f.targets], sub:x[f.to]}; }));
+        });
+      } else if(kind==='sut'){
+        OC.load('sut_hub').then(function(j){
+          if(!j) return res([]);
+          var f=OC.fmap(j);
+          res(j.r.map(function(x){ return {a:x[f.addr], v:x[f.targets],
+            sub:(x[f.to]||[]).map(function(y){ return y[0]; })}; }));
+        });
+      } else {
+        OC.load('mpc_lock').then(function(j){
+          if(!j) return res([]);
+          var f=OC.fmap(j);
+          res(j.r.map(function(x){ return {a:x[f.addr], v:x[f.mpc]}; }));
+        });
+      }
+    });
+  }
+  function rank(kind, target, limit){
+    var A=AXES[kind], el=$$(target||'rBody');
+    if(!el) return;
+    el.innerHTML='<tr><td colspan="6" class="oc-dim" style="text-align:center;padding:22px">불러오는 중…</td></tr>';
+    Promise.all([rows(kind), OC.idx(), OC.top()]).then(function(res){
+      var L=res[0];
+      if(!L.length){ el.innerHTML='<tr><td colspan="6" class="oc-dim" style="text-align:center;padding:22px">'+
+        '자료 파일을 찾지 못했습니다.</td></tr>'; return; }
+      var lim = limit || shown;
+      el.innerHTML=L.slice(0,lim).map(function(x,i){
+        var o=OC.of(x.a), K=OC.kind(o), nm=OC.labelOf(x.a);
+        return '<tr data-go="'+x.a+'">'+
+          '<td class="rk">'+(i+1)+'</td>'+
+          '<td><div class="r-n">'+(nm?'<b>'+esc(nm)+'</b>':'')+
+            '<span class="oc-tag '+K.c+'">'+K.t+'</span></div>'+
+            '<span class="r-a">'+x.a+'</span></td>'+
+          '<td class="big">'+n(Math.round(x.v))+'<i>'+A.unit+'</i></td>'+
+          '<td class="hcol">'+(o.rank?n(o.rank)+'위':'—')+'</td>'+
+          '<td class="hcol">'+n(o.credit)+'<i>원</i></td>'+
+          '<td class="hcol">'+(o.kpd?n(o.kpd)+'<i>원</i>':'—')+'</td></tr>';
+      }).join('');
+      if(!limit){
+        $$('rCount').textContent=Math.min(lim,L.length)+' / '+L.length+'개';
+        $$('rMore').style.display = lim<L.length ? '' : 'none';
+        $$('rCol').textContent=A.col;
+        $$('rUnit').textContent=A.unit;
+        $$('rDesc').textContent=A.desc;
+      }
+      el.querySelectorAll('tr[data-go]').forEach(function(tr){
+        tr.onclick=function(){ goAddr(tr.dataset.go); };
+      });
+    });
+  }
+  function axisChips(){
+    $$('rAxis').innerHTML=Object.keys(AXES).map(function(k){
+      return '<a class="chip'+(axis===k?' on':'')+'" data-ax="'+k+'">'+AXES[k].t+'</a>';
     }).join('');
-  }).catch(function(){});
+    $$('rAxis').querySelectorAll('a').forEach(function(a){
+      a.onclick=function(){ axis=a.dataset.ax; shown=40; axisChips(); rank(axis); };
+    });
+  }
+
+  /* ---------- 시작 ---------- */
+  /* 기존 화면 조각을 새 탭으로 옮깁니다 (마크업은 그대로 재사용) */
+  function relocate(){
+    function moveIn(p, el, cls){ if(!p||!el) return; if(cls!==false) el.className='sub'; p.appendChild(el); }
+    var home=$$('p-home'), help=$$('p-help');
+    /* 현황: 요약 → 순위 → 이름 붙은 주소 목록 → 진행바 → 안내 */
+    moveIn(home, $$('p-list'));
+    var prog=document.querySelector('.prog');
+    if(prog && home){ prog.style.marginTop='20px'; home.appendChild(prog); }
+    var why=$$('why');
+    if(why && home){ why.style.marginTop='20px'; home.appendChild(why); }
+    /* 기여: 등록 폼 → 최근 활동 */
+    moveIn(help, $$('p-reg'));
+    moveIn(help, $$('p-live'));
+    /* 내려받기(운영진용)는 기여 탭이 제자리입니다 */
+    var dl=$$('dlJson');
+    if(dl && help){
+      var card=dl.closest('.card');
+      if(card){ card.style.marginTop='20px'; help.appendChild(card); }
+    }
+  }
+  function init(){
+    relocate();
+    if($$('dwClose')) $$('dwClose').onclick=closeDrawer;
+    if($$('dwBg')) $$('dwBg').onclick=closeDrawer;
+    if($$('dwBack')) $$('dwBack').onclick=backAddr;
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Escape' && !$$('dw').hidden) closeDrawer();
+    });
+    if($$('gGo')){
+      $$('gGo').onclick=search;
+      $$('gq').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); search(); } });
+    }
+    if($$('rAxis')){ axisChips(); rank(axis); }
+    if($$('rMore')) $$('rMore').onclick=function(){ shown+=40; rank(axis); };
+    if($$('hStat')) home();
+    if($$('cApply')){
+      var fill=function(){
+        var c=OC.cfg();
+        $$('cUsdt').value=c.usdt_krw; $$('cMult').value=c.credit_mult;
+        var m=OC.META;
+        if(m&&m.gen) $$('hGen').textContent=m.gen+' 기준';
+        if(m&&m.addrs && $$('hAddrs')) $$('hAddrs').textContent=n(m.addrs);
+      };
+      OC.boot().then(fill);
+      $$('cApply').onclick=function(){
+        var u=parseFloat($$('cUsdt').value), m=parseFloat($$('cMult').value);
+        if(u>0) OC.setCfg('usdt_krw', u);
+        if(m>0) OC.setCfg('credit_mult', m);
+        home(); rank(axis);
+        if(typeof toast==='function') toast('환산 기준을 바꿔 다시 계산했습니다');
+      };
+      $$('cReset').onclick=function(){
+        try{ localStorage.removeItem('reg_cfg'); }catch(e){}
+        OC.setCfg('usdt_krw',1400); OC.setCfg('credit_mult',2.4);
+        try{ localStorage.removeItem('reg_cfg'); }catch(e){}
+        fill(); home(); rank(axis);
+      };
+    }
+    /* 주소 상세 안의 온체인 버튼 */
+    document.addEventListener('click', function(e){
+      var t=e.target;
+      if(t && t.dataset && t.dataset.ocFlow){ e.preventDefault(); OC.showFlow(t.dataset.ocFlow); }
+      if(t && t.dataset && t.dataset.ocSut){ e.preventDefault(); OC.showSut(t.dataset.ocSut); }
+      if(t && t.dataset && t.dataset.go && t.tagName==='A'){ e.preventDefault(); goAddr(t.dataset.go); }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 </body>
