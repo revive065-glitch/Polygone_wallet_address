@@ -385,6 +385,17 @@ button.wide{width:100%;padding:11px}
 .fl-m em{font-style:normal}
 .fl-m b{color:var(--tx2)}
 .fl-hi{background:rgba(250,178,25,.07);border-left:2px solid #fab219;padding-left:8px;margin-left:-10px}
+.tk{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tk i{width:7px;height:7px;border-radius:2px;display:inline-block;flex:none}
+.tk-SUT i{background:#3987e5} .tk-USDT i{background:#d95926}
+.tk-KWT i{background:#199e70} .tk-MPC i{background:#c98500}
+.tk b{font-weight:600;color:var(--tx)}
+.tk em{font-style:normal;color:var(--tx3);font-size:11px}
+.fl-sum{display:flex;gap:14px;flex-wrap:wrap;background:rgba(0,0,0,.22);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;margin:6px 0 4px}
+.fl-sum div{font-size:12px}
+.fl-sum div span{display:block;color:var(--tx3);font-size:11px;margin-bottom:2px}
+.fl-sum div b{font-variant-numeric:tabular-nums;font-size:13.5px}
 @media(max-width:900px){
   .tw-stat{grid-template-columns:repeat(2,1fr)}
   .tw-tbl .h-hide{display:none}
@@ -2123,7 +2134,9 @@ refresh().then(function(){
          '</div>'+inner+
          '<div style="margin-top:9px"><a href="https://polygonscan.com/address/'+a+
          '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
-         ' · <a href="#" data-reg="'+a+'">이 주소에 이름 달기</a></div></td></tr>';
+         ' · <a href="#" data-flow2="'+a+'">자금 흐름 보기</a>'+
+         ' · <a href="#" data-reg="'+a+'">이 주소에 이름 달기</a></div>'+
+         '<div id="fx-'+a.slice(2,10)+'"></div></td></tr>';
     }
     return h;
   }
@@ -2148,6 +2161,10 @@ refresh().then(function(){
     body.querySelectorAll('a[data-reg]').forEach(function(el){
       el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
         $('q').value=el.dataset.reg; showPane('p-reg'); $('check').click(); };
+    });
+    body.querySelectorAll('a[data-flow2]').forEach(function(el){
+      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
+        window.__showFlow(el.dataset.flow2,'fx-'); };
     });
   }
   function chips(){
@@ -2317,35 +2334,68 @@ refresh().then(function(){
       '<div class="fl-v">'+val+'</div>'+
       '<div class="fl-m">'+miniOf(a)+'</div></div>';
   }
+  var TOKS=['SUT','KWT','USDT','MPC'], flTok='all';
   function amt(o){
     var s=[];
-    ['KWT','USDT','SUT','MPC'].forEach(function(k){ if(o[k]) s.push(num(Math.round(o[k]))+' '+k); });
+    TOKS.forEach(function(k){
+      if(!o[k]) return;
+      if(flTok!=='all' && flTok!==k) return;
+      s.push('<span class="tk tk-'+k+'"><i></i><b>'+num(Math.round(o[k]))+'</b> <em>'+k+'</em></span>');
+    });
     return s.join('<br>');
   }
+  function hasTok(o){ return flTok==='all' || !!o[flTok]; }
   function flowHtml(fl){
+    var sum={};
+    ['in','out'].forEach(function(side){
+      (fl[side]||[]).forEach(function(x){
+        TOKS.forEach(function(k){ if(x[1][k]){ sum[k]=sum[k]||[0,0]; sum[k][side==='in'?0:1]+=x[1][k]; } });
+      });
+    });
     var h='<div class="fl">';
-    if(fl.pol && fl.pol.length){
+    var chips=['all'].concat(TOKS).map(function(k){
+      var on = flTok===k ? ' on':'';
+      if(k!=='all' && !sum[k]) return '';
+      return '<a class="chip'+on+'" data-ft="'+k+'" data-fa="'+fl.addr+'">'+(k==='all'?'전체':k)+'</a>';
+    }).join('');
+    h+='<div class="chips" style="margin:2px 0 8px">'+chips+'</div>';
+    var sk=TOKS.filter(function(k){ return sum[k]; });
+    if(sk.length){
+      h+='<div class="fl-sum">'+sk.map(function(k){
+        var i=Math.round(sum[k][0]), o=Math.round(sum[k][1]);
+        return '<div><span class="tk tk-'+k+'"><i></i>'+k+'</span>'+
+          '<b style="color:#7fb3f2">＋'+num(i)+'</b>'+
+          '<b style="color:#f0a184">－'+num(o)+'</b></div>';
+      }).join('')+'</div>';
+      h+='<p class="tw-note" style="margin-bottom:6px">＋는 이 지갑으로 들어온 양, －는 나간 양입니다.</p>';
+    }
+    var POL=(fl.pol||[]).filter(function(p){ return p[1]>=0.001; });
+    if(POL.length){
       h+='<h4><i style="background:#fab219">⛽</i>가스비를 넣어준 곳 '+
          '<span>— 지갑을 만들어 굴리는 쪽입니다. 본계정일 가능성이 가장 높습니다</span></h4>';
-      h+=fl.pol.map(function(p){
+      h+=POL.map(function(p){
         var d=new Date(p[2]*1000);
         return flRow(p[0], p[1]+' POL<br><span style="color:var(--tx3);font-size:11px">'+
           (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2)+'</span>', true);
       }).join('');
     }
-    if(fl['in'] && fl['in'].length){
-      h+='<h4><i style="background:#3987e5">↓</i>자금이 들어온 곳</h4>';
-      h+=fl['in'].map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
+    var IN=(fl['in']||[]).filter(function(x){ return hasTok(x[1]); });
+    var OUT=(fl.out||[]).filter(function(x){ return hasTok(x[1]); });
+    if(IN.length){
+      h+='<h4><i style="background:#3987e5">↓</i>자금이 들어온 곳 <span>'+IN.length+'곳</span></h4>';
+      h+=IN.map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
     }
-    if(fl.out && fl.out.length){
-      h+='<h4><i style="background:#eb6834">↑</i>자금이 나간 곳</h4>';
-      h+=fl.out.map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
+    if(OUT.length){
+      h+='<h4><i style="background:#eb6834">↑</i>자금이 나간 곳 <span>'+OUT.length+'곳</span></h4>';
+      h+=OUT.map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
     }
+    if(!IN.length && !OUT.length)
+      h+='<p class="tw-note" style="margin-top:8px">고른 토큰으로 오간 기록이 없습니다.</p>';
     if(fl.first){
-      var d=new Date(fl.first*1000);
+      var d2=new Date(fl.first*1000);
       h+='<p class="tw-note" style="margin-top:10px">첫 거래 '+
-        (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2)+
-        ' · 전체 트랜잭션 '+num(fl.ntx)+'건</p>';
+        (''+d2.getFullYear()).slice(2)+'.'+('0'+(d2.getMonth()+1)).slice(-2)+'.'+('0'+d2.getDate()).slice(-2)+
+        ' · 전체 트랜잭션 '+num(fl.ntx)+'건 · 상대는 금액 큰 순 12곳까지</p>';
     }
     return h+'</div>';
   }
@@ -2408,20 +2458,33 @@ refresh().then(function(){
     });
   }
   var FLOW=null;
-  function showFlow(a){
-    var box=$('fl-'+a.slice(2,10)); if(!box) return;
+  function bindFlowChips(box){
+    box.querySelectorAll('a[data-ft]').forEach(function(el){
+      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
+        flTok=el.dataset.ft;
+        box.innerHTML=flowHtml(FLOW[el.dataset.fa]); bindFlowChips(box); };
+    });
+  }
+  function showFlow(a, pfx){
+    var box=$((pfx||'fl-')+a.slice(2,10)); if(!box) return;
     if(box.innerHTML){ box.innerHTML=''; return; }
     box.innerHTML='<p class="tw-note">불러오는 중…</p>';
     (FLOW ? Promise.resolve(FLOW)
       : fetch('flow.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
           .then(function(j){ FLOW={}; j.r.forEach(function(x){ FLOW[x.addr]=x; }); return FLOW; }))
     .then(function(m){
+      return (ALL ? Promise.resolve() :
+        fetch('addr_idx.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
+          .then(function(j){ ALL=j; })).then(function(){ return m; });
+    })
+    .then(function(m){
       var fl=m[a];
-      if(!fl){ box.innerHTML='<p class="tw-note">이 주소는 자금 흐름을 미리 훑어둔 범위'+
-        '(MPC 에스크로 참여자 449명) 밖입니다. 필요하면 알려주시면 추가로 훑겠습니다.</p>'; return; }
-      box.innerHTML=flowHtml(fl);
+      if(!fl){ box.innerHTML='<p class="tw-note">이 주소는 자금 흐름을 미리 훑어둔 범위 밖입니다. '+
+        '알려주시면 추가로 훑겠습니다.</p>'; return; }
+      box.innerHTML=flowHtml(fl); bindFlowChips(box);
     }).catch(function(){ box.innerHTML='<p class="tw-note">flow.json 을 불러오지 못했습니다.</p>'; });
   }
+  window.__showFlow=showFlow;
   $('fdGo').onclick=fdSearch;
   $('fdQ').addEventListener('keydown',function(e){ if(e.key==='Enter') fdSearch(); });
   (function(){ var n=$('fdN'); if(n) n.textContent='44,516'; })();
