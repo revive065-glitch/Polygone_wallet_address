@@ -317,10 +317,11 @@ button.wide{width:100%;padding:11px}
 .tw-lead h2{margin:0 0 5px;font-size:16.5px;letter-spacing:-.3px}
 .tw-lead p{margin:0 0 8px;color:var(--tx2);font-size:13px;max-width:900px}
 .tw-lead p b{color:var(--tx)}
-.tw-stat{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.tw-stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:12px}
 .tw-stat div{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.tw-stat b{display:block;font-size:19px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
-.tw-stat span{font-size:11.5px;color:var(--tx3)}
+.tw-stat b{display:block;font-size:17px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;
+  word-break:break-all}
+.tw-stat span{font-size:11.5px;color:var(--tx3);white-space:nowrap}
 .tw-find{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
 .tw-find input{flex:1;min-width:240px;background:var(--panel2);border:1px solid var(--line2);
   border-radius:10px;padding:10px 12px;color:var(--tx);font-size:13.5px;font-family:ui-monospace,monospace}
@@ -333,6 +334,12 @@ button.wide{width:100%;padding:11px}
 .tw-tbl th{text-align:right;padding:7px 8px;color:var(--tx3);font-size:11.5px;font-weight:600;
   border-bottom:1px solid var(--line2);white-space:nowrap}
 .tw-tbl th:nth-child(2){text-align:left}
+.tw-tbl th u{display:block;font-weight:400;color:var(--tx3);font-size:10.5px;
+  text-decoration:none;letter-spacing:0;margin-top:1px}
+.tw-unit{color:var(--tx3);font-size:11px;margin-left:2px;font-weight:400}
+.tw-kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12.5px;
+  color:var(--tx2);margin:2px 0 10px}
+.tw-kv b{color:var(--tx);font-variant-numeric:tabular-nums}
 .tw-tbl td{padding:8px;border-bottom:1px solid var(--line);text-align:right;
   font-variant-numeric:tabular-nums;white-space:nowrap}
 .tw-tbl td:nth-child(2){text-align:left;white-space:normal}
@@ -515,7 +522,7 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
   <!-- ============ 소개 계보 (DeCT Right 수령 랭킹) ============ -->
   <div class="pane" id="p-tree">
     <div class="tw-lead">
-      <h2>DeCT Right 수령 랭킹</h2>
+      <h2>DeCT Right 수령 랭킹 <span style="font-size:12px;color:var(--tx3);font-weight:400">단위 — DeCT·SUT는 개, 신용대금은 원</span></h2>
       <p>DeCT Right(외매권)는 토큰이 아니라 <b>값 0짜리 트랜잭션의 메모(IDM)</b>로 발급됩니다.
          발급 지갑이 참여자에게 <code>DeCT,시작일,만료일,SUT 209,USDT</code> 같은 글자를 적어 보내는 방식이라
          토큰 목록에는 안 잡힙니다. 이 표는 그 메모를 <b>전량 수집해</b> 주소별로 합친 것입니다.</p>
@@ -523,11 +530,17 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
          제 돈으로 산 것이고, <b>SUT만 넣고 참여</b>했다면 이미 확보해 둔 권리를 소진한 것입니다.
          그래서 이 값이 <b>바닥에 붙은 주소일수록 남의 참여에서 흘러온 권리로 쌓았다</b>는 뜻이 됩니다.</p>
       <div class="tw-stat">
-        <div><b id="twA">–</b><span>수령 주소</span></div>
+        <div><b id="twA">–</b><span>수령 주소 (개)</span></div>
         <div><b id="twB">–</b><span>DeCT 합계 (SUT)</span></div>
-        <div><b id="twC">–</b><span>발급 기록</span></div>
-        <div><b id="twD">–</b><span>자기돈 흔적 거의 없음</span></div>
+        <div><b id="twC">–</b><span>발급 기록 (건)</span></div>
+        <div><b id="twD">–</b><span>자기돈 없는 주소 (개)</span></div>
+        <div><b id="twE">–</b><span>신용대금 합계 (KWT)</span></div>
+        <div><b id="twF">–</b><span>신용대금 합계 (USDT)</span></div>
       </div>
+      <p class="tw-note" style="margin-top:10px"><b>신용대금</b>은 앱의 「신용매매 결제대금」입니다.
+        온체인에 남은 실제 결제대금의 <b>2.4배</b>로 잡히며, 앱 화면 3건(1,040 SUT→62,400,000 KWT ·
+        262 SUT→15,720,000 KWT · 209 SUT→8,400 USDT)과 맞춰 확인했습니다.
+        현금(계좌이체)으로 낸 참여는 체인에 안 남으므로 여기 합계에서 빠집니다 — <b>실제보다 낮게 잡힌 값</b>입니다.</p>
     </div>
 
     <div class="tw-find">
@@ -537,14 +550,18 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
     <div class="tw-me" id="twMe"></div>
 
     <div class="chips" id="twChips"></div>
+    <div class="chips" id="twSort" style="margin-top:-4px"></div>
     <table class="tw-tbl">
       <thead><tr>
         <th class="rk">#</th><th>주소 / 이름</th>
-        <th>DeCT 합계</th><th class="h-hide">발급</th>
-        <th class="h-hide">자기돈</th><th class="h-hide">SUT단독</th>
-        <th>DeCT 1당 낸 돈</th>
+        <th>DeCT 합계<u>SUT</u></th>
+        <th>신용대금<u>원</u></th>
+        <th class="h-hide">발급<u>건</u></th>
+        <th class="h-hide">자기돈 참여<u>건</u></th>
+        <th class="h-hide">SUT 단독<u>건</u></th>
+        <th>DeCT 1당 낸 돈<u>원</u></th>
       </tr></thead>
-      <tbody id="twBody"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:26px">
+      <tbody id="twBody"><tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:26px">
         불러오는 중…</td></tr></tbody>
     </table>
     <div class="tools" style="margin:12px 0">
@@ -1941,7 +1958,7 @@ refresh().then(function(){
    데이터는 같은 폴더의 dect_top_c.json / dect_idx.json / sut_src.json
    ========================================================== */
 (function(){
-  var TOP=null, IDX=null, SRC=null, F={}, shown=60, filt='all', openRow={};
+  var TOP=null, IDX=null, SRC=null, F={}, shown=60, filt='all', openRow={}, sortBy='dect';
   var COMPANY={
     '0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c':'CC2C 회사 수금지갑',
     '0xf11d0da941625c2e6df119c6b30df9d42ad0a964':'회사 지급지갑 #1',
@@ -1976,11 +1993,12 @@ refresh().then(function(){
       '<td class="rk">'+get(r,'rank')+'</td>'+
       '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+
         '<span class="ad">'+a+'</span> <span class="tag-x '+K.c+'">'+K.t+'</span></td>'+
-      '<td class="big">'+num(dect)+'</td>'+
-      '<td class="h-hide">'+num(get(r,'n'))+'</td>'+
-      '<td class="h-hide">'+num(get(r,'paid_n'))+'</td>'+
-      '<td class="h-hide">'+num(get(r,'solo_n'))+'</td>'+
-      '<td>'+num(kpd)+'원<div class="tw-bar"><i style="width:'+pct+'%"></i></div></td></tr>';
+      '<td class="big">'+num(dect)+'<span class="tw-unit">SUT</span></td>'+
+      '<td class="big">'+num(get(r,'cr_krw'))+'<span class="tw-unit">원</span></td>'+
+      '<td class="h-hide">'+num(get(r,'n'))+'<span class="tw-unit">건</span></td>'+
+      '<td class="h-hide">'+num(get(r,'paid_n'))+'<span class="tw-unit">건</span></td>'+
+      '<td class="h-hide">'+num(get(r,'solo_n'))+'<span class="tw-unit">건</span></td>'+
+      '<td>'+num(kpd)+'<span class="tw-unit">원</span><div class="tw-bar"><i style="width:'+pct+'%"></i></div></td></tr>';
     if(openRow[a]){
       var s=srcOf(a), inner='';
       if(s && s.length){
@@ -1989,18 +2007,34 @@ refresh().then(function(){
             var lb=(typeof nameOf==='function'? nameOf(x[0]):null) || COMPANY[x[0]] || '';
             return '<a href="https://polygonscan.com/address/'+x[0]+'" target="_blank" rel="noopener">'+
               '<span>'+(lb?'<b style="color:var(--tx)">'+esc(lb)+'</b> ':'')+x[0]+'</span>'+
-              '<em>SUT '+num(Math.round(x[1]))+' · '+x[2]+'회</em></a>';
+              '<em>SUT '+num(Math.round(x[1]))+'개 · '+x[2]+'회</em></a>';
           }).join('')+'</div>';
       } else {
         inner='<span style="color:var(--tx3)">SUT 유입 추적은 상위 600위까지만 준비돼 있습니다.</span>';
       }
-      h+='<tr class="tw-open"><td colspan="7">'+
-         '<div style="margin-bottom:8px;color:var(--tx2);font-size:12.5px">'+
-         '발급 '+num(get(r,'n'))+'건 · 결제대금 동반 '+num(get(r,'paid_n'))+'건 · '+
-         'SUT단독 '+num(get(r,'solo_n'))+'건 · 온체인 입금 없음 '+num(get(r,'krw_n'))+'건'+
-         ' · 활동 '+ymd(get(r,'first'))+'~'+ymd(get(r,'last'))+'<br>'+
-         '실제 온체인 입금: KWT '+num(get(r,'kwt'))+' · USDT '+num(get(r,'usdt'))+
-         ' · SUT '+num(get(r,'sut_in'))+'</div>'+inner+
+      h+='<tr class="tw-open"><td colspan="8">'+
+         '<b>신용대금</b> — 실제 낸 결제대금의 2.4배가 신용으로 잡힙니다'+
+         '<div class="tw-kv">'+
+           '<span>KWT 결제분</span><b>'+num(get(r,'cr_kwt'))+' KWT</b>'+
+           '<span>USDT 결제분</span><b>'+num(get(r,'cr_usdt'))+' USDT</b>'+
+           '<span>원화 환산 합계</span><b>'+num(get(r,'cr_krw'))+' 원</b>'+
+         '</div>'+
+         '<b>실제 낸 돈 (온체인 입금)</b>'+
+         '<div class="tw-kv">'+
+           '<span>KWT</span><b>'+num(get(r,'kwt'))+' KWT</b>'+
+           '<span>USDT</span><b>'+num(get(r,'usdt'))+' USDT</b>'+
+           '<span>SUT</span><b>'+num(get(r,'sut_in'))+' 개</b>'+
+         '</div>'+
+         '<b>받은 DeCT Right</b>'+
+         '<div class="tw-kv">'+
+           '<span>합계</span><b>'+num(get(r,'dect'))+' SUT · '+num(get(r,'n'))+'건</b>'+
+           '<span>KWT 결제 건</span><b>'+num(get(r,'d_kwt'))+' SUT</b>'+
+           '<span>USDT 결제 건</span><b>'+num(get(r,'d_usdt'))+' SUT</b>'+
+           '<span>현금(KRW) 결제 건</span><b>'+num(get(r,'d_krw'))+' SUT</b>'+
+           '<span>참여 유형</span><b>결제대금 동반 '+num(get(r,'paid_n'))+'건 · '+
+             'SUT 단독 '+num(get(r,'solo_n'))+'건 · 온체인 입금 없음 '+num(get(r,'krw_n'))+'건</b>'+
+           '<span>활동 기간</span><b>'+ymd(get(r,'first'))+' ~ '+ymd(get(r,'last'))+'</b>'+
+         '</div>'+inner+
          '<div style="margin-top:9px"><a href="https://polygonscan.com/address/'+a+
          '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
          ' · <a href="#" data-reg="'+a+'">이 주소에 이름 달기</a></div></td></tr>';
@@ -2015,8 +2049,11 @@ refresh().then(function(){
   function render(){
     if(!TOP){ return; }
     var list=TOP.r.filter(pass), body=$('twBody');
+    if(sortBy!=='dect'){
+      list=list.slice().sort(function(x,y){ return get(y,sortBy)-get(x,sortBy); });
+    }
     body.innerHTML = list.slice(0,shown).map(rowHtml).join('') ||
-      '<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:26px">해당 없음</td></tr>';
+      '<tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:26px">해당 없음</td></tr>';
     $('twCount').textContent = Math.min(shown,list.length)+' / '+list.length+'개';
     $('twMore').style.display = shown<list.length ? '' : 'none';
     body.querySelectorAll('tr.hd').forEach(function(tr){
@@ -2035,6 +2072,12 @@ refresh().then(function(){
     }).join('');
     $('twChips').querySelectorAll('a').forEach(function(a){
       a.onclick=function(){ filt=a.dataset.f; shown=60; chips(); render(); };
+    });
+    var S=[['dect','DeCT 합계순'],['cr_krw','신용대금순'],['n','발급 건수순'],['solo_n','SUT 단독 건수순']];
+    $('twSort').innerHTML='<span class="hint" style="align-self:center;margin-right:2px">정렬</span>'+
+      S.map(function(s){ return '<a class="chip'+(sortBy===s[0]?' on':'')+'" data-s="'+s[0]+'">'+s[1]+'</a>'; }).join('');
+    $('twSort').querySelectorAll('a').forEach(function(a){
+      a.onclick=function(){ sortBy=a.dataset.s; shown=60; chips(); render(); };
     });
   }
 
@@ -2062,7 +2105,9 @@ refresh().then(function(){
         '<div style="margin-top:6px;font-size:15px"><b>'+num(get(hit,'rank'))+'위</b> · DeCT <b>'+
         num(get(hit,'dect'))+'</b> SUT · 발급 '+num(get(hit,'n'))+'건 · <span class="tag-x '+K.c+'">'+K.t+'</span></div>'+
         '<div style="margin-top:4px;color:var(--tx2);font-size:12.5px">결제대금 동반 '+num(get(hit,'paid_n'))+
-        '건 · SUT단독 '+num(get(hit,'solo_n'))+'건 · DeCT 1당 낸 돈 <b>'+num(get(hit,'kpd'))+'원</b></div>';
+        '건 · SUT 단독 '+num(get(hit,'solo_n'))+'건 · DeCT 1당 낸 돈 <b>'+num(get(hit,'kpd'))+'원</b><br>'+
+        '신용대금 <b>'+num(get(hit,'cr_kwt'))+' KWT</b> + <b>'+num(get(hit,'cr_usdt'))+' USDT</b>'+
+        ' (원화 환산 <b>'+num(get(hit,'cr_krw'))+'원</b>)</div>';
       return;
     }
     box.className='tw-me on'; box.innerHTML='<span style="color:var(--tx3)">전체 목록에서 찾는 중…</span>';
@@ -2081,8 +2126,9 @@ refresh().then(function(){
       TOP=j; j.f.forEach(function(k,i){ F[k]=i; });
       TOP.r.forEach(function(r,i){ r.push(i+1); }); F.rank=j.f.length;
       $('twA').textContent=num(j.n); $('twB').textContent=num(j.sum);
-      $('twC').textContent=num(j.idm)+'건';
-      $('twD').textContent=num(TOP.r.filter(function(r){return kind(r).k==='free';}).length)+'곳';
+      $('twC').textContent=num(j.idm);
+      $('twD').textContent=num(TOP.r.filter(function(r){return kind(r).k==='free';}).length);
+      $('twE').textContent=num(j.crk||0); $('twF').textContent=num(j.cru||0);
       $('tTree').textContent=num(j.n);
       chips(); render();
     }).catch(function(){
