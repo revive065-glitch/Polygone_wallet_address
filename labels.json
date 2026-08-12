@@ -102,6 +102,30 @@
       "source": "온체인 확인",
       "added": "2026-08-12"
     },
+    "0x958eed8b9c77f79420c3cde1998df4efb27e5972": {
+      "name": "MPC 개인거래 에스크로",
+      "type": "bridge",
+      "confidence": "A",
+      "evidence": "MPC 개인간 거래를 중개하는 보관 주소. 2026-07-03부터 예치 1,280건·방출 1,112건. 다만 방출의 1,105건이 맡긴 사람 본인에게 되돌아갔고, 남에게 넘어간 것은 6건뿐. USDT 전송은 10건뿐이라 대금은 체인 밖에서 오감.",
+      "source": "온체인 확인",
+      "added": "2026-08-12"
+    },
+    "0xbd8cfccf97e894e771808d4d670df0e469c2f900": {
+      "name": "MPC 최초 발행지갑",
+      "type": "company",
+      "confidence": "A",
+      "evidence": "2026-04-20 MPC 100억개를 최초 수령(0x0 민팅). 전량을 0x9d929423…로 이전.",
+      "source": "온체인 확인",
+      "added": "2026-08-12"
+    },
+    "0x9d9294233c2b0ee89af226dbef5faa7e44910b17": {
+      "name": "MPC 배포지갑",
+      "type": "company_payout",
+      "confidence": "A",
+      "evidence": "MPC 100억개를 받아 회사 지급지갑 등으로 배포. 실제 개인 살포는 지급지갑 #2(0xe6e7ec8d…)가 154,536건 수행.",
+      "source": "온체인 확인",
+      "added": "2026-08-12"
+    },
     "0xaaa4cda50dda9563c6ea2a0c8db5100aab6bcc2c": {
       "name": "CC2C 사칭 주소",
       "type": "scam_lookalike",

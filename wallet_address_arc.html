@@ -368,6 +368,23 @@ button.wide{width:100%;padding:11px}
 .tw-src a em{font-style:normal;color:var(--tx3);font-size:11.5px;margin-left:auto;white-space:nowrap;
   font-variant-numeric:tabular-nums}
 .tw-note{color:var(--tx3);font-size:12px;margin:4px 0 0}
+
+/* ===== 자금 흐름 ===== */
+.fl{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.fl h4{margin:12px 0 6px;font-size:12.5px;color:var(--tx);display:flex;align-items:center;gap:6px}
+.fl h4 i{font-style:normal;width:16px;height:16px;border-radius:5px;display:grid;place-items:center;
+  font-size:10px;font-weight:700;color:#0b0b0b}
+.fl h4 span{color:var(--tx3);font-weight:400;font-size:11.5px}
+.fl-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;
+  padding:6px 0;border-bottom:1px solid var(--line)}
+.fl-row:last-child{border-bottom:0}
+.fl-a{font-family:ui-monospace,monospace;font-size:12px;color:var(--tx2);word-break:break-all}
+.fl-a b{font-family:inherit;color:var(--tx)}
+.fl-v{font-size:12px;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.fl-m{grid-column:1/-1;font-size:11.5px;color:var(--tx3);display:flex;gap:8px;flex-wrap:wrap}
+.fl-m em{font-style:normal}
+.fl-m b{color:var(--tx2)}
+.fl-hi{background:rgba(250,178,25,.07);border-left:2px solid #fab219;padding-left:8px;margin-left:-10px}
 @media(max-width:900px){
   .tw-stat{grid-template-columns:repeat(2,1fr)}
   .tw-tbl .h-hide{display:none}
@@ -637,6 +654,25 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
 
     <h3 style="font-size:14px;margin:18px 0 6px">실제로 남에게 넘어간 거래</h3>
     <div id="mtOut" class="tw-src"></div>
+
+    <div class="tw-lead" style="margin-top:22px">
+      <h2>가스비를 여러 지갑에 대준 주소</h2>
+      <p>새로 판 지갑은 <b>가스비(POL)가 없으면 아무것도 못 합니다.</b> 그래서 계정을 굴리는 사람은
+         반드시 자기 지갑에서 POL을 넣어줍니다. <b>이 흔적은 위조할 수 없습니다.</b></p>
+      <p>아래는 에스크로 참여자 <b id="ghT">–</b>명의 가스비 유입을 거꾸로 훑어,
+         <b>둘 이상의 지갑에 POL을 대준 주소</b>를 모은 것입니다. 대상 지갑이 많을수록
+         한 사람이 여러 계정을 운영한다는 뜻이 됩니다.</p>
+      <p class="tw-note">본인 참여 기록이 <b>전혀 없는데</b> 여러 지갑에 가스비만 대는 주소가 특히 눈여겨볼 대상입니다.
+        자기 이름으로는 아무것도 안 하면서 남의 계정만 굴린다는 뜻이니까요.</p>
+    </div>
+    <table class="tw-tbl">
+      <thead><tr><th class="rk">#</th><th>주소 / 이름</th>
+        <th>가스비 준 지갑<u>개</u></th><th class="h-hide">보낸 POL</th>
+        <th>신용대금<u>원</u></th><th class="h-hide">DeCT 순위</th></tr></thead>
+      <tbody id="ghBody"><tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:22px">불러오는 중…</td></tr></tbody>
+    </table>
+    <div class="tools" style="margin:12px 0"><button class="ghost sm" id="ghMore">더 보기</button>
+      <span class="hint" id="ghCount"></span></div>
   </div>
 </div>
 
@@ -2012,7 +2048,12 @@ refresh().then(function(){
     '0x3fbebfb25c4b9d8a2a6b37640f4c59d407fa0484':'DeCT 발급지갑',
     '0xdc7f40a3244ca87d82c065204360b9fb5ba65069':'DeCT 발급지갑',
     '0x5a7317b12e4b1e8b4be8fff9eba090e03fafc4ca':'경유 지갑',
-    '0x0d0707963952f2fba59dd06f2b425ace40b492fe':'Gate.io'
+    '0x0d0707963952f2fba59dd06f2b425ace40b492fe':'Gate.io',
+    '0x958eed8b9c77f79420c3cde1998df4efb27e5972':'MPC 개인거래 에스크로',
+    '0xbd8cfccf97e894e771808d4d670df0e469c2f900':'MPC 최초 발행지갑',
+    '0x9d9294233c2b0ee89af226dbef5faa7e44910b17':'MPC 배포지갑',
+    '0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8':'MPC 대량 보유지갑',
+    '0x2d854416d2749b1f0eb8a4b2ab9027989f2ba262':'MPC 토큰 컨트랙트'
   };
   function num(n){ return (n||0).toLocaleString('ko-KR'); }
   function ymd(t){ if(!t) return ''; var d=new Date(t*1000);
@@ -2250,6 +2291,64 @@ refresh().then(function(){
     }
     return {head:parts[0], tail:parts[parts.length-1]};
   }
+  /* 주소 한 줄 요약 — 신용대금까지 */
+  function miniOf(a){
+    if(!ALL) return '';
+    if(!ALL._m){ ALL._m={}; var f={}; ALL.f.forEach(function(k,i){f[k]=i;}); ALL._f=f;
+      ALL.r.forEach(function(r){ ALL._m[r[f.addr]]=r; }); }
+    var r=ALL._m[a]; if(!r) return '<em style="color:var(--tx3)">수집 범위 밖</em>';
+    var f=ALL._f, bits=[];
+    var cr=(r[f.kwt]+r[f.usdt]*1400)*2.4;
+    if(r[f.rank]) bits.push('DeCT <b>'+num(r[f.rank])+'위</b>');
+    if(cr>0) bits.push('신용대금 <b>'+num(Math.round(cr))+'원</b>');
+    if(r[f.dect]) bits.push('<b>'+num(r[f.dect])+'</b> SUT');
+    if(r[f.mpc]) bits.push('MPC <b>'+num(r[f.mpc])+'</b>');
+    if(r[f.esc]) bits.push('<em style="color:#ffd98a">에스크로</em>');
+    if(!r[f.rank] && !r[f.kwt] && !r[f.usdt] && !r[f.sut])
+      bits.push('<em style="color:#ffb4b4">껍데기 (참여기록 없음)</em>');
+    return bits.join(' · ');
+  }
+  function flRow(a, val, hi){
+    var nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
+    return '<div class="fl-row'+(hi?' fl-hi':'')+'">'+
+      '<div class="fl-a">'+(nm?'<b>'+esc(nm)+'</b><br>':'')+
+        '<a href="https://polygonscan.com/address/'+a+'" target="_blank" rel="noopener" '+
+        'style="color:var(--tx2)">'+a+'</a></div>'+
+      '<div class="fl-v">'+val+'</div>'+
+      '<div class="fl-m">'+miniOf(a)+'</div></div>';
+  }
+  function amt(o){
+    var s=[];
+    ['KWT','USDT','SUT','MPC'].forEach(function(k){ if(o[k]) s.push(num(Math.round(o[k]))+' '+k); });
+    return s.join('<br>');
+  }
+  function flowHtml(fl){
+    var h='<div class="fl">';
+    if(fl.pol && fl.pol.length){
+      h+='<h4><i style="background:#fab219">⛽</i>가스비를 넣어준 곳 '+
+         '<span>— 지갑을 만들어 굴리는 쪽입니다. 본계정일 가능성이 가장 높습니다</span></h4>';
+      h+=fl.pol.map(function(p){
+        var d=new Date(p[2]*1000);
+        return flRow(p[0], p[1]+' POL<br><span style="color:var(--tx3);font-size:11px">'+
+          (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2)+'</span>', true);
+      }).join('');
+    }
+    if(fl['in'] && fl['in'].length){
+      h+='<h4><i style="background:#3987e5">↓</i>자금이 들어온 곳</h4>';
+      h+=fl['in'].map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
+    }
+    if(fl.out && fl.out.length){
+      h+='<h4><i style="background:#eb6834">↑</i>자금이 나간 곳</h4>';
+      h+=fl.out.map(function(x){ return flRow(x[0], amt(x[1]), false); }).join('');
+    }
+    if(fl.first){
+      var d=new Date(fl.first*1000);
+      h+='<p class="tw-note" style="margin-top:10px">첫 거래 '+
+        (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2)+
+        ' · 전체 트랜잭션 '+num(fl.ntx)+'건</p>';
+    }
+    return h+'</div>';
+  }
   function fdCard(r,f){
     var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
     var bits=[];
@@ -2260,6 +2359,9 @@ refresh().then(function(){
     if(r[f.usdt]) pay.push('USDT '+num(r[f.usdt]));
     if(r[f.sut]) pay.push('SUT '+num(r[f.sut]));
     bits.push('CC2C 입금 ' + (pay.length? pay.join(' · ') : '<span style="color:var(--tx3)">없음</span>'));
+    var cr=(r[f.kwt]+r[f.usdt]*1400)*2.4;
+    bits.push('신용대금 <b>'+num(Math.round(cr))+'원</b>'+
+      (cr?' <span style="color:var(--tx3)">(낸 결제대금 × 2.4)</span>':''));
     if(r[f.mpc]) bits.push('MPC 수령 <b>'+num(r[f.mpc])+'</b>개');
     if(r[f.esc]) bits.push('<span class="tag-x tag-bot">MPC 에스크로 참여</span>');
     return '<div class="tw-me on" style="margin-bottom:10px">'+
@@ -2268,7 +2370,9 @@ refresh().then(function(){
       '<div style="margin-top:6px;color:var(--tx2);font-size:12.5px;line-height:1.9">'+bits.join('<br>')+'</div>'+
       '<div style="margin-top:8px"><a href="https://polygonscan.com/address/'+a+
       '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
-      ' · <a href="#" data-reg3="'+a+'">이 주소에 이름 달기</a></div></div>';
+      ' · <a href="#" data-flow="'+a+'">자금 흐름 보기</a>'+
+      ' · <a href="#" data-reg3="'+a+'">이 주소에 이름 달기</a></div>'+
+      '<div id="fl-'+a.slice(2,10)+'"></div></div>';
   }
   function fdSearch(){
     var q=parseFrag($('fdQ').value), out=$('fdOut');
@@ -2295,10 +2399,28 @@ refresh().then(function(){
         el.onclick=function(e){ e.preventDefault();
           $('q').value=el.dataset.reg3; showPane('p-reg'); $('check').click(); };
       });
+      out.querySelectorAll('a[data-flow]').forEach(function(el){
+        el.onclick=function(e){ e.preventDefault(); showFlow(el.dataset.flow); };
+      });
     }).catch(function(){
       out.innerHTML='<p class="tw-note">주소 목록을 불러오지 못했습니다. '+
         'addr_idx.json 을 페이지와 같은 폴더에 올렸는지 확인해주세요.</p>';
     });
+  }
+  var FLOW=null;
+  function showFlow(a){
+    var box=$('fl-'+a.slice(2,10)); if(!box) return;
+    if(box.innerHTML){ box.innerHTML=''; return; }
+    box.innerHTML='<p class="tw-note">불러오는 중…</p>';
+    (FLOW ? Promise.resolve(FLOW)
+      : fetch('flow.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
+          .then(function(j){ FLOW={}; j.r.forEach(function(x){ FLOW[x.addr]=x; }); return FLOW; }))
+    .then(function(m){
+      var fl=m[a];
+      if(!fl){ box.innerHTML='<p class="tw-note">이 주소는 자금 흐름을 미리 훑어둔 범위'+
+        '(MPC 에스크로 참여자 449명) 밖입니다. 필요하면 알려주시면 추가로 훑겠습니다.</p>'; return; }
+      box.innerHTML=flowHtml(fl);
+    }).catch(function(){ box.innerHTML='<p class="tw-note">flow.json 을 불러오지 못했습니다.</p>'; });
   }
   $('fdGo').onclick=fdSearch;
   $('fdQ').addEventListener('keydown',function(e){ if(e.key==='Enter') fdSearch(); });
@@ -2334,6 +2456,47 @@ refresh().then(function(){
     mlRender();
   }).catch(function(){ $('mlBody').innerHTML='<tr><td colspan="6" style="text-align:center;'+
     'color:var(--tx3);padding:22px">mpc_lock.json 을 찾지 못했습니다.</td></tr>'; });
+  /* ---- 가스비 허브 ---- */
+  var GH=null, ghShown=25, ghOpen={};
+  function ghRender(){
+    if(!GH) return;
+    var f={}; GH.f.forEach(function(k,i){ f[k]=i; });
+    $('ghBody').innerHTML=GH.r.slice(0,ghShown).map(function(r,i){
+      var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
+      var ghost = !r[f.rank] && !r[f.credit];
+      var h='<tr class="hd" data-g="'+a+'"><td class="rk">'+(i+1)+'</td>'+
+        '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+'<span class="ad">'+a+'</span> '+
+          (ghost?'<span class="tag-x tag-free">본인 참여기록 없음</span>':'')+'</td>'+
+        '<td class="big">'+num(r[f.targets])+'<span class="tw-unit">개</span></td>'+
+        '<td class="h-hide">'+num(Math.round(r[f.pol]))+'<span class="tw-unit">POL</span></td>'+
+        '<td>'+num(r[f.credit])+'<span class="tw-unit">원</span></td>'+
+        '<td class="h-hide">'+(r[f.rank]?num(r[f.rank])+'위':'—')+'</td></tr>';
+      if(ghOpen[a]){
+        h+='<tr class="tw-open"><td colspan="6"><b>가스비를 대준 지갑</b>'+
+          '<div class="tw-src">'+r[f.to].map(function(x){
+            var l2=(typeof nameOf==='function'? nameOf(x):null)||COMPANY[x]||'';
+            return '<a href="https://polygonscan.com/address/'+x+'" target="_blank" rel="noopener">'+
+              '<span>'+(l2?'<b style="color:var(--tx)">'+esc(l2)+'</b> ':'')+x+'</span>'+
+              '<em>'+miniOf(x)+'</em></a>';
+          }).join('')+'</div></td></tr>';
+      }
+      return h;
+    }).join('');
+    $('ghCount').textContent=Math.min(ghShown,GH.r.length)+' / '+GH.r.length+'개';
+    $('ghMore').style.display = ghShown<GH.r.length ? '' : 'none';
+    $('ghBody').querySelectorAll('tr.hd').forEach(function(tr){
+      tr.onclick=function(){ var a=tr.dataset.g; ghOpen[a]=!ghOpen[a];
+        (ALL?Promise.resolve():fetch('addr_idx.json',{cache:'force-cache'})
+          .then(function(r){return r.json();}).then(function(j){ALL=j;}))
+        .then(ghRender); };
+    });
+  }
+  $('ghMore').onclick=function(){ ghShown+=25; ghRender(); };
+  fetch('gas_hub.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+    GH=j; var t=$('ghT'); if(t) t.textContent=num(j.traced); ghRender();
+  }).catch(function(){ $('ghBody').innerHTML='<tr><td colspan="6" style="text-align:center;'+
+    'color:var(--tx3);padding:22px">gas_hub.json 을 찾지 못했습니다.</td></tr>'; });
+
   fetch('mpc_esc.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
     var f={}; j.f.forEach(function(k,i){ f[k]=i; });
     $('mtOut').innerHTML=j.r.map(function(r){
