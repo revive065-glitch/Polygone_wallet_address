@@ -83,6 +83,10 @@ a{color:var(--blue)}
 #p-reg{grid-column:2;grid-row:1/span 2;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:2px}
 #p-live{grid-column:1;grid-row:1}
 #p-list{grid-column:1;grid-row:2}
+#p-tree{grid-column:1/-1;grid-row:3;position:relative;z-index:3;background:var(--bg);
+  padding-top:14px;border-top:1px solid var(--line)}
+#p-find{grid-column:1/-1;grid-row:4;position:relative;z-index:3;background:var(--bg);
+  padding-top:14px;border-top:1px solid var(--line)}
 .pane{min-width:0}
 h2.sec{font-size:14.5px;margin:0 0 9px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 h2.sec .c{font-size:12px;color:var(--tx3);font-weight:500}
@@ -288,8 +292,9 @@ button.wide{width:100%;padding:11px}
   .tabs{display:flex}
   .app{grid-template-columns:1fr}
   /* ID 선택자로 배치했으므로, 탭 전환도 같은 세기로 눌러줘야 합니다 */
-  #p-live,#p-list,#p-reg{grid-column:auto;grid-row:auto;position:static;max-height:none;overflow:visible;display:none}
-  #p-live.show,#p-list.show,#p-reg.show{display:block}
+  #p-live,#p-list,#p-reg,#p-tree,#p-find{grid-column:auto;grid-row:auto;position:static;
+    max-height:none;overflow:visible;display:none}
+  #p-live.show,#p-list.show,#p-reg.show,#p-tree.show,#p-find.show{display:block}
 }
 @media(max-width:640px){
   .wrap{padding:14px 12px 70px}
@@ -450,6 +455,7 @@ button.wide{width:100%;padding:11px}
   <a data-p="p-live">최근 활동 <em id="tLive"></em></a>
   <a data-p="p-list">전체 현황</a>
   <a data-p="p-tree">소개 계보 <em id="tTree"></em></a>
+  <a data-p="p-find">주소 조각 찾기</a>
 </div>
 
 <div class="app">
@@ -592,6 +598,45 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
       <button class="ghost sm" id="hbMore">더 보기</button>
       <span class="hint" id="hbCount"></span>
     </div>
+  </div>
+
+  <!-- ============ 주소 조각 찾기 ============ -->
+  <div class="pane" id="p-find">
+    <div class="tw-lead">
+      <h2>주소 조각으로 찾기</h2>
+      <p>영상·캡처·기사에 <b>앞뒤 몇 글자만 가려지지 않은</b> 주소가 나올 때 씁니다.
+         폴리곤스캔 검색창은 42자리를 다 넣어야 하지만, 여기서는 <b>조각만으로</b> 찾습니다.
+         모아둔 주소 <b id="fdN">–</b>개 안에서 맞는 것을 골라내고, 그 주소가 무엇을 했는지도 같이 보여줍니다.</p>
+      <p class="tw-note"><b>앞 4자 + 뒤 4자</b>면 거의 항상 하나로 좁혀집니다. 앞뒤 2자씩뿐이면 여러 개가 걸리니
+         금액·시점으로 더 걸러야 합니다. 대소문자는 상관없습니다.</p>
+    </div>
+    <div class="tw-find">
+      <input id="fdQ" placeholder="0x9a1f…f458  ·  9a1f f458  ·  0x9a1f  ·  f458">
+      <button id="fdGo">찾기</button>
+    </div>
+    <div id="fdOut"></div>
+
+    <div class="tw-lead" style="margin-top:22px">
+      <h2>MPC 에스크로 현황</h2>
+      <p>MPC 개인거래는 에스크로 지갑 <span class="ad">0x958eed8b…27e5972</span>를 거칩니다.
+         파는 쪽이 MPC를 맡기면 사는 쪽이 값을 치르고 찾아가는 구조입니다.
+         그런데 <b>맡긴 것을 그대로 도로 찾아간 경우가 압도적</b>입니다 — 매물은 쌓이는데 안 팔립니다.</p>
+      <div class="tw-stat" id="mlStat"></div>
+      <p class="tw-note" style="margin-top:10px"><b>USDT 값은 체인에 안 남습니다.</b>
+        에스크로를 거친 USDT 전송은 전체 기간 통틀어 10건뿐이라, 대금은 계좌이체나 다른 경로로 오갑니다.
+        그래서 「얼마에 팔렸는지」는 온체인만으로 알 수 없고, <b>누가 누구에게 몇 개를 넘겼는지</b>까지가 확인 가능한 범위입니다.</p>
+    </div>
+    <h3 style="font-size:14px;margin:14px 0 6px">지금 에스크로에 잠겨 있는 매물</h3>
+    <table class="tw-tbl">
+      <thead><tr><th class="rk">#</th><th>주소 / 이름</th><th>잠긴 MPC<u>개</u></th>
+        <th class="h-hide">예치<u>건</u></th><th>경과<u>일</u></th><th class="h-hide">DeCT 순위</th></tr></thead>
+      <tbody id="mlBody"><tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:22px">불러오는 중…</td></tr></tbody>
+    </table>
+    <div class="tools" style="margin:12px 0"><button class="ghost sm" id="mlMore">더 보기</button>
+      <span class="hint" id="mlCount"></span></div>
+
+    <h3 style="font-size:14px;margin:18px 0 6px">실제로 남에게 넘어간 거래</h3>
+    <div id="mtOut" class="tw-src"></div>
   </div>
 </div>
 
@@ -2192,6 +2237,116 @@ refresh().then(function(){
     .then(function(j){ HUB=j; hubRender(); })
     .catch(function(){ $('hbBody').innerHTML='<tr><td colspan="5" style="text-align:center;'+
       'color:var(--tx3);padding:22px">sut_hub.json 을 찾지 못했습니다.</td></tr>'; });
+
+  /* ---- 주소 조각 찾기 ---- */
+  var ALL=null, BUCK={};
+  function parseFrag(s){
+    s=(s||'').toLowerCase().replace(/0x/g,'').replace(/[^0-9a-f.…\s]/g,' ').trim();
+    var parts=s.split(/[.…\s]+/).filter(Boolean);
+    if(!parts.length) return null;
+    if(parts.length===1){
+      // 한 덩어리 — 4자 이하면 앞으로, 아니면 앞으로 두고 뒤는 비움
+      return {head:parts[0], tail:''};
+    }
+    return {head:parts[0], tail:parts[parts.length-1]};
+  }
+  function fdCard(r,f){
+    var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
+    var bits=[];
+    if(r[f.rank]) bits.push('DeCT <b>'+num(r[f.rank])+'위</b> · '+num(r[f.dect])+' SUT · '+num(r[f.n])+'건');
+    else bits.push('<span style="color:var(--tx3)">DeCT 수령 기록 없음</span>');
+    var pay=[];
+    if(r[f.kwt]) pay.push('KWT '+num(r[f.kwt]));
+    if(r[f.usdt]) pay.push('USDT '+num(r[f.usdt]));
+    if(r[f.sut]) pay.push('SUT '+num(r[f.sut]));
+    bits.push('CC2C 입금 ' + (pay.length? pay.join(' · ') : '<span style="color:var(--tx3)">없음</span>'));
+    if(r[f.mpc]) bits.push('MPC 수령 <b>'+num(r[f.mpc])+'</b>개');
+    if(r[f.esc]) bits.push('<span class="tag-x tag-bot">MPC 에스크로 참여</span>');
+    return '<div class="tw-me on" style="margin-bottom:10px">'+
+      (nm?'<b class="nm">'+esc(nm)+'</b>':'')+
+      '<div class="ad" style="font-size:13px;color:var(--tx);word-break:break-all">'+a+'</div>'+
+      '<div style="margin-top:6px;color:var(--tx2);font-size:12.5px;line-height:1.9">'+bits.join('<br>')+'</div>'+
+      '<div style="margin-top:8px"><a href="https://polygonscan.com/address/'+a+
+      '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
+      ' · <a href="#" data-reg3="'+a+'">이 주소에 이름 달기</a></div></div>';
+  }
+  function fdSearch(){
+    var q=parseFrag($('fdQ').value), out=$('fdOut');
+    if(!q){ out.innerHTML='<p class="tw-note">주소 조각을 넣어주세요.</p>'; return; }
+    out.innerHTML='<p class="tw-note">찾는 중…</p>';
+    var src = ALL ? Promise.resolve(ALL)
+      : fetch('addr_idx.json',{cache:'force-cache'}).then(function(r){ return r.json(); })
+          .then(function(j){ ALL=j; return j; });
+    src.then(function(j){
+      var f={}; j.f.forEach(function(k,i){ f[k]=i; });
+      var hits=j.r.filter(function(r){
+        var a=r[f.addr].slice(2);
+        return (!q.head || a.indexOf(q.head)===0) && (!q.tail || a.slice(-q.tail.length)===q.tail);
+      });
+      if(!hits.length){
+        out.innerHTML='<p class="tw-note">모아둔 주소 안에는 없습니다. '+
+          '이 프로젝트와 무관한 지갑이거나, 아직 수집 범위 밖입니다.</p>'; return;
+      }
+      hits.sort(function(x,y){ return (y[f.dect]||0)-(x[f.dect]||0); });
+      out.innerHTML='<p class="tw-note" style="margin-bottom:10px"><b>'+hits.length+'개</b> 일치'+
+        (hits.length===1?' — 조각이 충분해 하나로 좁혀졌습니다.':' — 조각을 더 넣으면 좁혀집니다.')+'</p>'+
+        hits.slice(0,40).map(function(r){ return fdCard(r,f); }).join('');
+      out.querySelectorAll('a[data-reg3]').forEach(function(el){
+        el.onclick=function(e){ e.preventDefault();
+          $('q').value=el.dataset.reg3; showPane('p-reg'); $('check').click(); };
+      });
+    }).catch(function(){
+      out.innerHTML='<p class="tw-note">주소 목록을 불러오지 못했습니다. '+
+        'addr_idx.json 을 페이지와 같은 폴더에 올렸는지 확인해주세요.</p>';
+    });
+  }
+  $('fdGo').onclick=fdSearch;
+  $('fdQ').addEventListener('keydown',function(e){ if(e.key==='Enter') fdSearch(); });
+  (function(){ var n=$('fdN'); if(n) n.textContent='44,516'; })();
+
+  /* ---- MPC 에스크로 ---- */
+  var LOCK=null, mlShown=25;
+  function mlRender(){
+    if(!LOCK) return;
+    var f={}; LOCK.f.forEach(function(k,i){ f[k]=i; });
+    var now=Math.floor(Date.now()/1000);
+    $('mlBody').innerHTML=LOCK.r.slice(0,mlShown).map(function(r,i){
+      var a=r[f.addr], nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
+      var days=Math.floor((now-r[f.first])/86400);
+      return '<tr><td class="rk">'+(i+1)+'</td>'+
+        '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+'<span class="ad">'+a+'</span></td>'+
+        '<td class="big">'+num(r[f.mpc])+'</td>'+
+        '<td class="h-hide">'+num(r[f.n])+'</td>'+
+        '<td>'+days+'<span class="tw-unit">일</span></td>'+
+        '<td class="h-hide">'+(r[f.rank]?num(r[f.rank])+'위':'—')+'</td></tr>';
+    }).join('');
+    $('mlCount').textContent=Math.min(mlShown,LOCK.r.length)+' / '+LOCK.r.length+'명';
+    $('mlMore').style.display = mlShown<LOCK.r.length ? '' : 'none';
+  }
+  $('mlMore').onclick=function(){ mlShown+=25; mlRender(); };
+  fetch('mpc_lock.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+    LOCK=j;
+    $('mlStat').innerHTML=
+      '<div><b>'+num(j.total)+'</b><span>지금 잠긴 MPC (개)</span></div>'+
+      '<div><b>'+num(j.n)+'</b><span>매물 낸 사람 (명)</span></div>'+
+      '<div><b>'+num(j.selfn)+'</b><span>도로 찾아감 (건)</span></div>'+
+      '<div><b>'+num(j.tn)+'</b><span>남에게 넘어감 (건)</span></div>';
+    mlRender();
+  }).catch(function(){ $('mlBody').innerHTML='<tr><td colspan="6" style="text-align:center;'+
+    'color:var(--tx3);padding:22px">mpc_lock.json 을 찾지 못했습니다.</td></tr>'; });
+  fetch('mpc_esc.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+    var f={}; j.f.forEach(function(k,i){ f[k]=i; });
+    $('mtOut').innerHTML=j.r.map(function(r){
+      var d=new Date(r[f.dep_ts]*1000);
+      var ds=(''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2)+'.'+('0'+d.getDate()).slice(-2);
+      function lb(x){ var n=(typeof nameOf==='function'? nameOf(x):null)||COMPANY[x];
+        return n? '<b style="color:var(--tx)">'+esc(n)+'</b> ':''; }
+      return '<a href="https://polygonscan.com/address/'+r[f.buyer]+'" target="_blank" rel="noopener">'+
+        '<span>'+ds+' &nbsp; '+lb(r[f.seller])+r[f.seller].slice(0,10)+'… → '+
+        lb(r[f.buyer])+r[f.buyer].slice(0,10)+'…</span>'+
+        '<em>'+num(r[f.mpc])+' MPC · '+(r[f.gap]/3600).toFixed(1)+'시간</em></a>';
+    }).join('');
+  }).catch(function(){});
 })();
 </script>
 </body>
