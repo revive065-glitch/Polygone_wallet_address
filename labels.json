@@ -78,6 +78,39 @@
       "added": "2026-07-31"
     },
 
+    "0x31c9342baf01f941d9eeeed11eb09815602f747b": {
+      "name": "DeCT Right 발급지갑 #1",
+      "type": "company_payout",
+      "confidence": "A",
+      "evidence": "값 0 트랜잭션의 input data에 'DeCT,시작일,만료일,SUT 수량,결제통화'를 적어 참여자에게 보내는 외매권 발급 주소. 288,204건 발급. 상위 지갑 515명에게 SUT 1,762만개도 공급.",
+      "source": "온체인 확인 (앱 화면의 DeCT TxID와 대조)",
+      "added": "2026-08-12"
+    },
+    "0x3fbebfb25c4b9d8a2a6b37640f4c59d407fa0484": {
+      "name": "DeCT Right 발급지갑 #2",
+      "type": "company_payout",
+      "confidence": "A",
+      "evidence": "동일 형식의 DeCT IDM 110,982건 발급. 상위 지갑 520명에게 SUT 1,122만개 공급.",
+      "source": "온체인 확인",
+      "added": "2026-08-12"
+    },
+    "0xdc7f40a3244ca87d82c065204360b9fb5ba65069": {
+      "name": "DeCT Right 발급지갑 #3",
+      "type": "company_payout",
+      "confidence": "A",
+      "evidence": "동일 형식의 DeCT IDM 67,698건 발급. 상위 지갑 493명에게 SUT 783만개 공급.",
+      "source": "온체인 확인",
+      "added": "2026-08-12"
+    },
+    "0xaaa4cda50dda9563c6ea2a0c8db5100aab6bcc2c": {
+      "name": "CC2C 사칭 주소",
+      "type": "scam_lookalike",
+      "confidence": "A",
+      "evidence": "진짜 CC2C(0xaaa4d5dd…89cc2c)와 앞4자리 aaa4 · 뒤4자리 cc2c가 동일. 상위 참여자 271명에게 0원 전송만 뿌림. 실금액 거래 0건.",
+      "source": "온체인 확인",
+      "added": "2026-08-12"
+    },
+
     "0x505e71695e9bc45943c58adec1650577bca68fd9": {
       "name": "Binance 입금지갑 (폴리곤)",
       "type": "exchange",

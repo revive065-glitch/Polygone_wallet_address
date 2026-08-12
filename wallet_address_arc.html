@@ -310,6 +310,57 @@ button.wide{width:100%;padding:11px}
   .r{grid-template-columns:auto minmax(0,1fr) 16px}
   .r-ad{display:none}
 }
+
+/* ===== 소개 계보 ===== */
+.tw-lead{background:linear-gradient(180deg,#1d222a,#1a1d22);border:1px solid var(--line2);
+  border-radius:14px;padding:15px 17px;margin-bottom:12px}
+.tw-lead h2{margin:0 0 5px;font-size:16.5px;letter-spacing:-.3px}
+.tw-lead p{margin:0 0 8px;color:var(--tx2);font-size:13px;max-width:900px}
+.tw-lead p b{color:var(--tx)}
+.tw-stat{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.tw-stat div{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.tw-stat b{display:block;font-size:19px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.tw-stat span{font-size:11.5px;color:var(--tx3)}
+.tw-find{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.tw-find input{flex:1;min-width:240px;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:10px;padding:10px 12px;color:var(--tx);font-size:13.5px;font-family:ui-monospace,monospace}
+.tw-find button{background:var(--blue);border:0;border-radius:10px;padding:10px 18px;
+  color:#fff;font-weight:700;font-size:13.5px;cursor:pointer}
+.tw-me{background:var(--panel);border:1px solid var(--blue);border-radius:12px;
+  padding:12px 14px;margin-bottom:12px;display:none}
+.tw-me.on{display:block}
+.tw-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tw-tbl th{text-align:right;padding:7px 8px;color:var(--tx3);font-size:11.5px;font-weight:600;
+  border-bottom:1px solid var(--line2);white-space:nowrap}
+.tw-tbl th:nth-child(2){text-align:left}
+.tw-tbl td{padding:8px;border-bottom:1px solid var(--line);text-align:right;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw-tbl td:nth-child(2){text-align:left;white-space:normal}
+.tw-tbl tr.hd:hover{background:#20262e;cursor:pointer}
+.tw-tbl .rk{color:var(--tx3);font-size:12px;width:42px}
+.tw-tbl .ad{font-family:ui-monospace,monospace;font-size:12px;color:var(--tx2);word-break:break-all}
+.tw-tbl .nm{font-weight:700;color:var(--tx);display:block;font-size:13.5px}
+.tw-tbl .big{font-weight:700;color:var(--tx)}
+.tag-x{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;
+  border:1px solid transparent;white-space:nowrap}
+.tag-free{color:#ffb4b4;background:rgba(208,59,59,.16);border-color:rgba(208,59,59,.5)}
+.tag-bot{color:#ffd98a;background:rgba(250,178,25,.14);border-color:rgba(250,178,25,.45)}
+.tag-own{color:#9fe3c4;background:rgba(12,163,12,.13);border-color:rgba(12,163,12,.4)}
+.tag-co{color:#a9c8ff;background:rgba(57,135,229,.14);border-color:rgba(57,135,229,.45)}
+.tw-bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:4px;min-width:64px}
+.tw-bar i{display:block;height:100%;background:var(--blue)}
+.tw-open td{background:#191d22;padding:12px 14px;text-align:left}
+.tw-src{display:grid;gap:5px;margin-top:6px}
+.tw-src a{display:flex;gap:8px;align-items:baseline;font-size:12.5px;text-decoration:none}
+.tw-src a span{font-family:ui-monospace,monospace;color:var(--tx2);word-break:break-all}
+.tw-src a em{font-style:normal;color:var(--tx3);font-size:11.5px;margin-left:auto;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.tw-note{color:var(--tx3);font-size:12px;margin:4px 0 0}
+@media(max-width:900px){
+  .tw-stat{grid-template-columns:repeat(2,1fr)}
+  .tw-tbl .h-hide{display:none}
+  .tw-tbl td.h-hide{display:none}
+}
 </style>
 </head>
 <body>
@@ -391,6 +442,7 @@ button.wide{width:100%;padding:11px}
   <a data-p="p-reg" class="on">주소 등록</a>
   <a data-p="p-live">최근 활동 <em id="tLive"></em></a>
   <a data-p="p-list">전체 현황</a>
+  <a data-p="p-tree">소개 계보 <em id="tTree"></em></a>
 </div>
 
 <div class="app">
@@ -458,6 +510,71 @@ https://polygonscan.com/address/0x... 도 괜찮습니다"></textarea>
       <div id="qmsg" class="msg"></div>
     </div>
     <div id="result"></div>
+  </div>
+
+  <!-- ============ 소개 계보 (DeCT Right 수령 랭킹) ============ -->
+  <div class="pane" id="p-tree">
+    <div class="tw-lead">
+      <h2>DeCT Right 수령 랭킹</h2>
+      <p>DeCT Right(외매권)는 토큰이 아니라 <b>값 0짜리 트랜잭션의 메모(IDM)</b>로 발급됩니다.
+         발급 지갑이 참여자에게 <code>DeCT,시작일,만료일,SUT 209,USDT</code> 같은 글자를 적어 보내는 방식이라
+         토큰 목록에는 안 잡힙니다. 이 표는 그 메모를 <b>전량 수집해</b> 주소별로 합친 것입니다.</p>
+      <p>같이 보는 값이 <b>「DeCT 1당 낸 돈」</b>입니다. 참여할 때 결제대금(KWT·USDT)을 함께 낸 기록이 있으면
+         제 돈으로 산 것이고, <b>SUT만 넣고 참여</b>했다면 이미 확보해 둔 권리를 소진한 것입니다.
+         그래서 이 값이 <b>바닥에 붙은 주소일수록 남의 참여에서 흘러온 권리로 쌓았다</b>는 뜻이 됩니다.</p>
+      <div class="tw-stat">
+        <div><b id="twA">–</b><span>수령 주소</span></div>
+        <div><b id="twB">–</b><span>DeCT 합계 (SUT)</span></div>
+        <div><b id="twC">–</b><span>발급 기록</span></div>
+        <div><b id="twD">–</b><span>자기돈 흔적 거의 없음</span></div>
+      </div>
+    </div>
+
+    <div class="tw-find">
+      <input id="twQ" placeholder="주소를 넣으면 순위와 성격을 봅니다  0x…">
+      <button id="twGo">확인</button>
+    </div>
+    <div class="tw-me" id="twMe"></div>
+
+    <div class="chips" id="twChips"></div>
+    <table class="tw-tbl">
+      <thead><tr>
+        <th class="rk">#</th><th>주소 / 이름</th>
+        <th>DeCT 합계</th><th class="h-hide">발급</th>
+        <th class="h-hide">자기돈</th><th class="h-hide">SUT단독</th>
+        <th>DeCT 1당 낸 돈</th>
+      </tr></thead>
+      <tbody id="twBody"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:26px">
+        불러오는 중…</td></tr></tbody>
+    </table>
+    <div class="tools" style="margin:12px 0">
+      <button class="ghost sm" id="twMore">더 보기</button>
+      <span class="hint" id="twCount"></span>
+    </div>
+    <p class="tw-note">순위는 온체인 기록만으로 계산한 것입니다. 누가 누구를 소개했는지는 체인에 적히지 않으므로,
+      줄을 펼쳤을 때 나오는 <b>SUT를 보내준 주소</b>가 관계를 읽는 단서입니다.
+      이름은 <b>주소 등록</b> 탭에서 함께 채워집니다.</p>
+
+    <div class="tw-lead" style="margin-top:22px">
+      <h2>SUT 공급 허브 — 계보의 뼈대</h2>
+      <p>SUT만 넣고 참여하려면 그 SUT가 <b>미리 지갑에 있어야</b> 합니다. 그래서 상위 600위 지갑이
+         SUT를 <b>어디서 받았는지</b>를 거꾸로 훑었습니다. 아래는 그 결과 <b>여러 사람에게 SUT를 보낸 주소</b>입니다.
+         한 주소가 수십·수백 명에게 SUT를 보내고 있다면, 그 아래가 곧 조직입니다.</p>
+      <p class="tw-note">보낸 SUT가 <b>전부 0</b>인 주소는 자금 이동이 아니라 <b>주소 사칭(0원 전송)</b>입니다.
+         복사 실수를 노린 것이니 절대 그 주소로 보내지 마세요.</p>
+    </div>
+    <table class="tw-tbl">
+      <thead><tr>
+        <th class="rk">#</th><th>주소 / 이름</th>
+        <th>받은 사람</th><th>보낸 SUT</th><th class="h-hide">본인 DeCT 순위</th>
+      </tr></thead>
+      <tbody id="hbBody"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:22px">
+        불러오는 중…</td></tr></tbody>
+    </table>
+    <div class="tools" style="margin:12px 0 4px">
+      <button class="ghost sm" id="hbMore">더 보기</button>
+      <span class="hint" id="hbCount"></span>
+    </div>
   </div>
 </div>
 
@@ -1818,6 +1935,218 @@ refresh().then(function(){
   if($('q').value.trim()) $('check').click();
   startLive();
 });
+
+/* ==========================================================
+   소개 계보 — DeCT Right 수령 랭킹
+   데이터는 같은 폴더의 dect_top_c.json / dect_idx.json / sut_src.json
+   ========================================================== */
+(function(){
+  var TOP=null, IDX=null, SRC=null, F={}, shown=60, filt='all', openRow={};
+  var COMPANY={
+    '0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c':'CC2C 회사 수금지갑',
+    '0xf11d0da941625c2e6df119c6b30df9d42ad0a964':'회사 지급지갑 #1',
+    '0xe6e7ec8dfbacc0dbfc8e838ff2a49a252ab4ff85':'회사 지급지갑 #2 / 멀티샌드',
+    '0x31c9342baf01f941d9eeeed11eb09815602f747b':'DeCT 발급지갑',
+    '0x3fbebfb25c4b9d8a2a6b37640f4c59d407fa0484':'DeCT 발급지갑',
+    '0xdc7f40a3244ca87d82c065204360b9fb5ba65069':'DeCT 발급지갑',
+    '0x5a7317b12e4b1e8b4be8fff9eba090e03fafc4ca':'경유 지갑',
+    '0x0d0707963952f2fba59dd06f2b425ace40b492fe':'Gate.io'
+  };
+  function num(n){ return (n||0).toLocaleString('ko-KR'); }
+  function ymd(t){ if(!t) return ''; var d=new Date(t*1000);
+    return (''+d.getFullYear()).slice(2)+'.'+('0'+(d.getMonth()+1)).slice(-2); }
+  function get(r,k){ return r[F[k]]; }
+
+  /* 성격 판정 — 온체인 수치만으로 나눕니다 */
+  function kind(r){
+    var a=get(r,'addr');
+    if(COMPANY[a]) return {k:'co', t:'회사·발급', c:'tag-co'};
+    var dect=get(r,'dect'), kpd=get(r,'kpd'), n=get(r,'n');
+    if(dect>=50000 && kpd<5000)  return {k:'free', t:'자기돈 거의 없음', c:'tag-free'};
+    if(n>=1000)                  return {k:'bot',  t:'초고빈도', c:'tag-bot'};
+    return {k:'own', t:'자기돈 참여', c:'tag-own'};
+  }
+  function srcOf(a){ return SRC ? SRC[a] : null; }
+
+  function rowHtml(r,i){
+    var a=get(r,'addr'), K=kind(r), nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
+    var kpd=get(r,'kpd'), dect=get(r,'dect');
+    var pct=Math.max(0, Math.min(100, Math.round(kpd/30000*100)));
+    var h='<tr class="hd" data-a="'+a+'">'+
+      '<td class="rk">'+get(r,'rank')+'</td>'+
+      '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+
+        '<span class="ad">'+a+'</span> <span class="tag-x '+K.c+'">'+K.t+'</span></td>'+
+      '<td class="big">'+num(dect)+'</td>'+
+      '<td class="h-hide">'+num(get(r,'n'))+'</td>'+
+      '<td class="h-hide">'+num(get(r,'paid_n'))+'</td>'+
+      '<td class="h-hide">'+num(get(r,'solo_n'))+'</td>'+
+      '<td>'+num(kpd)+'원<div class="tw-bar"><i style="width:'+pct+'%"></i></div></td></tr>';
+    if(openRow[a]){
+      var s=srcOf(a), inner='';
+      if(s && s.length){
+        inner='<b>이 지갑에 SUT를 보내준 주소</b> — 참여에 쓸 SUT가 어디서 왔는지가 관계의 단서입니다.'+
+          '<div class="tw-src">'+s.slice(0,12).map(function(x){
+            var lb=(typeof nameOf==='function'? nameOf(x[0]):null) || COMPANY[x[0]] || '';
+            return '<a href="https://polygonscan.com/address/'+x[0]+'" target="_blank" rel="noopener">'+
+              '<span>'+(lb?'<b style="color:var(--tx)">'+esc(lb)+'</b> ':'')+x[0]+'</span>'+
+              '<em>SUT '+num(Math.round(x[1]))+' · '+x[2]+'회</em></a>';
+          }).join('')+'</div>';
+      } else {
+        inner='<span style="color:var(--tx3)">SUT 유입 추적은 상위 600위까지만 준비돼 있습니다.</span>';
+      }
+      h+='<tr class="tw-open"><td colspan="7">'+
+         '<div style="margin-bottom:8px;color:var(--tx2);font-size:12.5px">'+
+         '발급 '+num(get(r,'n'))+'건 · 결제대금 동반 '+num(get(r,'paid_n'))+'건 · '+
+         'SUT단독 '+num(get(r,'solo_n'))+'건 · 온체인 입금 없음 '+num(get(r,'krw_n'))+'건'+
+         ' · 활동 '+ymd(get(r,'first'))+'~'+ymd(get(r,'last'))+'<br>'+
+         '실제 온체인 입금: KWT '+num(get(r,'kwt'))+' · USDT '+num(get(r,'usdt'))+
+         ' · SUT '+num(get(r,'sut_in'))+'</div>'+inner+
+         '<div style="margin-top:9px"><a href="https://polygonscan.com/address/'+a+
+         '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
+         ' · <a href="#" data-reg="'+a+'">이 주소에 이름 달기</a></div></td></tr>';
+    }
+    return h;
+  }
+
+  function pass(r){
+    if(filt==='all') return true;
+    return kind(r).k===filt;
+  }
+  function render(){
+    if(!TOP){ return; }
+    var list=TOP.r.filter(pass), body=$('twBody');
+    body.innerHTML = list.slice(0,shown).map(rowHtml).join('') ||
+      '<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:26px">해당 없음</td></tr>';
+    $('twCount').textContent = Math.min(shown,list.length)+' / '+list.length+'개';
+    $('twMore').style.display = shown<list.length ? '' : 'none';
+    body.querySelectorAll('tr.hd').forEach(function(tr){
+      tr.onclick=function(){ var a=tr.dataset.a; openRow[a]=!openRow[a]; render(); };
+    });
+    body.querySelectorAll('a[data-reg]').forEach(function(el){
+      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
+        $('q').value=el.dataset.reg; showPane('p-reg'); $('check').click(); };
+    });
+  }
+  function chips(){
+    var C=[['all','전체'],['free','자기돈 거의 없음'],['bot','초고빈도'],['own','자기돈 참여'],['co','회사·발급']];
+    $('twChips').innerHTML=C.map(function(c){
+      var n=TOP?TOP.r.filter(function(r){return c[0]==='all'||kind(r).k===c[0];}).length:0;
+      return '<a class="chip'+(filt===c[0]?' on':'')+'" data-f="'+c[0]+'">'+c[1]+' <em>'+n+'</em></a>';
+    }).join('');
+    $('twChips').querySelectorAll('a').forEach(function(a){
+      a.onclick=function(){ filt=a.dataset.f; shown=60; chips(); render(); };
+    });
+  }
+
+  function find(){
+    var q=($('twQ').value||'').trim().toLowerCase();
+    var m=q.match(/0x[0-9a-f]{40}/); var box=$('twMe');
+    if(!m){ box.className='tw-me'; return; }
+    var a=m[0];
+    function show(row, fields){
+      var g=function(k){ return row[fields[k]]; };
+      var K=kind(row), nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
+      box.className='tw-me on';
+      box.innerHTML='<div style="font-size:12px;color:var(--tx3)">'+ (nm?esc(nm)+' · ':'') + a +'</div>'+
+        '<div style="margin-top:6px;font-size:15px"><b>'+num(g('rank'))+'위</b> · DeCT <b>'+num(g('dect'))+
+        '</b> SUT · 발급 '+num(g('n'))+'건 · <span class="tag-x '+K.c+'">'+K.t+'</span></div>'+
+        '<div style="margin-top:4px;color:var(--tx2);font-size:12.5px">결제대금 동반 '+num(g('paid_n'))+
+        '건 · SUT단독 '+num(g('solo_n'))+'건 · DeCT 1당 낸 돈 <b>'+num(g('kpd'))+'원</b></div>';
+    }
+    var hit=null;
+    if(TOP) TOP.r.forEach(function(r){ if(get(r,'addr')===a) hit=r; });
+    if(hit){ var f2={}; Object.keys(F).forEach(function(k){f2[k]=F[k];}); f2.rank=null;
+      box.className='tw-me on';
+      var K=kind(hit), nm=(typeof nameOf==='function'? nameOf(a):null)||COMPANY[a];
+      box.innerHTML='<div style="font-size:12px;color:var(--tx3)">'+(nm?esc(nm)+' · ':'')+a+'</div>'+
+        '<div style="margin-top:6px;font-size:15px"><b>'+num(get(hit,'rank'))+'위</b> · DeCT <b>'+
+        num(get(hit,'dect'))+'</b> SUT · 발급 '+num(get(hit,'n'))+'건 · <span class="tag-x '+K.c+'">'+K.t+'</span></div>'+
+        '<div style="margin-top:4px;color:var(--tx2);font-size:12.5px">결제대금 동반 '+num(get(hit,'paid_n'))+
+        '건 · SUT단독 '+num(get(hit,'solo_n'))+'건 · DeCT 1당 낸 돈 <b>'+num(get(hit,'kpd'))+'원</b></div>';
+      return;
+    }
+    box.className='tw-me on'; box.innerHTML='<span style="color:var(--tx3)">전체 목록에서 찾는 중…</span>';
+    (IDX ? Promise.resolve(IDX) : fetch('dect_idx.json').then(function(r){return r.json();})
+      .then(function(j){ IDX=j; var m2={}; j.f.forEach(function(k,i){m2[k]=i;}); IDX.F=m2; return j; }))
+    .then(function(j){
+      var row=null; j.r.forEach(function(r){ if(r[j.F?j.F.addr:0]===a) row=r; });
+      if(!row){ box.innerHTML='<span style="color:var(--tx3)">DeCT 수령 기록이 없는 주소입니다.</span>'; return; }
+      show(row, j.F);
+    }).catch(function(){ box.innerHTML='<span style="color:var(--tx3)">목록을 불러오지 못했습니다.</span>'; });
+  }
+
+  function boot(){
+    fetch('dect_top_c.json',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.r || !j.f) throw 0;
+      TOP=j; j.f.forEach(function(k,i){ F[k]=i; });
+      TOP.r.forEach(function(r,i){ r.push(i+1); }); F.rank=j.f.length;
+      $('twA').textContent=num(j.n); $('twB').textContent=num(j.sum);
+      $('twC').textContent=num(j.idm)+'건';
+      $('twD').textContent=num(TOP.r.filter(function(r){return kind(r).k==='free';}).length)+'곳';
+      $('tTree').textContent=num(j.n);
+      chips(); render();
+    }).catch(function(){
+      $('twBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:26px">'+
+        'dect_top_c.json 을 찾지 못했습니다. 페이지와 같은 폴더에 올려주세요.</td></tr>';
+    });
+    fetch('sut_src.json',{cache:'no-store'}).then(function(r){ return r.json(); })
+      .then(function(j){ SRC=j; }).catch(function(){});
+  }
+  /* ---- SUT 공급 허브 ---- */
+  var HUB=null, hbShown=40, hbOpen={};
+  function hubRow(r,i){
+    var a=r.addr, nm=(typeof nameOf==='function'? nameOf(a):null) || COMPANY[a];
+    var fake = r.sut===0 && r.zero>0;
+    var tag = fake ? '<span class="tag-x tag-free">0원 전송 · 사칭</span>'
+            : (COMPANY[a] ? '<span class="tag-x tag-co">회사·발급</span>'
+            : (r.targets>=100 ? '<span class="tag-x tag-bot">대량 공급</span>'
+            : '<span class="tag-x tag-own">공급</span>'));
+    var h='<tr class="hd" data-h="'+a+'">'+
+      '<td class="rk">'+(i+1)+'</td>'+
+      '<td>'+(nm?'<b class="nm">'+esc(nm)+'</b>':'')+'<span class="ad">'+a+'</span> '+tag+'</td>'+
+      '<td class="big">'+num(r.targets)+'명</td>'+
+      '<td>'+num(r.sut)+'</td>'+
+      '<td class="h-hide">'+(r.rank?num(r.rank)+'위':'—')+'</td></tr>';
+    if(hbOpen[a]){
+      h+='<tr class="tw-open"><td colspan="5">'+
+        '<b>이 주소가 SUT를 보낸 곳</b> (상위 600위 안에서 확인된 것만, 금액순)'+
+        '<div class="tw-src">'+r.to.map(function(x){
+          var lb=(typeof nameOf==='function'? nameOf(x[0]):null) || COMPANY[x[0]] || '';
+          return '<a href="https://polygonscan.com/address/'+x[0]+'" target="_blank" rel="noopener">'+
+            '<span>'+(lb?'<b style="color:var(--tx)">'+esc(lb)+'</b> ':'')+x[0]+'</span>'+
+            '<em>SUT '+num(x[1])+'</em></a>';
+        }).join('')+'</div>'+
+        '<div style="margin-top:9px"><a href="https://polygonscan.com/address/'+a+
+        '" target="_blank" rel="noopener">폴리곤스캔에서 보기</a>'+
+        ' · <a href="#" data-reg2="'+a+'">이 주소에 이름 달기</a></div></td></tr>';
+    }
+    return h;
+  }
+  function hubRender(){
+    if(!HUB) return;
+    var body=$('hbBody');
+    body.innerHTML=HUB.r.slice(0,hbShown).map(hubRow).join('');
+    $('hbCount').textContent=Math.min(hbShown,HUB.r.length)+' / '+HUB.r.length+'개 · 상위 '+num(HUB.traced)+'위 추적분';
+    $('hbMore').style.display = hbShown<HUB.r.length ? '' : 'none';
+    body.querySelectorAll('tr.hd').forEach(function(tr){
+      tr.onclick=function(){ var a=tr.dataset.h; hbOpen[a]=!hbOpen[a]; hubRender(); };
+    });
+    body.querySelectorAll('a[data-reg2]').forEach(function(el){
+      el.onclick=function(e){ e.preventDefault(); e.stopPropagation();
+        $('q').value=el.dataset.reg2; showPane('p-reg'); $('check').click(); };
+    });
+  }
+
+  $('twGo').onclick=find;
+  $('twQ').addEventListener('keydown',function(e){ if(e.key==='Enter') find(); });
+  $('twMore').onclick=function(){ shown+=60; render(); };
+  $('hbMore').onclick=function(){ hbShown+=40; hubRender(); };
+  boot();
+  fetch('sut_hub.json',{cache:'no-store'}).then(function(r){ return r.json(); })
+    .then(function(j){ HUB=j; hubRender(); })
+    .catch(function(){ $('hbBody').innerHTML='<tr><td colspan="5" style="text-align:center;'+
+      'color:var(--tx3);padding:22px">sut_hub.json 을 찾지 못했습니다.</td></tr>'; });
+})();
 </script>
 </body>
 </html>
