@@ -48,6 +48,16 @@ border-radius:20px;padding:5px 13px;font:inherit;font-size:12px;cursor:pointer;f
 .out .big b{color:var(--green);font-size:30px}
 .out .t2{grid-column:1/-1;background:rgba(201,162,39,.09);border-color:#5c4f1e}
 .out .t2 b{color:var(--gold);font-size:26px}
+.out .t3{grid-column:1/-1;background:rgba(224,133,127,.09);border-color:#6e3535}
+.out .t3 b{color:var(--red);font-size:26px}
+.mile{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:11px}
+.mile div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.mile span{display:block;font-size:11.2px;color:var(--tx3);margin-bottom:3px}
+.mile b{font-size:20px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums;display:block}
+.mile em{font-style:normal;font-size:11.3px;color:var(--tx2);display:block;margin-top:3px}
+.mile .a b{color:var(--gold)} .mile .b b{color:var(--red)} .mile .c b{color:var(--ac2)}
+tr.mark td{background:rgba(145,132,217,.10)}
+td.neg{color:var(--red)}
 
 .steps{display:grid;gap:7px}
 .step{display:grid;grid-template-columns:30px 1fr auto;gap:11px;align-items:center;
@@ -78,6 +88,7 @@ td.v{font-weight:700}
 .note ul{margin:7px 0 0;padding-left:20px;font-size:12.8px;color:var(--tx2)}
 .note li{margin-bottom:6px}.note li:last-child{margin:0}
 .warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+@media(max-width:700px){.mile{grid-template-columns:1fr}}
 @media(max-width:560px){.out,.in{grid-template-columns:1fr}.box,.note,.qa,.calc{padding:13px}
 .step{grid-template-columns:26px 1fr;row-gap:4px}.step .r{grid-column:2;text-align:left}}
 </style>
@@ -110,7 +121,8 @@ td.v{font-weight:700}
     <div><span>매주 주정산</span><b class="num" id="o3"></b><em id="o3s"></em></div>
     <div><span>DeCT DUTY 의무참여</span><b class="num" id="o4" style="color:var(--red)"></b><em id="o4s"></em></div>
     <div class="big"><span>매주 손에 들어오는 돈</span><b class="num" id="o5"></b><em id="o5s"></em></div>
-    <div class="t2"><span>NSS 참여분 2,400 USDT를 다 받는 데 걸리는 시간</span><b class="num" id="o6"></b><em id="o6s"></em></div>
+    <div class="t2"><span>입장료 1,000 USDT 회수 기간</span><b class="num" id="o6"></b><em id="o6s"></em></div>
+    <div class="t3"><span>이관액까지 다 받는 기간</span><b class="num" id="o7"></b><em id="o7s"></em></div>
   </div>
 </div>
 
@@ -120,14 +132,32 @@ td.v{font-weight:700}
 <h2>잔신 구간별 표</h2>
 <p class="sub">현재 입력한 이관률 기준입니다. 초록색 줄부터 DeCT Right(외매권)가 생깁니다.</p>
 <div class="box"><div class="tw"><table>
-<thead><tr><th class="l">기존 잔신</th><th>이관액</th><th>주정산</th><th>의무참여</th><th>SUT 매수</th><th>실수령</th><th>2,400 회수</th></tr></thead>
+<thead><tr><th class="l">기존 잔신</th><th>이관액</th><th>주정산</th><th>의무참여</th><th>SUT 매수</th><th>실수령</th><th>1,000 회수</th></tr></thead>
 <tbody id="tb"></tbody></table></div></div>
 
+<h2>재참여를 계속하면 — 시나리오</h2>
+<p class="sub">듀티(의무참여)만 계속 이행하고 추가 투입은 하지 않는 경우입니다.</p>
+<div class="mile" id="ml"></div>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">주차</th><th>주정산</th><th>의무참여</th><th>SUT 매수</th><th>실수령</th><th>누적 실수령</th><th>순현금</th></tr></thead>
+<tbody id="sc"></tbody></table></div></div>
+<div class="note warn">
+<h3>이 시나리오에 외매권(DCR)은 넣지 않았습니다</h3>
+<p><b>DeCT Right는 계산에서 뺐습니다.</b> 의무참여가 100 USDT 이상일 때 13주 동안만 생기고,
+2주 안에 SUT를 내고 써야 하며, 초대자를 어떻게 지정하느냐에 따라 완전히 달라지기 때문입니다.</p>
+<p>즉 <b>위 숫자는 외매권 없이 듀티만 이행했을 때의 값</b>입니다.
+외매권을 받아 행사하면 수령액이 늘지만 SUT 매수 부담도 함께 늘어납니다.</p>
+<p><b>주정산이 52주 근처에서 정점을 찍고 줄어듭니다.</b> 재참여로 새 신용대금이 쌓이는 동안은 커지다가,
+처음 이관분의 52주가 끝나면서 빠지기 때문입니다.</p>
+</div>
+
 <div class="note">
-<h3>"2,400 회수"가 무슨 뜻인가요</h3>
-<p>NSS에 참여하려면 <b>1,000 USDT</b>가 필요하고, 그 대가로 <b>2,400 USDT의 신용대금</b>이 생깁니다.
-매주 손에 들어오는 돈으로 그 2,400을 다 받으려면 몇 주가 걸리는지 계산한 값입니다.</p>
-<p>잔신이 클수록 주정산이 커져서 빨리 회수됩니다. 잔신이 작으면 <b>52주 만기를 넘겨도 다 못 받습니다.</b></p>
+<h3>"1,000 회수"가 무슨 뜻인가요</h3>
+<p>NSS에 들어가려면 <b>입장료로 1,000 USDT</b>를 내야 합니다.
+<b>매주 손에 들어오는 돈으로 그 1,000을 되찾는 데 몇 주가 걸리는지</b> 계산한 값입니다.
+그 시점을 넘어야 비로소 이득 구간에 들어갑니다.</p>
+<p><b>듀티(의무참여)만 이행한다고 봤습니다.</b> 추가로 더 넣지 않는 경우입니다.
+잔신이 클수록 주정산이 커져 빨리 회수됩니다. 잔신 7만이면 6주, 5천이면 28주입니다.</p>
 </div>
 
 <div class="note warn">
@@ -151,7 +181,7 @@ td.v{font-weight:700}
 </div>
 </div>
 <script>
-const W=365/7, NSS=2400, FX=1400, THR=100;
+const W=365/7, NSS=2400, ENTRY=1000, FX=1400, THR=100;
 const $=i=>document.getElementById(i);
 const n=v=>Math.round(v).toLocaleString();
 const f2=v=>v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -159,10 +189,23 @@ function calc(jan,rt){
   const mig=jan*rt, hap=NSS+mig, pay=hap/W, d30=pay*0.30;
   let duty=Math.ceil(d30/10)*10; if(duty<20) duty=0;
   const sut=duty/2, appr=duty*2.4, net=pay-duty-sut;
-  const wks=net>0?NSS/net:Infinity;
+  const wks=net>0?ENTRY/net:Infinity;
   return {jan,rt,mig,hap,pay,d30,duty,sut,appr,net,won:net*FX,rate:pay>0?net/pay:0,wks};
 }
 function wkTxt(w){ return isFinite(w)?(w<1000?w.toFixed(1)+'주':'—'):'회수 불가'; }
+function sim(jan,rt,weeks){
+  const hap=NSS+jan*rt; let coh=[[0,hap]], cash=-ENTRY, got=0, out=[];
+  for(let t=1;t<=weeks;t++){
+    let pay=0; for(const [s0,a] of coh) if(t-s0-1>=0 && t-s0-1<W) pay+=a/W;
+    let d=Math.ceil(pay*0.3/10)*10; if(d<20) d=0;
+    const sc=d/2, net=pay-d-sc;
+    cash+=net; got+=net;
+    if(d>0) coh.push([t,d*2.4]);
+    out.push({t,pay,d,sc,net,got,cash});
+  }
+  return {hap,rows:out};
+}
+function firstWk(rows,target){ const r=rows.find(x=>x.got>=target); return r?r.t:null; }
 function render(){
   const jan=Math.max(0,parseFloat($('jan').value)||0);
   const rt=Math.max(0,Math.min(100,parseFloat($('rt').value)||0))/100;
@@ -174,10 +217,26 @@ function render(){
   $('o4s').textContent=c.duty?`30%는 ${f2(c.d30)} → 10단위 올림`:'주정산이 작아 DUTY 없음';
   $('o5').innerHTML=f2(c.net)+' <span style="font-size:.5em;font-weight:600">USDT</span>';
   $('o5s').textContent=n(c.won)+'원 · 주정산의 '+(c.rate*100).toFixed(1)+'%';
+  const S=sim(jan,rt,208), mig=c.mig;
+  const wEntry=firstWk(S.rows,ENTRY), wMig=firstWk(S.rows,mig), wHap=firstWk(S.rows,S.hap);
   $('o6').textContent=wkTxt(c.wks);
   $('o6s').textContent=isFinite(c.wks)
-    ? `2,400 ÷ 주 ${f2(c.net)} · ${(c.wks/52.142857).toFixed(1)}년`+(c.wks>52?' · 52주 만기보다 깁니다':'')
+    ? `1,000 ÷ 주 ${f2(c.net)} · ${(c.wks/52.142857).toFixed(1)}년`+(c.wks>52?' · 52주 만기보다 깁니다':'')
     : '실수령이 0 이하라 회수되지 않습니다';
+  $('o7').textContent=wMig?wMig+'주':'208주 넘음';
+  $('o7s').textContent=wMig?`이관액 ${n(mig)} · ${(wMig/52.142857).toFixed(1)}년 · 재참여 계속 기준`:'재참여를 계속해도 208주 안에 못 받습니다';
+  $('ml').innerHTML=[
+   ['a','입장료 1,000 회수',wEntry,'처음 낸 입장료를 되찾는 시점'],
+   ['b','이관액 '+n(mig)+' 회수',wMig,'이관한 금액만큼 받는 시점'],
+   ['c','합산잔신 '+n(S.hap)+' 전액',wHap,'입장료분까지 전부 받는 시점'],
+  ].map(([cl,t,w,d])=>`<div class="${cl}"><span>${t}</span><b>${w?w+'주':'—'}</b>
+   <em>${w?(w/52.142857).toFixed(1)+'년 · ':''}${d}</em></div>`).join('');
+  $('sc').innerHTML=[1,13,26,52,78,104,156,208].map(t=>{const r=S.rows[t-1]; if(!r)return'';
+   const mk=[wEntry,wMig,wHap].includes(t);
+   return `<tr class="${mk?'mark':''}"><td class="l"><b>${t}주</b></td>
+    <td>${f2(r.pay)}</td><td class="rd">${n(r.d)}</td><td class="rd">${n(r.sc)}</td>
+    <td class="v gd">${f2(r.net)}</td><td class="v">${n(r.got)}</td>
+    <td class="v ${r.cash<0?'neg':''}">${n(r.cash)}</td></tr>`}).join('');
   $('sp').innerHTML=[
    ['1','이관액 = 기존 잔신 × 이관률',`${n(c.jan)} × ${(rt*100).toFixed(0)}%`,n(c.mig),''],
    ['2','합산 잔신 = NSS 참여 + 이관액',`2,400 + ${n(c.mig)}`,n(c.hap),''],
