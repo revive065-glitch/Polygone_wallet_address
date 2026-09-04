@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>광산 수익과 채무 상환</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--s1:#3987e5;--kw:#c98500}
+*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.65;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:18px 14px 70px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:20px;margin:0 0 4px;letter-spacing:-.5px}
+.tag{color:var(--tx3);font-size:12.4px;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+h2{font-size:17px;margin:30px 0 6px;letter-spacing:-.3px}
+h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}
+
+.debt{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px}
+.debt div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.debt .k{font-size:11.4px;color:var(--tx3);margin-bottom:4px}
+.debt .v{font-size:23px;font-weight:800;letter-spacing:-.7px;line-height:1.1}
+.debt .s{font-size:11.5px;color:var(--tx2);margin-top:4px}
+.debt .w .v{color:var(--kw)} .debt .u .v{color:var(--s1)} .debt .t{border-color:#6e3535}
+.debt .t .v{color:var(--red)}
+
+.calc{background:linear-gradient(180deg,#1f2233,#1a1c28);border:1px solid var(--line2);
+border-radius:14px;padding:16px 17px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.grid label{display:block;font-size:11.6px;color:var(--tx3);margin-bottom:5px}
+.grid input{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--tx);
+border-radius:10px;padding:11px 13px;font:inherit;font-size:18px;font-weight:800;
+font-variant-numeric:tabular-nums;text-align:right}
+.grid input:focus{border-color:var(--ac);outline:none}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.res div{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.res span{display:block;font-size:11.4px;color:var(--tx3);margin-bottom:3px}
+.res b{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.15;display:block}
+.res em{font-style:normal;font-size:11.6px;color:var(--tx2);display:block;margin-top:3px}
+.res .ok b{color:var(--green)} .res .no b{color:var(--red)}
+
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
+table{width:100%;border-collapse:collapse;font-size:12.9px;min-width:500px}
+th{color:var(--tx3);font-size:11.3px;font-weight:600;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+th.l,td.l{text-align:left}
+td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .k2{display:block;color:var(--tx3);font-size:11px;margin-top:2px;font-weight:400}
+td.v{font-weight:700;font-size:14px}
+.rd{color:var(--red)}.gd{color:var(--green)}.wd{color:var(--gold)}
+
+.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
+.note h3{margin:0 0 8px;font-size:13.6px;color:#e5cd6b}
+.note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+.note ul{margin:7px 0 0;padding-left:20px;font-size:12.8px;color:var(--tx2)}
+.note li{margin-bottom:6px}.note li:last-child{margin:0}
+.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+.ok2{background:rgba(63,157,120,.07);border-color:#2c5c48}.ok2 h3{color:var(--green)}
+@media(max-width:640px){.debt,.grid,.res{grid-template-columns:1fr}}
+@media(max-width:520px){.box,.note,.calc{padding:13px}h2{font-size:15.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>광산 수익과 채무 상환</h1>
+<div class="tag">몽골 광산에서 얼마를 벌어야 잔여 신용대금을 갚을 수 있는지 · 온체인 실측 채무 기준</div>
+
+<div class="debt">
+  <div class="w"><div class="k">KWT 잔여 채무</div><div class="v num">8.02조원</div>
+    <div class="s">1 KWT = 1원 명목가</div></div>
+  <div class="u"><div class="k">테더 잔여 채무</div><div class="v num">5,119억원</div>
+    <div class="s">참여자가 실제로 넣은 현금</div></div>
+  <div class="t"><div class="k">합계</div><div class="v num">8.53조원</div>
+    <div class="s">주정산 재개 시 연 12.77조 추가</div></div>
+</div>
+
+<h2>광산이 얼마를 벌면 되나</h2>
+<p class="sub">연 매출과 순이익률을 넣어 보십시오. 상환에 몇 년이 걸리는지 나옵니다.</p>
+<div class="calc">
+  <div class="grid">
+    <div><label>광산 연 매출 (억원)</label><input type="number" id="rev" value="5000" step="500" min="0" inputmode="numeric"></div>
+    <div><label>순이익률 (%)</label><input type="number" id="mgn" value="20" step="5" min="1" max="100" inputmode="numeric"></div>
+  </div>
+  <div class="res">
+    <div id="r1"><span>테더 채무 상환까지</span><b class="num" id="v1"></b><em id="e1"></em></div>
+    <div id="r2"><span>전체 채무 상환까지</span><b class="num" id="v2"></b><em id="e2"></em></div>
+  </div>
+</div>
+
+<h2>기간별로 얼마가 필요한가</h2>
+<p class="sub">순이익 기준입니다. 매출은 순이익률로 나눠야 나옵니다.</p>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">상환 기간</th><th>테더만</th><th>전체</th><th>주정산까지 재개하면</th></tr></thead>
+<tbody id="tb"></tbody></table></div></div>
+
+<h2>순이익률별 필요 매출</h2>
+<p class="sub">전체 8.53조원을 10년에 나눠 갚는다고 봤을 때입니다.</p>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">순이익률</th><th>필요 연 매출</th><th>10년 누적 매출</th></tr></thead>
+<tbody id="mb"></tbody></table></div></div>
+
+<div class="note warn">
+<h3>주정산을 재개하면 상환은 불가능합니다</h3>
+<p><b>지금 멈춰 있는 주정산을 다시 지급하려면 매주 2,456억원이 듭니다. 연 12.77조원입니다.</b>
+여기에 원금 상환까지 더하면 어떤 기간을 잡아도 연 13조원 아래로 내려가지 않습니다.</p>
+<p>순이익률 20%로 잡으면 <b>연 매출 65조원</b>이 필요합니다.
+그래서 현실적인 이야기는 <b>주정산을 재개하지 않고 잔액만 나눠 갚는 경우</b>뿐입니다.
+아래 표의 왼쪽 두 칸이 그 경우입니다.</p>
+</div>
+
+<div class="note ok2">
+<h3>테더와 KWT를 반드시 나눠 보십시오</h3>
+<p><b>테더 5,119억원은 참여자가 실제 현금으로 넣은 돈</b>입니다. 이건 성격이 분명한 채무입니다.
+10년에 나눠 갚으면 연 512억원, 순이익률 20%면 <b>연 매출 2,560억원</b>이면 됩니다.
+불가능한 규모는 아닙니다.</p>
+<p><b>KWT 8.02조원은 회사가 발행한 토큰을 1원으로 친 명목가</b>입니다.
+회사가 이걸 KWT로 갚겠다고 하면 발행만 늘리면 되고, 참여자 입장에서는 현금이 안 되면 받은 게 아닙니다.
+<b>이 8조원을 광산 수익으로 갚는다는 전제 자체가 성립하기 어렵습니다.</b></p>
+<p>그래서 협상이든 논의든 <b>"테더 5,119억을 어떻게 할 것인가"로 좁히는 편이 현실적</b>입니다.</p>
+</div>
+
+<div class="note">
+<h3>비교해 볼 규모</h3>
+<p>몽골 최대 광산인 <b>오유톨고이 구리광산</b>은 리오틴토가 운영하며,
+개발에만 약 150억 달러(20조원대)가 투입된 세계적 규모의 광산입니다.
+그런 광산 하나를 온전히 가동해도, 위 표의 "전체 채무 + 주정산 재개" 칸을 감당하기는 어렵습니다.</p>
+<p>이 비교는 <b>필요 금액의 자릿수를 가늠하시라고</b> 넣은 것입니다.
+회사가 말하는 광산의 규모·지분·개발 단계는 제가 확인할 수 없으니,
+<b>매장량 평가서와 지분 구조를 직접 요구해 보시는 편이 확실합니다.</b></p>
+</div>
+
+<div class="note">
+<h3>계산 기준</h3>
+<ul>
+  <li><b>잔여 채무</b>는 CC2C 수금지갑 유입 중 실제 권리 발급으로 이어진 참여 결제만 골라 계산했습니다. 발급 내역 189만 건과 대조했습니다.</li>
+  <li><b>KWT는 1 KWT = 1원, 테더는 1 USDT = 1,400원</b>으로 환산했습니다.</li>
+  <li><b>주정산 재개 시 연 12.77조</b>는 주 2,456억 × 52주입니다. 진행 중인 참여분만 센 값입니다.</li>
+  <li><b>이자와 할인은 넣지 않았습니다.</b> 단순 나눗셈이라 실제로는 더 큰 금액이 필요합니다.</li>
+  <li>현금(KRW) 참여분은 온체인에 없어 빠져 있습니다.</li>
+</ul>
+</div>
+
+</div>
+<script>
+const KWT=8.02e12, USDT=5119e8, TOT=KWT+USDT, WKY=2456e8*52;
+const $=i=>document.getElementById(i);
+const Z=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(2)+'조원':Math.round(v/1e8).toLocaleString()+'억원';
+function render(){
+  const rev=(parseFloat($('rev').value)||0)*1e8, m=(parseFloat($('mgn').value)||0)/100;
+  const prof=rev*m;
+  [[USDT,'1'],[TOT,'2']].forEach(([d,k])=>{
+    const y=prof>0?d/prof:Infinity;
+    const el=$('r'+k); el.className=y<=30?'ok':'no';
+    $('v'+k).textContent=isFinite(y)?(y<100?y.toFixed(1)+'년':'100년 이상'):'불가';
+    $('e'+k).textContent=`채무 ${Z(d)} ÷ 연 순이익 ${Z(prof)}`;
+  });
+}
+$('rev').addEventListener('input',render); $('mgn').addEventListener('input',render);
+$('tb').innerHTML=[3,5,10,20,30].map(y=>`<tr><td class="l"><b>${y}년</b></td>
+ <td class="v gd">${Z(USDT/y)}</td><td class="v">${Z(TOT/y)}</td>
+ <td class="v rd">${Z(TOT/y+WKY)}</td></tr>`).join('');
+$('mb').innerHTML=[10,15,20,30,50].map(m=>{const need=TOT/10/(m/100);
+ return `<tr><td class="l"><b>${m}%</b></td><td class="v">${Z(need)}</td><td>${Z(need*10)}</td></tr>`}).join('');
+render();
+</script>
+</body>
+</html>

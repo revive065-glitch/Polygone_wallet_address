@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>슈퍼세이브 자료실</title>
+<meta name="description" content="폴리곤 온체인 데이터로 확인한 슈퍼세이브 채무 규모와 이관 계산기">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.6;overflow:hidden;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+display:flex;flex-direction:column;height:100dvh}
+header{flex:0 0 auto;border-bottom:1px solid var(--line);background:var(--panel);padding:11px 14px 0;
+padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.top h1{font-size:15.5px;margin:0;letter-spacing:-.4px;white-space:nowrap}
+.top .sub{font-size:11.5px;color:var(--tx3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top a.ext{flex:0 0 auto;font-size:11.5px;color:var(--tx2);text-decoration:none;
+border:1px solid var(--line2);border-radius:20px;padding:4px 11px;white-space:nowrap}
+.top a.ext:hover{border-color:var(--ac);color:var(--tx)}
+nav{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+scrollbar-width:none;padding-bottom:9px}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--tx2);
+border-radius:20px;padding:6px 14px;font:inherit;font-size:12.6px;font-weight:600;cursor:pointer;
+white-space:nowrap;transition:background .12s,border-color .12s,color .12s}
+nav button:hover{color:var(--tx);border-color:#5a5d70}
+nav button[aria-selected="true"]{background:var(--ac);border-color:var(--ac);color:#12101c}
+main{flex:1 1 auto;position:relative;min-height:0;background:var(--bg)}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.load{position:absolute;inset:0;display:grid;place-items:center;color:var(--tx3);font-size:13px;
+background:var(--bg);transition:opacity .2s;pointer-events:none}
+.load.hide{opacity:0}
+.load i{font-style:normal;display:block;text-align:center}
+.load i b{display:block;color:var(--tx2);font-weight:600;margin-bottom:5px}
+@media(max-width:640px){.top h1{font-size:14px}.top .sub{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>슈퍼세이브 자료실</h1>
+    <div class="sub" id="sub"></div>
+    <a class="ext" id="ext" href="#" target="_blank" rel="noopener">새 창에서 ↗</a>
+  </div>
+  <nav id="nav" role="tablist"></nav>
+</header>
+<main>
+  <iframe id="fr" title="자료" loading="eager"></iframe>
+  <div class="load" id="ld"><i><b>불러오는 중</b><span id="ldn"></span></i></div>
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   탭 켜고 끄기 — on 을 true / false 로만 바꾸면 됩니다.
+   순서를 바꾸려면 줄 위치를 옮기면 그대로 반영됩니다.
+   ══════════════════════════════════════════════════════════ */
+const TABS=[
+ {on:true,  id:'calc',    t:'이관 계산기',      f:'이관_주정산_계산기.html',
+  d:'잔신을 넣으면 이관 후 매주 받는 금액이 나옵니다'},
+
+ {on:true,  id:'debt',    t:'통화별 잔여 채무',  f:'통화별_주정산_잔여신용대금.html',
+  d:'테더와 KWT를 갈라서 본 회사의 잔여 신용대금'},
+
+ {on:true,  id:'sutflow', t:'월별 SUT 유입량',   f:'월별_SUT_유입량.html',
+  d:'참여자가 회사로 보낸 SUT의 월별 추이'},
+
+ {on:true,  id:'mine',    t:'광산 채무상환',     f:'광산_채무상환_계산.html',
+  d:'광산이 얼마를 벌어야 채무를 갚을 수 있는지'},
+
+ /* ── 아래는 꺼둔 탭 — on 을 true 로 바꾸면 켜집니다 ── */
+ {on:false, id:'registry',t:'지갑 등록소',      f:'wallet_address_arc.html',
+  d:'폴리곤스캔 주소에 커뮤니티 이름표를 덧씌운 등록소'},
+
+ {on:false, id:'evidence',t:'주정산 산출근거',   f:'주정산_산출근거.html',
+  d:'누구나 다시 확인할 수 있는 계산 근거'},
+
+ {on:false, id:'nssflow', t:'NSS SUT 투입',     f:'NSS_SUT_투입흐름.html',
+  d:'6월 1일 이후 13주 실측과 향후 52주 예측'},
+
+ {on:false, id:'sutmove', t:'SUT를 움직인 돈',   f:'SUT_가격을_움직인_돈.html',
+  d:'3일간 41% 상승에 실제로 들어간 금액'},
+
+ {on:false, id:'sutpx',   t:'SUT 가격 시나리오', f:'SUT_가격_시나리오.html',
+  d:'재참여 물량을 시장에서 조달할 때의 가격 경로'},
+
+ {on:false, id:'rank',    t:'순증 수령자 랭킹',  f:'순증_수령자_랭킹.html',
+  d:'받은 권리에서 낸 돈을 뺀 순증 랭킹과 조직 계보'},
+
+ {on:false, id:'repay',   t:'상환 시나리오',     f:'상환_시나리오.html',
+  d:'분할 상환과 강제 재참여 경로 비교'},
+];
+/* ════════════════════ 아래는 건드리지 않으셔도 됩니다 ════════════════════ */
+const ON=TABS.filter(t=>t.on);
+const nav=document.getElementById('nav'), fr=document.getElementById('fr'),
+      ld=document.getElementById('ld'), ldn=document.getElementById('ldn'),
+      sub=document.getElementById('sub'), ext=document.getElementById('ext');
+let cur=null, timer=null;
+function done(){ clearTimeout(timer); ld.classList.add('hide'); }
+function show(id,push){
+  const t=ON.find(x=>x.id===id)||ON[0];
+  if(!t || cur===t.id) return; cur=t.id;
+  [...nav.children].forEach(b=>b.setAttribute('aria-selected',String(b.dataset.id===t.id)));
+  sub.textContent=t.d; ldn.textContent=t.t;
+  ld.classList.remove('hide');
+  ext.href=encodeURI(t.f);
+  fr.onload=done;
+  clearTimeout(timer); timer=setTimeout(done,2500);
+  fr.src=encodeURI(t.f);
+  document.title=t.t+' · 슈퍼세이브 자료실';
+  if(push) history.replaceState(null,'','#'+t.id);
+  const b=nav.querySelector(`[data-id="${t.id}"]`);
+  if(b) b.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+}
+nav.innerHTML=ON.map(t=>`<button role="tab" data-id="${t.id}" aria-selected="false">${t.t}</button>`).join('');
+nav.addEventListener('click',e=>{const b=e.target.closest('button'); if(b) show(b.dataset.id,true);});
+addEventListener('hashchange',()=>show(location.hash.slice(1),false));
+show(location.hash.slice(1)||(ON[0]&&ON[0].id),false);
+</script>
+</body>
+</html>

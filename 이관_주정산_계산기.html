@@ -1,0 +1,208 @@
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<title>이관 주정산 계산기</title>
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--s1:#3987e5;--s3:#199e70;--gray:#5c6070}
+*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.65;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:18px 14px 70px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:20px;margin:0 0 4px;letter-spacing:-.5px}
+.tag{color:var(--tx3);font-size:12.4px;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+h2{font-size:17px;margin:30px 0 6px;letter-spacing:-.3px}
+h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}
+
+/* 계산기 */
+.calc{background:linear-gradient(180deg,#1f2233,#1a1c28);border:1px solid var(--line2);
+border-radius:14px;padding:16px 17px;margin-bottom:12px}
+.inp label{display:block;font-size:12px;color:var(--tx3);margin-bottom:6px}
+.inp{margin-bottom:13px}
+.inp input{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--tx);
+border-radius:10px;padding:13px 15px;font:inherit;font-size:22px;font-weight:800;
+font-variant-numeric:tabular-nums;text-align:right;letter-spacing:-.5px}
+.inp input:focus{border-color:var(--ac);outline:none}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.quick button{background:var(--panel2);border:1px solid var(--line);color:var(--tx2);
+border-radius:20px;padding:5px 13px;font:inherit;font-size:12px;cursor:pointer;font-variant-numeric:tabular-nums}
+.quick button:hover{border-color:var(--ac);color:var(--tx)}
+
+.out{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.out div{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.out span{display:block;font-size:11.4px;color:var(--tx3);margin-bottom:3px}
+.out b{font-size:21px;font-weight:800;letter-spacing:-.6px;line-height:1.15;display:block}
+.out em{font-style:normal;font-size:11.8px;color:var(--tx2);display:block;margin-top:3px}
+.out .big{grid-column:1/-1;background:rgba(95,214,166,.09);border-color:#2c5c48}
+.out .big b{color:var(--green);font-size:30px}
+
+/* 단계 */
+.steps{display:grid;gap:7px}
+.step{display:grid;grid-template-columns:30px 1fr auto;gap:11px;align-items:center;
+background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.step i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--panel2);
+border:1px solid var(--line2);display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--ac2)}
+.step .t{font-size:12.9px}
+.step .t em{font-style:normal;display:block;font-size:11.4px;color:var(--tx3);margin-top:2px;
+font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.step .r{font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.step.minus .r{color:var(--red)}
+.step.fin{background:rgba(95,214,166,.09);border-color:#2c5c48}
+.step.fin .r{color:var(--green)}
+.step.fin i{color:var(--green);border-color:#2c5c48}
+
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
+table{width:100%;border-collapse:collapse;font-size:12.9px;min-width:520px}
+th{color:var(--tx3);font-size:11.3px;font-weight:600;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+th.l,td.l{text-align:left}
+td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.dcr td{background:rgba(95,214,166,.08)}
+tr.dcr td.l b{color:var(--green)}
+td.v{font-weight:700}
+.gd{color:var(--green)}.rd{color:var(--red)}.wd{color:var(--gold)}
+
+.qa{background:rgba(145,132,217,.07);border:1px solid #4a4472;border-radius:13px;padding:15px 17px;margin-bottom:11px}
+.qa h3{margin:0 0 8px;font-size:14.5px;color:var(--ac2)}
+.qa p{margin:0 0 9px;font-size:13px;color:var(--tx2)}.qa p:last-child{margin:0}
+.qa b{color:var(--tx)}
+
+.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
+.note h3{margin:0 0 8px;font-size:13.6px;color:#e5cd6b}
+.note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+.note ul{margin:7px 0 0;padding-left:20px;font-size:12.8px;color:var(--tx2)}
+.note li{margin-bottom:6px}.note li:last-child{margin:0}
+.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+@media(max-width:560px){.out{grid-template-columns:1fr}.box,.note,.qa,.calc{padding:13px}
+.step{grid-template-columns:26px 1fr;row-gap:4px}.step .r{grid-column:2;text-align:left}}
+</style>
+
+<div class="wrap">
+<h1>이관 주정산 계산기</h1>
+<div class="tag">기존 슈퍼세이브 테더 잔신 20%를 뉴슈세로 이관했을 때 매주 얼마를 받는지 · 공식 안내 기준</div>
+
+<div class="qa">
+  <h3>DeCT DUTY가 뭔가요</h3>
+  <p><b>매주 받는 주정산 중 30%를 다시 참여시켜야 하는 의무</b>입니다.
+  그 30%는 손에 들어오지 않고 다시 묶입니다. 대신 그만큼 새 신용대금(×2.4)이 생겨 나중에 나옵니다.</p>
+  <p>여기에 두 가지가 더 붙습니다.
+  하나, <b>30%를 계산한 뒤 10 USDT 단위로 올립니다.</b> 그래서 실제로는 30%보다 조금 더 나갑니다.
+  둘, <b>재참여하려면 SUT를 사야 하는데 그 비용이 재참여액의 절반</b>입니다.</p>
+  <p>결과적으로 <b>주정산의 절반 남짓만 실제로 손에 들어옵니다.</b> 아래에서 직접 넣어 보십시오.</p>
+</div>
+
+<div class="calc">
+  <div class="inp">
+    <label>기존 슈퍼세이브 테더 잔여신용대금 (USDT)</label>
+    <input type="number" id="jan" value="70000" step="1000" min="0" inputmode="numeric">
+    <div class="quick" id="qk"></div>
+  </div>
+  <div class="out">
+    <div><span>이관액 (20%)</span><b class="num" id="o1"></b><em id="o1s"></em></div>
+    <div><span>합산 잔신</span><b class="num" id="o2"></b><em>NSS 참여 2,400 + 이관액</em></div>
+    <div><span>매주 주정산</span><b class="num" id="o3"></b><em id="o3s"></em></div>
+    <div><span>DeCT DUTY 의무참여</span><b class="num" id="o4" style="color:var(--red)"></b><em id="o4s"></em></div>
+    <div class="big"><span>매주 손에 들어오는 돈</span><b class="num" id="o5"></b><em id="o5s"></em></div>
+  </div>
+</div>
+
+<h2>계산 순서</h2>
+<p class="sub">위에 넣으신 값이 아래 여덟 단계를 거칩니다.</p>
+<div class="box"><div class="steps" id="sp"></div></div>
+
+<h2>잔신 구간별 표</h2>
+<p class="sub">초록색 줄부터 DeCT Right(외매권)가 생깁니다.</p>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">기존 잔신</th><th>이관 20%</th><th>합산 잔신</th><th>주정산</th><th>의무참여</th><th>SUT 매수</th><th>실수령</th><th>원화</th></tr></thead>
+<tbody id="tb"></tbody></table></div></div>
+
+<div class="qa">
+  <h3>DeCT Right(외매권)는 잔신 66,215 USDT부터 생깁니다</h3>
+  <p>DCR은 <b>의무참여가 100 USDT 이상</b>일 때만 발생합니다.
+  의무참여가 100이 되려면 주정산이 300을 넘어야 하고, 그러려면 합산 잔신이 15,643 이상이어야 합니다.
+  거꾸로 풀면 <b>기존 잔신 66,215 USDT</b>가 문턱입니다.</p>
+  <p>그보다 적으면 <b>13주 동안 DCR이 한 건도 안 생깁니다.</b>
+  다만 재참여는 50 USDT 이상 10 단위로 추가할 수 있어서, 모자란 만큼 더 넣어 문턱을 맞출 수는 있습니다.</p>
+</div>
+
+<div class="note warn">
+<h3>신청 전에 꼭 보실 것</h3>
+<ul>
+  <li><b>해지 불가 · 원금 보장 없음</b>입니다. 공식 안내에 그대로 적혀 있습니다. 한 번 들어가면 못 뺍니다. 양도만 됩니다.</li>
+  <li><b>이관되는 건 20%뿐</b>입니다. 나머지 80%는 지금처럼 멈춘 상태로 남습니다. 신청이 나머지 80%에 영향을 주는지 확인이 필요합니다.</li>
+  <li><b>"비율은 변동 가능"</b>이라고 적혀 있습니다. 20%가 확정이 아닙니다.</li>
+  <li><b>MPC를 이관비율만큼 반환</b>해야 합니다. 위 계산에는 안 들어 있습니다.</li>
+  <li><b>초대자 재지정이 필수</b>입니다. 기존 데이터가 연동되지 않아, 안 하면 회사 계정으로 갑니다.</li>
+  <li><b>SUT 가격이 오르면 실수령이 줄어듭니다.</b> 매주 사야 하는 재참여용 SUT가 비싸지기 때문입니다.</li>
+</ul>
+</div>
+
+<div class="note">
+<h3>계산 기준</h3>
+<p><b>이 계산기는 커뮤니티에 공유된 표를 그대로 재현한 것입니다.</b> 10개 구간(잔신 5,000~70,000)의
+주정산·30%·의무참여·SUT매수·실수령·원화가 전부 일치하는 것을 확인했습니다.</p>
+<p><b>한 해를 52주가 아니라 365÷7 = 52.142857주로 나눕니다.</b> 그래서 52로 나눈 값과 미세하게 다릅니다.</p>
+<p><b>NSS 참여 2,400</b>은 신규 참여 1,000 USDT의 신용대금(1,000 × 2.4)입니다.
+이미 NSS 계정이 있으면 그 계정의 잔신으로 바꿔 넣으셔야 합니다.</p>
+<p><b>환율은 1 USDT = 1,400원</b>입니다.</p>
+</div>
+
+<div class="note">
+<h3>이 계산기가 알려주지 않는 것</h3>
+<p>여기 나오는 건 <b>회사가 계속 지급한다고 가정했을 때 매주 받는 금액</b>입니다.
+언제까지 지급될지, 원금을 회수할 수 있을지는 이 계산에 들어 있지 않습니다.</p>
+<p>기존 슈퍼세이브는 <b>2026년 5월 18일부터 주정산이 멈춰 있고</b>, 지금 이관하려는 20%가 바로 그 멈춘 채권입니다.
+판단하실 때 이 사실을 함께 놓고 보십시오.</p>
+<p>저는 투자 자문을 할 수 없습니다. 위는 공개된 조건을 산수로 옮긴 것뿐이고, 신청 여부는 각자 판단하실 몫입니다.</p>
+</div>
+
+</div>
+<script>
+const W=365/7, NSS=2400, RT=0.20, FX=1400, THR=100;
+const $=i=>document.getElementById(i);
+const n=v=>Math.round(v).toLocaleString();
+const f2=v=>v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+function calc(jan){
+  const mig=jan*RT, hap=NSS+mig, pay=hap/W, d30=pay*0.30;
+  let duty=Math.ceil(d30/10)*10; if(duty<20) duty=0;
+  const sut=duty/2, appr=duty*2.4, net=pay-duty-sut;
+  return {jan,mig,hap,pay,d30,duty,sut,appr,net,won:net*FX,rate:pay>0?net/pay:0};
+}
+function render(){
+  const jan=Math.max(0,parseFloat($('jan').value)||0), c=calc(jan);
+  $('o1').textContent=n(c.mig); $('o1s').textContent=n(c.jan)+' × 20%';
+  $('o2').textContent=n(c.hap);
+  $('o3').textContent=f2(c.pay); $('o3s').textContent='합산 잔신 ÷ 52.142857주';
+  $('o4').textContent=n(c.duty);
+  $('o4s').textContent=c.duty?`30%는 ${f2(c.d30)} → 10단위 올림`:'주정산이 작아 DUTY 없음';
+  $('o5').innerHTML=f2(c.net)+' <span style="font-size:.5em;font-weight:600">USDT</span>';
+  $('o5s').textContent=n(c.won)+'원 · 주정산의 '+(c.rate*100).toFixed(1)+'%';
+
+  $('sp').innerHTML=[
+   ['1','이관액 = 기존 잔신 × 20%',`${n(c.jan)} × 0.20`,n(c.mig),''],
+   ['2','합산 잔신 = NSS 참여 + 이관액',`2,400 + ${n(c.mig)}`,n(c.hap),''],
+   ['3','주정산 = 합산 잔신 ÷ 52.142857',`${n(c.hap)} ÷ (365÷7)`,f2(c.pay),''],
+   ['4','30% 계산',`${f2(c.pay)} × 0.30`,f2(c.d30),''],
+   ['5','의무참여 = 10 단위 올림',`올림(${f2(c.d30)}) · 20 미만이면 0`,n(c.duty),'minus'],
+   ['6','SUT 매수 = 의무참여 ÷ 2',`${n(c.duty)} ÷ 2`,n(c.sut),'minus'],
+   ['7','승인액 = 의무참여 × 2.4',`나중에 나올 새 신용대금`,f2(c.appr),''],
+   ['8','실수령 = 주정산 − 의무참여 − SUT',`${f2(c.pay)} − ${n(c.duty)} − ${n(c.sut)}`,f2(c.net),'fin'],
+  ].map(([i,t,e,r,cl])=>`<div class="step ${cl}"><i>${i}</i>
+   <div class="t">${t}<em>${e}</em></div><div class="r">${r}</div></div>`).join('');
+}
+$('qk').innerHTML=[5000,10000,20000,33542,61045,66215,89668,100000]
+ .map(v=>`<button data-v="${v}">${n(v)}</button>`).join('');
+$('qk').addEventListener('click',e=>{const b=e.target.closest('button');
+ if(b){$('jan').value=b.dataset.v; render();}});
+$('jan').addEventListener('input',render);
+$('tb').innerHTML=[5000,10000,15000,20000,25000,30000,40000,50000,60000,66215,70000,80000,90000,100000]
+ .map(v=>{const c=calc(v), d=c.duty>=THR;
+ return `<tr class="${d?'dcr':''}"><td class="l"><b>${n(v)}</b>${v===66215?'<span style="display:block;color:var(--tx3);font-size:11px">DCR 문턱</span>':''}</td>
+  <td>${n(c.mig)}</td><td>${n(c.hap)}</td><td class="v">${f2(c.pay)}</td>
+  <td class="rd">${n(c.duty)}</td><td class="rd">${n(c.sut)}</td>
+  <td class="v gd">${f2(c.net)}</td><td>${n(c.won)}</td></tr>`}).join('');
+render();
+</script>
