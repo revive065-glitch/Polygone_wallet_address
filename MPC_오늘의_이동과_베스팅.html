@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>MPC 10억 이동과 베스팅</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--usd:#3987e5;--kw:#c98500;--ns:#199e70}
+*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.65;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 70px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.6px}
+.tag{color:var(--tx3);font-size:12.4px;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+h2{font-size:17px;margin:32px 0 6px;letter-spacing:-.3px}
+h2 i{font-style:normal;display:inline-flex;width:21px;height:21px;border-radius:6px;background:var(--ac);
+color:#14121f;font-size:12px;font-weight:800;align-items:center;justify-content:center;margin-right:8px;vertical-align:2px}
+h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
+mono,code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin-bottom:11px}
+.hero{background:linear-gradient(180deg,#2a1f24,#1a1c26);border:1px solid #6e3535;border-radius:16px;padding:18px;margin-bottom:14px}
+.hero .k{font-size:11.8px;color:var(--tx3);margin-bottom:5px}
+.hero .v{font-size:38px;font-weight:800;letter-spacing:-1.6px;color:var(--red);font-variant-numeric:tabular-nums;line-height:1.1}
+.hero .u{font-size:14px;color:var(--tx2);margin-top:5px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.hero .meta span{background:rgba(0,0,0,.3);border:1px solid var(--line2);border-radius:20px;
+padding:4px 11px;font-size:11.6px;color:var(--tx2)}
+/* 타임라인 */
+.tl{position:relative;padding-left:22px;margin:4px 0 0}
+.tl:before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:var(--line2)}
+.tl .it{position:relative;padding:11px 0;border-bottom:1px solid var(--line)}
+.tl .it:last-child{border:0}
+.tl .it:before{content:'';position:absolute;left:-21px;top:17px;width:10px;height:10px;border-radius:50%;
+background:var(--ac);border:2px solid var(--bg)}
+.tl .it.big:before{background:var(--red);width:12px;height:12px;left:-22px}
+.tl .t{font-size:11.6px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.tl .d{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:2px}
+.tl .d b{font-size:13.4px;font-weight:600;color:var(--tx2);min-width:0;overflow-wrap:anywhere}
+.tl .d .a{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--gold);white-space:nowrap}
+/* 지갑 카드 */
+.wc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.wc.new{border-left:3px solid var(--red)}
+.wc.old{border-left:3px solid var(--gold)}
+.wc.co{border-left:3px solid var(--usd)}
+.wc .h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:4px}
+.wc .h b{font-size:15px;font-weight:800;letter-spacing:-.3px}
+.wc .h .amt{margin-left:auto;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--gold)}
+.wc .ad{font-family:ui-monospace,Menlo,monospace;font-size:11.2px;color:var(--tx3);overflow-wrap:anywhere;margin-bottom:9px}
+.wc .st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:9px}
+.wc .st div{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:9px;padding:9px 10px}
+.wc .st span{display:block;font-size:10.6px;color:var(--tx3);margin-bottom:2px}
+.wc .st b{font-size:14.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.wc p{margin:0;font-size:12.7px;color:var(--tx2)}.wc p b{color:var(--tx)}
+.wc .flag{display:inline-block;font-size:10.8px;font-weight:700;border-radius:5px;padding:2px 7px;vertical-align:2px}
+.f-new{background:rgba(224,133,127,.16);color:var(--red)}
+.f-old{background:rgba(201,162,39,.16);color:#e5cd6b}
+.f-co{background:rgba(57,135,229,.16);color:#7fb4f0}
+/* 판정 */
+.vd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.vd div{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+.vd span{display:block;font-size:11.4px;color:var(--tx3);margin-bottom:4px}
+.vd b{font-size:13.6px;font-weight:700;display:block;line-height:1.45}
+.vd .no b{color:var(--red)}.vd .yes b{color:var(--green)}
+/* 계산기 */
+.calc{background:linear-gradient(180deg,#241f2b,#1a1c26);border:1px solid var(--line2);border-radius:15px;padding:16px 17px;margin:12px 0}
+.calc label{display:block;font-size:11.8px;color:var(--tx3);margin-bottom:6px}
+.calc input{width:100%;background:#12131c;border:1px solid var(--line2);border-radius:10px;color:var(--tx);
+font:inherit;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;padding:11px 13px;text-align:right}
+.calc input:focus{outline:0;border-color:var(--ac)}
+.vt{width:100%;border-collapse:collapse;margin-top:13px;font-size:13px}
+.vt th{text-align:right;font-size:11.2px;color:var(--tx3);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line2)}
+.vt th:first-child,.vt td:first-child{text-align:left}
+.vt td{text-align:right;padding:8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.vt tr:last-child td{border-bottom:0}
+.vt .now td{background:rgba(95,214,166,.08)}
+.vt .now td b{color:var(--green)}
+.vt .lock td{background:rgba(224,133,127,.07)}
+.vt b{font-weight:800}
+.pb{height:7px;background:#12131c;border-radius:4px;overflow:hidden;min-width:64px}
+.pb i{display:block;height:100%;background:var(--ac)}
+
+/* 실시간 패널 */
+.live{background:linear-gradient(180deg,#1e2230,#181a26);border:1px solid var(--line2);border-radius:15px;padding:15px 16px;margin-bottom:11px}
+.lvhd{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.lvhd b{font-size:13.6px;flex:1;min-width:0}
+.lvhd button{background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);border-radius:18px;
+padding:5px 13px;font:inherit;font-size:11.6px;font-weight:600;cursor:pointer}
+.lvhd button:hover{border-color:var(--ac);color:var(--tx)}
+.lvhd button:disabled{opacity:.45;cursor:default}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--tx3);flex:0 0 auto}
+.dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(95,214,166,.16)}
+.dot.warn{background:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.18)}
+.dot.hot{background:var(--red);box-shadow:0 0 0 3px rgba(224,133,127,.2);animation:pp 1.2s infinite}
+.dot.err{background:var(--tx3)}
+@keyframes pp{50%{box-shadow:0 0 0 7px rgba(224,133,127,.05)}}
+.lvgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lvc{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.lvc.warn{border-color:#6b5a22;background:rgba(201,162,39,.07)}
+.lvc.hot{border-color:#6e3535;background:rgba(224,133,127,.08)}
+.lvc .nm{font-size:12.6px;font-weight:700;margin-bottom:1px}
+.lvc .ad{font-family:ui-monospace,Menlo,monospace;font-size:10.2px;color:var(--tx3);margin-bottom:9px;overflow-wrap:anywhere}
+.lvc .r{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+.lvc .r:last-of-type{border:0}
+.lvc .r span{font-size:11.4px;color:var(--tx3)}
+.lvc .r b{font-size:14.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.lvc .stt{margin-top:8px;font-size:11.8px;font-weight:700;border-radius:7px;padding:6px 9px;text-align:center}
+.s-wait{background:rgba(95,214,166,.1);color:var(--green)}
+.s-gas{background:rgba(201,162,39,.14);color:#e5cd6b}
+.s-move{background:rgba(224,133,127,.14);color:var(--red)}
+.s-err{background:rgba(255,255,255,.05);color:var(--tx3)}
+.lvft{margin-top:11px;font-size:11.4px;color:var(--tx3);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media(max-width:600px){.lvgrid{grid-template-columns:1fr}}
+/* 흐름도 */
+.flow{font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:2;color:var(--tx2);
+background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:12px;padding:14px;overflow-x:auto;white-space:pre}
+.flow b{color:var(--ac2)}.flow em{font-style:normal;color:var(--gold)}.flow s{text-decoration:none;color:var(--tx3)}
+.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
+.note h3{margin:0 0 8px;font-size:13.8px;color:#e5cd6b}
+.note p{margin:0 0 8px;font-size:12.9px;color:var(--tx2)}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+.ok2{background:rgba(95,214,166,.07);border-color:#2f6b55}.ok2 h3{color:var(--green)}
+.lnk{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:11px;
+padding:11px 13px;text-decoration:none;margin-bottom:8px}
+.lnk:hover{border-color:var(--ac)}
+.lnk b{display:block;font-size:13.2px;color:var(--tx);margin-bottom:2px}
+.lnk code{font-size:10.9px;color:var(--tx3);overflow-wrap:anywhere}
+ul{margin:0;padding-left:19px;font-size:12.9px;color:var(--tx2)}
+ul li{margin-bottom:6px}ul b{color:var(--tx)}
+@media(max-width:640px){.vd,.wc .st{grid-template-columns:1fr}.hero .v{font-size:31px}
+.wc .st{grid-template-columns:repeat(3,1fr)}.wc .st b{font-size:12.6px}}
+@media(max-width:520px){.box,.note,.calc{padding:13px}h2{font-size:15.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>MPC 10억 이동과 베스팅</h1>
+<div class="tag">2026년 9월 4일 오후 1시, 회사 금고에서 총발행의 10%가 움직였습니다 · 폴리곤 체인 실측</div>
+
+<div class="hero">
+  <div class="k">2026-09-04 12:58 ~ 13:01 (한국시간) · 2분 29초</div>
+  <div class="v">1,000,000,000</div>
+  <div class="u">MPC — 총발행 100억 개의 <b>정확히 10%</b></div>
+  <div class="meta">
+    <span>보낸 곳 1곳 (회사 금고)</span>
+    <span>받은 곳 3곳 (전부 개인지갑)</span>
+    <span>4건으로 분할</span>
+  </div>
+</div>
+
+<div class="note warn">
+<h3>먼저 결론</h3>
+<p><b>상장이 시작된 흔적은 아직 없습니다.</b> 받은 세 곳이 전부 개인지갑(EOA)이고,
+유동성 풀도 거래소 입금 주소도 아닙니다. BNB 체인에는 MPC 컨트랙트 자체가 아직 없습니다.</p>
+<p>다만 <b>규모가 백서의 "Marketing &amp; Exchange Listing 10% = 1,000,000,000"과 정확히 같습니다.</b>
+그리고 직전 3개월간 이 금고가 내보낸 MPC 총합이 975만 개였는데, 오늘 하루에 <b>그 102배</b>가 나갔습니다.
+사실은 여기까지입니다.</p>
+</div>
+
+<h2><i>1</i>무슨 일이 있었나</h2>
+<p class="sub">금고 지갑 <code>0xf46e16da…3ea7bc8</code> 에서 나간 4건입니다.</p>
+<div class="box"><div class="tl">
+  <div class="it big"><div class="t">2026-09-04 12:58:46 KST</div>
+    <div class="d"><b>→ 0x557b6c6c…a8b8dbae <span class="flag f-new">오늘 만든 지갑</span></b><span class="a">300,000,000</span></div></div>
+  <div class="it big"><div class="t">2026-09-04 12:59:15 KST</div>
+    <div class="d"><b>→ 0x58843bf0…3a3c2c6f <span class="flag f-new">오늘 만든 지갑</span></b><span class="a">300,000,000</span></div></div>
+  <div class="it big"><div class="t">2026-09-04 12:59:48 KST</div>
+    <div class="d"><b>→ 0xb2e2f25f…1cfa557c <span class="flag f-old">2022년부터 쓰던 지갑</span></b><span class="a">300,000,000</span></div></div>
+  <div class="it big"><div class="t">2026-09-04 13:01:15 KST</div>
+    <div class="d"><b>→ 0xb2e2f25f…1cfa557c <span class="flag f-old">같은 지갑에 추가</span></b><span class="a">100,000,000</span></div></div>
+</div></div>
+
+<div class="note">
+<h3>직전 3개월과 비교하면</h3>
+<p>이 금고는 6월 2일에 30억 MPC를 받은 뒤, 8월 14일까지 딱 4곳에 <b>총 975만 개</b>만 내보냈습니다.
+200만 · 300만 · 75만 · 100만 · 300만 — 시험 삼아 보낸 수준입니다.</p>
+<p>그러다 오늘 <b>10억 개</b>가 2분 29초 만에 나갔습니다. <b>102배</b>입니다.
+금액도 <b>3억 / 3억 / 3억 + 1억</b>으로 딱 떨어지게 잘렸습니다. 실수나 개인 거래로 보기 어려운 모양입니다.</p>
+</div>
+
+<h2><i>2</i>보낸 지갑은 누구인가</h2>
+<p class="sub">이 금고가 어떤 지갑인지가 이 사건의 성격을 정합니다.</p>
+
+<div class="wc co">
+  <div class="h"><b>MPC 금고</b><span class="flag f-co">회사 운영지갑</span><span class="amt">잔고 19.9억</span></div>
+  <div class="ad">0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8 · 2025-10-20부터 활동</div>
+  <div class="st">
+    <div><span>KWT 취급</span><b>5.34조</b></div>
+    <div><span>SUT 취급</span><b>8,640만</b></div>
+    <div><span>MPC 수령</span><b>30억</b></div>
+  </div>
+  <p>이 지갑은 MPC 전용 금고가 아닙니다. <b>KWT를 5조 3,432억 받고 5조 2,214억을 내보낸(259건)</b>,
+  슈퍼세이브 자금을 직접 굴린 지갑입니다. 주요 거래 상대를 보면 성격이 분명합니다 —
+  <b>CC2C 수금지갑 91건 · 지급지갑 #1 72건 · Gnosis Safe 36건 · 지급지갑 #2 22건 · 중앙금고 13건.</b></p>
+  <p style="margin-top:8px">즉 <b>MPC를 옮긴 손과 주정산을 굴린 손이 같습니다.</b>
+  백서가 폴리곤을 한 번도 언급하지 않는데도, 실제 자금은 슈퍼세이브 내부 지갑에서 나옵니다.</p>
+</div>
+
+<h2><i>3</i>받은 지갑 셋</h2>
+<p class="sub">세 곳의 성격이 서로 완전히 다릅니다.</p>
+
+<div class="wc new">
+  <div class="h"><b>수신 A</b><span class="flag f-new">신규 · 빈 지갑</span><span class="amt">300,000,000</span></div>
+  <div class="ad">0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae</div>
+  <div class="st">
+    <div><span>최초 활동</span><b>오늘 12:58</b></div>
+    <div><span>전체 거래</span><b>1건</b></div>
+    <div><span>가스(POL)</span><b>0</b></div>
+  </div>
+  <p>체인상 존재 전체가 <b>오늘 MPC를 받은 그 한 건</b>입니다. 가스비로 쓸 POL이 0이라
+  <b>지금 상태로는 이 MPC를 한 개도 못 움직입니다.</b> 누군가 POL을 넣어줘야 비로소 움직일 수 있습니다.</p>
+</div>
+
+<div class="wc new">
+  <div class="h"><b>수신 B</b><span class="flag f-new">신규 · 빈 지갑</span><span class="amt">300,000,000</span></div>
+  <div class="ad">0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f</div>
+  <div class="st">
+    <div><span>최초 활동</span><b>오늘 12:59</b></div>
+    <div><span>전체 거래</span><b>1건</b></div>
+    <div><span>가스(POL)</span><b>0</b></div>
+  </div>
+  <p>A와 완전히 같습니다. <b>오늘 처음 등장했고, 받은 것 외에 아무 이력이 없습니다.</b></p>
+</div>
+
+<div class="wc old">
+  <div class="h"><b>수신 C</b><span class="flag f-old">MSQ 생태계 내부</span><span class="amt">400,000,000</span></div>
+  <div class="ad">0xb2e2f25f6ce26b5c36159165a75ebffe1cfa557c</div>
+  <div class="st">
+    <div><span>최초 활동</span><b>2022-03-08</b></div>
+    <div><span>전체 거래</span><b>1,165건</b></div>
+    <div><span>보유 이력</span><b>MSQ·MSQX·SUT·KWT</b></div>
+  </div>
+  <p>앞의 둘과 정반대입니다. <b>4년 반 된 지갑</b>이고 MSQ 59만 · MSQX 1,335만 · SUT 260만 · KWT 3,130만을
+  거쳐 보냈습니다. 거래 상대가 결정적입니다 — <b>CC2C 계열 지갑들과만 366건</b>입니다.
+  (<code>0xaaa4cda5…bcc2c</code> 141건, CC2C 수금지갑 117건, <code>0xaaa440a2…bbcc2c</code> 68건,
+  <code>0xaaa4356b…189cc2c</code> 40건 — 전부 <code>0xaaa4</code>로 시작해 <code>cc2c</code>로 끝나는 회사 지갑군입니다.)</p>
+  <p style="margin-top:8px">이 지갑은 <b>2025년 4월 슈퍼세이브 KWT 결제 1호 지갑</b>이기도 합니다.
+  일반 참여자가 아니라 <b>초기부터 안에 있던 지갑</b>입니다.</p>
+</div>
+
+<h2><i>4</i>그래서 상장 준비인가</h2>
+<p class="sub">상장이라면 남았어야 할 흔적을 하나씩 확인했습니다.</p>
+<div class="vd">
+  <div class="no"><span>받은 곳이 유동성 풀인가</span><b>아니오 — 3곳 전부 개인지갑</b></div>
+  <div class="no"><span>거래소 입금 주소인가</span><b>아니오 — 컨트랙트 아님, 이력 없음</b></div>
+  <div class="no"><span>폴리곤에 MPC 유동성 풀이 있나</span><b>없음 — 시세 자체가 없음</b></div>
+  <div class="no"><span>BNB 체인에 MPC가 배포됐나</span><b>아니오 — "Coming soon"</b></div>
+  <div class="no"><span>거래소 상장 공지가 있나</span><b>못 찾음</b></div>
+  <div class="no"><span>CoinGecko · CMC 등재</span><b>없음</b></div>
+  <div class="yes"><span>백서 상장 배분과 규모가 같나</span><b>예 — 정확히 10억 = 10%</b></div>
+  <div class="yes"><span>직전 대비 이례적인가</span><b>예 — 3개월 총합의 102배</b></div>
+</div>
+<div class="note">
+<p><b>정리하면</b> — 오늘 움직인 것은 맞고, 규모가 백서의 상장 몫과 같은 것도 맞습니다.
+그러나 <b>돈이 시장으로 나가는 방향의 흔적은 하나도 없습니다.</b>
+개인지갑 세 곳으로 나눠 담은 것까지가 확인된 전부이고, 그중 둘은 <b>가스가 없어 아직 움직이지도 못합니다.</b></p>
+<p>상장 준비의 앞단계(물량 분리·수탁 준비)로 볼 수도 있고, 단순한 내부 이관일 수도 있습니다.
+<b>온체인 기록만으로는 둘을 구분할 수 없습니다.</b></p>
+</div>
+
+<h2><i>5</i>지금 이 순간</h2>
+<p class="sub">이 페이지를 열 때마다 폴리곤 체인을 직접 읽어 A·B 지갑의 현재 상태를 표시합니다. 저장된 숫자가 아닙니다.</p>
+
+<div class="live" id="live">
+  <div class="lvhd">
+    <span class="dot" id="ldot"></span>
+    <b id="lmsg">체인 조회 중…</b>
+    <button id="lref" type="button">새로고침</button>
+  </div>
+  <div class="lvgrid" id="lvg"></div>
+  <div class="lvft" id="lft">—</div>
+</div>
+
+<div class="note">
+<h3>무엇을 보고 있는가</h3>
+<p><b>가스(POL)</b> — 폴리곤에서는 토큰을 보내려면 수수료로 POL이 필요합니다.
+9월 4일 시점에 A와 B는 <b>POL이 0</b>이었고, 그 상태로는 3억 개를 한 개도 못 옮깁니다.
+<b>여기에 POL이 들어오는 순간이 "움직일 준비가 끝났다"는 신호</b>입니다. 몇백 원어치면 충분합니다.
+지금 값은 <b>위 패널</b>을 보십시오.</p>
+<p><b>MPC 잔고</b> — 두 지갑은 각각 정확히 <b>300,000,000</b>을 받았습니다.
+이 숫자가 줄면 <b>이미 어디론가 나간 것</b>이고, 늘면 추가로 들어온 것입니다.</p>
+<p style="color:var(--tx3)">조회는 공개 노드를 씁니다. 노드가 응답하지 않으면 아래에 9월 4일 기록값이 그대로 표시되고,
+"실시간 조회 실패"라고 알려 드립니다. <b style="color:var(--tx2)">화면에 뜬 값이 곧 지금 체인의 값</b>이라고 보시면 됩니다.</p>
+</div>
+
+<h2><i>6</i>베스팅이란 무엇인가</h2>
+<p class="sub">"우리 물량을 조금씩 푼다"는 뜻이 맞습니다. 문제는 <b>지금은 안 걸려 있다</b>는 데 있습니다.</p>
+
+<div class="note ok2">
+<h3>지금(폴리곤)에는 베스팅이 없습니다</h3>
+<p>베스팅은 <b>아직 주지 않은 물량을 일정에 따라 나눠 주는 장치</b>입니다.
+이미 내 지갑에 들어와 자유롭게 전송되는 토큰에는 걸려 있지 않습니다.</p>
+<p>폴리곤 MPC가 그렇습니다. 참여자 몫 70억 중 <b>62.19억(88.8%)이 이미 지갑으로 나갔고 자유롭게 오갑니다.</b>
+오늘 금고가 10억을 아무 제약 없이 옮긴 것도 같은 이유입니다 —
+<b>백서에 적힌 팀 6개월 클리프, 투자자 12개월 클리프가 폴리곤에서는 작동하지 않습니다.</b>
+컨트랙트 차원의 잠금이 아예 없기 때문입니다.</p>
+</div>
+
+<div class="note warn">
+<h3>스왑하면 없던 락이 생길 수 있습니다</h3>
+<p>백서의 Community 일정은 <b>TGE에 5%만 풀고, 나머지 95%를 36개월에 걸쳐 선형으로</b> 푸는 구조입니다.</p>
+<p>회사가 폴리곤 MPC를 BNB MPC로 바꿔 주면서 이 일정을 그대로 적용하면,
+<b>지금 자유롭게 갖고 있는 물량이 3년에 걸쳐 나눠 받는 물량으로 바뀝니다.</b>
+없던 락업이 스왑을 계기로 새로 생기는 것입니다.</p>
+<p>반대로 <b>"이미 배포된 것으로 친다"</b>고 하면 락은 안 생깁니다.
+어느 쪽인지 백서에는 <b>한 줄도 없습니다.</b> 스왑·마이그레이션·스냅샷이라는 단어가 15개 섹션에 아예 등장하지 않습니다.
+<b>그래서 이건 회사에 서면으로 확인받아야 하는 항목입니다.</b></p>
+</div>
+
+<div class="calc">
+  <label for="amt">내 MPC 보유량을 넣어 보십시오 — 백서 일정을 그대로 적용하면 언제 얼마가 풀리는지</label>
+  <input id="amt" type="text" inputmode="numeric" value="10,000,000">
+  <table class="vt">
+    <thead><tr><th>시점</th><th>누적 해제</th><th>비율</th><th>진행</th></tr></thead>
+    <tbody id="vb"></tbody>
+  </table>
+  <p style="margin:11px 0 0;font-size:12.4px;color:var(--tx3)">
+  백서 §8.2 Community 일정(TGE 5% · 클리프 없음 · 36개월 선형) 기준입니다.
+  <b style="color:var(--tx2)">회사가 이 일정을 기존 보유자에게 적용한다고 밝힌 적은 없습니다.</b>
+  적용되지 않을 수도 있고, 그러면 지금처럼 전액 자유입니다. 어느 쪽인지 확인이 필요하다는 뜻으로만 보십시오.</p>
+</div>
+
+<h2><i>7</i>100억 전체가 어디로 갔나</h2>
+<p class="sub">민팅부터 오늘까지 한 장으로 봅니다. 시각은 전부 한국시간입니다.</p>
+<div class="flow"><b>2026-04-20 17:10</b>   민팅 0x0000…  →  0xbd8cfcc…        <em>3억</em>
+<b>2026-05-18 11:44</b>   민팅 0x0000…  →  0xbd8cfcc…        <em>7억</em>   <s>← 주정산이 멈춘 그 날</s>
+<b>2026-05-18 11:44</b>   민팅 0x0000…  →  0xbd8cfcc…       <em>90억</em>   <s>← 합계 100억 완성</s>
+<b>2026-05-18 11:59</b>   0xbd8cfcc… →  0x9d92942…       <em>100억</em>
+                     │
+    ┌────────────────┴────────────────┐
+<b>2026-05-19</b>                        <b>2026-06-02</b>
+0x9d92942… → 지급지갑 #2           0x9d92942… → 금고 0xf46e16d…
+      <em>70억</em>  <s>(백서 Community 70%)</s>          <em>30억</em>  <s>(백서 나머지 30%)</s>
+      │                                  │
+      ├─ 참여자에게 배분  <em>62.19억</em>          ├─ 6~8월 소액 5건   <em>975만</em>
+      └─ 현재 잔고        <em>7.81억</em>          ├─ <b>9/4 오늘 3곳</b>    <em>10억</em>
+                                         └─ 현재 잔고      <em>19.9억</em></div>
+
+<div class="note">
+<h3>여기서 눈에 걸리는 것 둘</h3>
+<p><b>하나 — 민팅일이 주정산 중단일입니다.</b> 90억이 찍힌 2026년 5월 18일에 주정산이 멈췄고,
+KWT 지급은 5월 0.369조에서 6월 <b>0.004조</b>로 99% 꺾였습니다.</p>
+<p><b>둘 — 70 대 30 분할이 백서 배분표와 정확히 일치합니다.</b>
+백서는 폴리곤을 한 번도 언급하지 않는데, 실제 자금은 백서 설계도대로 갈라졌습니다.
+같은 설계에서 나왔다고 볼 수밖에 없는 수치입니다.</p>
+</div>
+
+<h2><i>8</i>직접 확인하는 법</h2>
+<div class="box">
+  <a class="lnk" href="https://polygonscan.com/token/0x2d854416d2749b1f0eb8a4b2ab9027989f2ba262" target="_blank" rel="noopener">
+    <b>MPC 토큰 전체 내역 ↗</b><code>polygonscan.com/token/0x2d854416…2ba262</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">
+    <b>오늘 10억을 보낸 금고 ↗</b><code>0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae" target="_blank" rel="noopener">
+    <b>수신 A — 오늘 만든 빈 지갑 ↗</b><code>0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f" target="_blank" rel="noopener">
+    <b>수신 B — 오늘 만든 빈 지갑 ↗</b><code>0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0xb2e2f25f6ce26b5c36159165a75ebffe1cfa557c" target="_blank" rel="noopener">
+    <b>수신 C — MSQ 생태계 내부 지갑 ↗</b><code>0xb2e2f25f6ce26b5c36159165a75ebffe1cfa557c</code></a>
+  <a class="lnk" href="https://www.globalmpc.tech/docs" target="_blank" rel="noopener">
+    <b>MPC 백서 원문 (v1.7.0) ↗</b><code>globalmpc.tech/docs — 배분 §8.1, 베스팅 §8.2, 면책 §15</code></a>
+</div>
+
+<h2><i>9</i>회사에 확인받을 것</h2>
+<div class="box"><ul>
+  <li><b>폴리곤 MPC는 BNB MPC로 바뀌나?</b> 백서에 스왑·마이그레이션·스냅샷 규정이 한 줄도 없습니다. 1순위입니다.</li>
+  <li><b>바뀐다면 비율·스냅샷 시점·신청 기한은?</b> 1:1인지, 언제 기준인지, 놓치면 어떻게 되는지.</li>
+  <li><b>스왑 후 베스팅이 걸리나?</b> 백서 §8.2 일정이 기존 보유자에게 적용되는지 아닌지. 적용되면 3년 분할입니다.</li>
+  <li><b>이미 나간 62.19억은 백서 일정 어디에 해당하나?</b> 백서대로면 4개월차 한도가 10.9억인데 <b>5.7배</b>가 나갔습니다.</li>
+  <li><b>오늘 옮긴 10억의 용도는?</b> 백서 Marketing &amp; Listing 배분과 규모가 같은데, 받은 곳은 개인지갑 세 곳입니다.</li>
+  <li><b>MPC로 채무를 갚는 근거는?</b> 1 MPC를 얼마로 쳐서 채무가 얼마나 줄어든 것으로 처리되는지 서면이 필요합니다.</li>
+</ul></div>
+
+<div class="note">
+<h3>이 문서가 주장하지 않는 것</h3>
+<p>오늘의 10억 이동이 <b>상장 준비라고 단정하지 않습니다.</b> 규모가 백서 상장 배분과 같다는 사실까지입니다.
+폴리곤 MPC와 백서 MPC가 <b>같은 토큰이라고 단정하지도 않습니다.</b> 70 대 30 분할이 일치한다는 정황까지입니다.
+사기 여부를 판단하지 않습니다. 판단에 쓸 숫자를 드릴 뿐입니다.</p>
+<p style="color:var(--tx3)">모든 온체인 숫자는 폴리곤 체인에서 직접 뽑았습니다. <b style="color:var(--tx2)">다른 값이 나오면 알려주십시오.</b></p>
+</div>
+
+</div>
+<script>
+
+/* ═══════════ 실시간 체인 조회 ═══════════ */
+const RPCS=['https://polygon-rpc.com','https://rpc.ankr.com/polygon','https://polygon.llamarpc.com',
+            'https://polygon-bor-rpc.publicnode.com','https://1rpc.io/matic','https://polygon.drpc.org'];
+const MPCA='0x2d854416d2749b1f0eb8a4b2ab9027989f2ba262';
+const WATCH=[
+ {k:'A',nm:'수신 A',ad:'0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae',base:300000000},
+ {k:'B',nm:'수신 B',ad:'0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f',base:300000000},
+];
+const $$=i=>document.getElementById(i);
+const hex2n=(h,d)=>{try{return Number(BigInt(h))/Math.pow(10,d);}catch(e){return NaN;}};
+const bal=a=>({to:MPCA,data:'0x70a08231'+'0'.repeat(24)+a.slice(2)});
+function body(){
+  let id=0,p=[];
+  for(const w of WATCH){
+    p.push({jsonrpc:'2.0',id:++id,method:'eth_getBalance',params:[w.ad,'latest']});
+    p.push({jsonrpc:'2.0',id:++id,method:'eth_call',params:[bal(w.ad),'latest']});
+  }
+  p.push({jsonrpc:'2.0',id:++id,method:'eth_blockNumber',params:[]});
+  return p;
+}
+async function fetchOne(url){
+  const c=new AbortController(); const t=setTimeout(()=>c.abort(),7000);
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+                            body:JSON.stringify(body()),signal:c.signal});
+    if(!r.ok) throw 0;
+    const j=await r.json();
+    if(!Array.isArray(j)||j.some(x=>!x||x.error||x.result==null)) throw 0;
+    const m={}; j.forEach(x=>m[x.id]=x.result);
+    return m;
+  } finally { clearTimeout(t); }
+}
+function nf(v,d){return v.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0});}
+function render(m,src){
+  let worst=0, msgs=[];
+  $$('lvg').innerHTML=WATCH.map((w,i)=>{
+    const pol=hex2n(m[i*2+1],18), mpc=hex2n(m[i*2+2],18);
+    let cls='',stt='',sc='';
+    if(mpc<w.base-0.5){ cls='hot'; sc='s-move'; worst=Math.max(worst,2);
+      stt='MPC가 '+nf(w.base-mpc,0)+' 개 나갔습니다'; msgs.push(w.nm+' MPC 이동'); }
+    else if(pol>0){ cls='warn'; sc='s-gas'; worst=Math.max(worst,1);
+      stt='가스 들어옴 — 언제든 움직일 수 있음'; msgs.push(w.nm+' 가스 입금'); }
+    else { sc='s-wait'; stt='대기 — 가스 0, 움직일 수 없음'; }
+    if(mpc>w.base+0.5){ cls='warn'; sc='s-gas'; worst=Math.max(worst,1);
+      stt='추가 입금 +'+nf(mpc-w.base,0); msgs.push(w.nm+' 추가 입금'); }
+    return `<div class="lvc ${cls}"><div class="nm">${w.nm}</div><div class="ad">${w.ad}</div>`
+      +`<div class="r"><span>가스 (POL)</span><b style="color:${pol>0?'var(--gold)':'var(--tx2)'}">${nf(pol,4)}</b></div>`
+      +`<div class="r"><span>MPC 잔고</span><b style="color:${mpc<w.base-0.5?'var(--red)':'var(--tx)'}">${nf(mpc,0)}</b></div>`
+      +`<div class="stt ${sc}">${stt}</div></div>`;
+  }).join('');
+  const blk=m[WATCH.length*2+1];
+  $$('ldot').className='dot '+(worst===2?'hot':worst===1?'warn':'ok');
+  $$('lmsg').textContent = worst===2 ? '변화 발생 — '+msgs.join(' · ')
+                        : worst===1 ? '변화 발생 — '+msgs.join(' · ')
+                        : '변화 없음 — 9월 4일 그대로입니다';
+  const now=new Date();
+  $$('lft').textContent='조회 '+now.toLocaleString('ko-KR')+' · 블록 '
+    +(blk?Number(BigInt(blk)).toLocaleString():'?')+' · 노드 '+src.replace(/^https:\/\//,'');
+  if(worst>0) document.title='● '+document.title.replace(/^● /,'');
+  try{
+    const prev=localStorage.getItem('mpcw');
+    const cur=JSON.stringify(WATCH.map((w,i)=>[m[i*2+1],m[i*2+2]]));
+    if(prev&&prev!==cur) $$('lft').textContent+=' · 지난번 열었을 때와 값이 달라졌습니다';
+    localStorage.setItem('mpcw',cur);
+  }catch(e){}
+}
+function fallback(){
+  $$('ldot').className='dot err';
+  $$('lmsg').textContent='실시간 조회 실패 — 아래는 9월 4일 기록값입니다';
+  $$('lvg').innerHTML=WATCH.map(w=>
+    `<div class="lvc"><div class="nm">${w.nm}</div><div class="ad">${w.ad}</div>`
+    +`<div class="r"><span>가스 (POL)</span><b style="color:var(--tx2)">0</b></div>`
+    +`<div class="r"><span>MPC 잔고</span><b>${w.base.toLocaleString()}</b></div>`
+    +`<div class="stt s-err">기록값 · 폴리곤스캔에서 직접 확인해 주십시오</div></div>`).join('');
+  $$('lft').innerHTML='공개 노드가 모두 응답하지 않았습니다. '
+    +WATCH.map(w=>`<a href="https://polygonscan.com/address/${w.ad}" target="_blank" rel="noopener" style="color:var(--ac2)">${w.nm} 열기 ↗</a>`).join(' · ');
+}
+let busy=false;
+async function poll(){
+  if(busy) return; busy=true; $$('lref').disabled=true;
+  for(const u of RPCS){
+    try{ const m=await fetchOne(u); render(m,u); busy=false; $$('lref').disabled=false; return; }
+    catch(e){}
+  }
+  fallback(); busy=false; $$('lref').disabled=false;
+}
+$$('lref').addEventListener('click',poll);
+poll();
+setInterval(poll,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) poll();});
+
+const C=7e9, TGE=0.05, M=36;
+const el=document.getElementById('amt'), tb=document.getElementById('vb');
+const fmt=v=>Math.round(v).toLocaleString();
+function rel(m){ // 보유량 1 기준 누적 해제 비율
+  if(m<0) return 0;
+  return TGE + (1-TGE)*Math.min(m,M)/M;
+}
+function draw(){
+  const raw=el.value.replace(/[^0-9]/g,'');
+  const v=raw?parseFloat(raw):0;
+  const rows=[
+    ['지금 (폴리곤)', null],
+    ['스왑 직후 (TGE)', 0],
+    ['3개월 뒤', 3],
+    ['6개월 뒤', 6],
+    ['1년 뒤', 12],
+    ['2년 뒤', 24],
+    ['3년 뒤 (완료)', 36],
+  ];
+  tb.innerHTML=rows.map(([lab,m])=>{
+    const r = m===null ? 1 : rel(m);
+    const cls = m===null ? 'now' : (r<1 ? 'lock' : '');
+    return `<tr class="${cls}"><td>${lab}</td><td><b>${fmt(v*r)}</b></td>`
+         + `<td>${(r*100).toFixed(1)}%</td>`
+         + `<td><div class="pb"><i style="width:${(r*100).toFixed(1)}%"></i></div></td></tr>`;
+  }).join('');
+}
+el.addEventListener('input',()=>{
+  const p=el.selectionStart, L=el.value.length;
+  const raw=el.value.replace(/[^0-9]/g,'');
+  el.value=raw?parseInt(raw,10).toLocaleString():'';
+  el.selectionStart=el.selectionEnd=Math.max(0,p+(el.value.length-L));
+  draw();
+});
+draw();
+</script>
+</body>
+</html>
