@@ -17,83 +17,105 @@ body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:
 font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 .wrap{max-width:940px;margin:0 auto;padding:18px 14px 70px}
 .num{font-variant-numeric:tabular-nums}
-h1{font-size:20px;margin:0 0 4px;letter-spacing:-.5px}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.6px}
 .tag{color:var(--tx3);font-size:12.4px;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
 h2{font-size:17px;margin:30px 0 6px;letter-spacing:-.3px}
 h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
 .box{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
-.card .k{font-size:11.3px;color:var(--tx3);margin-bottom:4px}
-.card .v{font-size:21px;font-weight:800;letter-spacing:-.6px;line-height:1.15}
-.card .s{font-size:11.4px;color:var(--tx2);margin-top:4px}
-.card.g .v{color:var(--green)}.card.w .v{color:var(--gold)}.card.b .v{color:var(--s1)}
+.card .k{font-size:11.4px;color:var(--tx3);margin-bottom:4px}
+.card .v{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.15}
+.card .s{font-size:11.5px;color:var(--tx2);margin-top:4px}
+.card.g .v{color:var(--green)}.card.w .v{color:var(--gold)}
+.ans{background:rgba(208,90,90,.09);border:1px solid #6e3535;border-radius:13px;padding:15px 17px;margin-bottom:12px}
+.ans h3{margin:0 0 9px;font-size:14.5px;color:var(--red)}
+.ans p{margin:0 0 9px;font-size:12.9px;color:var(--tx2)}.ans p:last-child{margin:0}.ans b{color:var(--tx)}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
-table{width:100%;border-collapse:collapse;font-size:12.9px;min-width:560px}
-th{color:var(--tx3);font-size:11.3px;font-weight:600;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:12.9px;min-width:540px}
+th{color:var(--tx3);font-size:11.4px;font-weight:600;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
 th.l,td.l{text-align:left}
 td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .k2{display:block;color:var(--tx3);font-size:11px;margin-top:2px;font-weight:400}
 tr.sum td{background:#20222f;font-weight:800;border-top:1px solid var(--line2)}
 tr.nss td{background:rgba(95,214,166,.07)}
 td.v{font-weight:700}
 .rd{color:var(--red)}.gd{color:var(--green)}
+.chart{position:relative}
 .chart svg{width:100%;height:auto;display:block;overflow:visible}
 .legend{display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--tx2);margin-bottom:10px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:11px;height:11px;border-radius:3px}
 .gline{stroke:#2c2f3d;stroke-width:1}
 .axt{fill:#75798c;font-size:10.5px}
+.hit{fill:transparent;cursor:crosshair}
+.hit:hover{fill:rgba(255,255,255,.045)}
+.tip{position:absolute;pointer-events:none;background:#0f1119;border:1px solid var(--line2);
+border-radius:10px;padding:10px 13px;font-size:12.2px;opacity:0;transition:opacity .1s;z-index:5;min-width:180px;
+box-shadow:0 8px 26px rgba(0,0,0,.55)}
+.tip.on{opacity:1}
+.tip b{display:block;margin-bottom:6px;font-size:13px}
+.tip .r{display:flex;justify-content:space-between;gap:16px;padding:2px 0;color:var(--tx2)}
+.tip .r em{font-style:normal;color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums}
 .note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
 .note h3{margin:0 0 8px;font-size:13.6px;color:#e5cd6b}
 .note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
 .note b{color:var(--tx)}
-.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
-@media(max-width:820px){.cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.cards{grid-template-columns:1fr}.box,.note{padding:13px}h2{font-size:15.5px}}
+@media(max-width:820px){.cards{grid-template-columns:1fr}}
+@media(max-width:520px){.box,.note,.ans{padding:13px}h2{font-size:15.5px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>월별 SUT 유입량</h1>
 <div class="tag">참여자가 CC2C 수금지갑으로 보낸 SUT 전량 · 폴리곤 온체인 실측 · 2025-01 ~ 2026-08</div>
+
+<div class="ans">
+<h3>먼저 — 나간 SUT는 주정산이 아닙니다</h3>
+<p>물어보신 부분입니다. 확인해 보니 <b>CC2C에서 나간 SUT는 참여자에게 준 것이 아니라 회사 안에서 옮긴 것</b>입니다.
+받은 주소가 24개뿐이고, 그중 <b>두 곳이 95.6%</b>를 가져갔습니다.</p>
+<div class="tw"><table style="min-width:460px"><thead><tr><th class="l">받은 주소</th><th>수량</th><th>건수</th><th>비중</th></tr></thead>
+<tbody id="ot"></tbody></table></div>
+<p style="margin-top:10px"><b>1건 평균이 28만 SUT입니다.</b> 수천 명에게 나눠주는 주정산이라면 이렇게 큰 덩어리로 나갈 수 없습니다.
+<b>0x6973766e…</b> 은 잔고가 0인 통과용 지갑으로, 중앙 금고에서 받아 다시 여러 곳으로 흩뿌립니다.</p>
+<p><b>결론 — SUT는 참여자에서 회사로 가는 한 방향이고, 주정산은 USDT와 KWT로 나갑니다.</b>
+아래 표의 "나간 SUT"는 회사 내부 이동으로 읽으시면 됩니다.</p>
+</div>
+
 <div class="cards">
-  <div class="card"><div class="k">누적 유입</div><div class="v num" id="c1"></div><div class="s" id="c1s"></div></div>
-  <div class="card b"><div class="k">누적 유출</div><div class="v num" id="c2"></div><div class="s">회사 → 참여자</div></div>
-  <div class="card g"><div class="k">순유입 (회사에 남은 것)</div><div class="v num" id="c3"></div><div class="s" id="c3s"></div></div>
-  <div class="card w"><div class="k">NSS 이후 (6/1~)</div><div class="v num" id="c4"></div><div class="s">유출 0건</div></div>
+  <div class="card"><div class="k">참여자가 낸 SUT (누적)</div><div class="v num" id="c1"></div><div class="s" id="c1s"></div></div>
+  <div class="card w"><div class="k">회사 내부로 옮긴 SUT</div><div class="v num" id="c2"></div><div class="s">참여자에게 간 것 아님</div></div>
+  <div class="card g"><div class="k">NSS 이후 (6/1~)</div><div class="v num" id="c3"></div><div class="s">이 기간 내부 이동도 0</div></div>
 </div>
+
 <h2>월별 추이</h2>
-<p class="sub">위가 참여자가 낸 SUT, 아래가 회사가 내보낸 SUT입니다.</p>
+<p class="sub">막대에 마우스를 올리면(모바일은 손가락으로 짚으면) 숫자가 나옵니다.</p>
 <div class="box">
-  <div class="legend"><span><i style="background:var(--s1)"></i>유입</span><span><i style="background:var(--s2)"></i>유출</span></div>
-  <div class="chart" id="ch"></div>
+  <div class="legend"><span><i style="background:var(--s1)"></i>참여자가 낸 SUT</span><span><i style="background:var(--s2)"></i>회사 내부 이동</span></div>
+  <div class="chart" id="ch"><div class="tip" id="tp"></div></div>
 </div>
+
 <h2>월별 표</h2>
 <p class="sub">초록색 줄이 뉴슈퍼세이브 구간입니다.</p>
 <div class="box"><div class="tw"><table>
-<thead><tr><th class="l">월</th><th>유입</th><th>유출</th><th>순유입</th><th>건수</th><th>참여 지갑</th></tr></thead>
+<thead><tr><th class="l">월</th><th>참여자가 낸 SUT</th><th>내부 이동</th><th>건수</th><th>참여 지갑</th></tr></thead>
 <tbody id="tb"></tbody></table></div></div>
-<div class="note warn">
-<h3>6월 이후 유출이 0입니다</h3>
-<p>뉴슈퍼세이브가 시작된 <b>2026년 6월부터 회사가 내보낸 SUT는 한 개도 없습니다.</b>
-들어가기만 하고 나오지 않습니다. 그 기간 유입만 <b id="w1"></b>입니다.</p>
-<p>그 전에는 달랐습니다. 2025년 7월에는 유출이 6,000만 개로 유입을 넘어섰고,
-10월에도 유출이 더 많았습니다. <b>지금은 그 흐름이 완전히 한쪽으로 바뀌었습니다.</b></p>
-</div>
+
 <div class="note">
-<h3>참여 지갑 수가 말해주는 것</h3>
-<p>월별 참여 지갑이 2025년 7월 <b>21,809개</b>로 정점을 찍고, 2026년 6월에는 <b>812개</b>까지 줄었습니다.
-<b>96% 감소</b>입니다. 유입 금액보다 이 숫자가 규모 변화를 더 정확히 보여줍니다.</p>
+<h3>참여 지갑 수가 규모를 더 정확히 보여줍니다</h3>
+<p>월별 참여 지갑이 2025년 7월 <b>21,809개</b>로 정점을 찍고 2026년 6월 <b>812개</b>까지 줄었습니다. <b>96% 감소</b>입니다.
+금액은 큰 참여 몇 건에 흔들리지만 지갑 수는 그렇지 않습니다.</p>
 </div>
+
 <div class="note">
 <h3>계산 기준</h3>
-<p><b>대상</b> — CC2C 수금지갑(0xaaa4d5dd…89cc2c)의 SUT 입출금 전량. 회사·거래소 주소는 제외했습니다.</p>
-<p><b>중복 제거</b> — (시각 + 보낸주소 + 받은주소 + 금액)으로 걸렀습니다. 폴리곤 API가 logIndex를 주지 않아 거래해시만으로는 묶음 전송이 뭉개집니다.</p>
-<p><b>누적 유입이 총 발행량보다 많은 이유</b> — 같은 SUT가 지급·재참여를 반복하며 여러 번 세어지기 때문입니다.</p>
+<p><b>대상</b> — CC2C 수금지갑(0xaaa4d5dd…89cc2c)의 SUT 입출금 전량. 유입에서는 회사 지갑을 제외했습니다.</p>
+<p><b>중복 제거</b> — (시각 + 보낸주소 + 받은주소 + 금액). 폴리곤 API가 logIndex를 주지 않아 거래해시만으로는 묶음 전송이 뭉개집니다.</p>
+<p><b>누적 유입이 총 발행량(2.38억)보다 많은 이유</b> — 같은 SUT가 지급·재참여를 반복하며 여러 번 세어지기 때문입니다.</p>
 </div>
 </div>
 <script>const D=
-{"ms":["2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08"],"mi":{"2025-01":8237391,"2025-02":36114904,"2025-03":28806555,"2025-04":37469332,"2025-05":36079817,"2025-06":31610112,"2025-07":55241607,"2025-08":37716452,"2025-09":22962322,"2025-10":18006708,"2025-11":18457269,"2025-12":18511225,"2026-01":49282608,"2026-02":14595172,"2026-03":37949620,"2026-04":22272391,"2026-05":15440133,"2026-06":2171185,"2026-07":4089870,"2026-08":4061780},"mo":{"2025-01":0,"2025-02":7500480,"2025-03":5009363,"2025-04":5750,"2025-05":2769,"2025-06":17000000,"2025-07":60000000,"2025-08":36000000,"2025-09":13000000,"2025-10":29000000,"2025-11":19701662,"2025-12":7500000,"2026-01":44101804,"2026-02":8936000,"2026-03":9170425,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"mn":{"2025-01":24055,"2025-02":81416,"2025-03":103261,"2025-04":106094,"2025-05":123762,"2025-06":124873,"2025-07":164295,"2025-08":154624,"2025-09":151021,"2025-10":141875,"2025-11":138396,"2025-12":157505,"2026-01":174600,"2026-02":154888,"2026-03":134559,"2026-04":124813,"2026-05":62608,"2026-06":1173,"2026-07":4510,"2026-08":5936},"mw":{"2025-01":5839,"2025-02":9533,"2025-03":10956,"2025-04":13443,"2025-05":16763,"2025-06":17613,"2025-07":21809,"2025-08":21344,"2025-09":21431,"2025-10":18700,"2025-11":19142,"2025-12":19588,"2026-01":19895,"2026-02":19365,"2026-03":17974,"2026-04":17513,"2026-05":14683,"2026-06":812,"2026-07":591,"2026-08":790},"TI":499076454,"TO":256928254,"SUP":238403732};
+{"ms":["2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08"],"mi":{"2025-01":8237391,"2025-02":36114904,"2025-03":28806555,"2025-04":37469332,"2025-05":36079817,"2025-06":31610112,"2025-07":55241607,"2025-08":37716452,"2025-09":22962322,"2025-10":18006708,"2025-11":18457269,"2025-12":18511225,"2026-01":49282608,"2026-02":14595172,"2026-03":37949620,"2026-04":22272391,"2026-05":15440133,"2026-06":2171185,"2026-07":4089870,"2026-08":4061780},"mo":{"2025-01":0,"2025-02":7500480,"2025-03":5009363,"2025-04":5750,"2025-05":2769,"2025-06":17000000,"2025-07":60000000,"2025-08":36000000,"2025-09":13000000,"2025-10":29000000,"2025-11":19701662,"2025-12":7500000,"2026-01":44101804,"2026-02":8936000,"2026-03":9170425,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"mn":{"2025-01":24055,"2025-02":81416,"2025-03":103261,"2025-04":106094,"2025-05":123762,"2025-06":124873,"2025-07":164295,"2025-08":154624,"2025-09":151021,"2025-10":141875,"2025-11":138396,"2025-12":157505,"2026-01":174600,"2026-02":154888,"2026-03":134559,"2026-04":124813,"2026-05":62608,"2026-06":1173,"2026-07":4510,"2026-08":5936},"mw":{"2025-01":5839,"2025-02":9533,"2025-03":10956,"2025-04":13443,"2025-05":16763,"2025-06":17613,"2025-07":21809,"2025-08":21344,"2025-09":21431,"2025-10":18700,"2025-11":19142,"2025-12":19588,"2026-01":19895,"2026-02":19365,"2026-03":17974,"2026-04":17513,"2026-05":14683,"2026-06":812,"2026-07":591,"2026-08":790},"TI":499076454,"TO":256928254,"SUP":238403732,"out_detail":[{"a":"0x6973766e…4461","nm":"미확인 대형 허브","v":241059466,"n":85,"p":48.6},{"a":"0x7cc2f891…f7ad","nm":"중앙 금고 (회사)","v":232937266,"n":192,"p":47.0},{"a":"0xf46e16da…7bc8","nm":"미확인","v":8000000,"n":1,"p":1.6},{"a":"0xb079e303…7a46","nm":"미확인","v":7500000,"n":1,"p":1.5},{"a":"그 외 20개","nm":"회사 지갑·소액","v":6020354,"n":1442,"p":1.2}]};
 const $=i=>document.getElementById(i);
 const n=v=>Math.round(v).toLocaleString();
 const M=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'K':Math.round(v);
@@ -101,15 +123,14 @@ const NSS=['2026-06','2026-07','2026-08'];
 const nssSum=NSS.reduce((s,m)=>s+(D.mi[m]||0),0);
 $('c1').textContent=M(D.TI); $('c1s').textContent=n(D.TI)+' SUT';
 $('c2').textContent=M(D.TO);
-$('c3').textContent=M(D.TI-D.TO); $('c3s').textContent=n(D.TI-D.TO)+' SUT';
-$('c4').textContent=M(nssSum); $('w1').textContent=n(nssSum)+' SUT';
+$('c3').textContent=M(nssSum);
+$('ot').innerHTML=D.out_detail.map(o=>`<tr><td class="l"><b>${o.a}</b><span class="k2">${o.nm}</span></td>
+ <td class="v">${n(o.v)}</td><td>${n(o.n)}</td><td class="rd">${o.p}%</td></tr>`).join('');
 $('tb').innerHTML=D.ms.map(m=>{const i=D.mi[m]||0,o=D.mo[m]||0;
  return `<tr class="${NSS.includes(m)?'nss':''}"><td class="l"><b>${m}</b></td>
- <td class="v">${n(i)}</td><td class="${o?'rd':''}">${n(o)}</td>
- <td class="v ${i-o>=0?'gd':'rd'}">${n(i-o)}</td>
- <td>${n(D.mn[m]||0)}</td><td>${n(D.mw[m]||0)}</td></tr>`}).join('')
-+`<tr class="sum"><td class="l">합계</td><td>${n(D.TI)}</td><td>${n(D.TO)}</td>
- <td>${n(D.TI-D.TO)}</td><td></td><td></td></tr>`;
+ <td class="v">${n(i)}</td><td class="${o?'rd':''}">${o?n(o):'—'}</td>
+ <td>${n(D.mn[m]||0)}</td><td class="gd">${n(D.mw[m]||0)}</td></tr>`}).join('')
++`<tr class="sum"><td class="l">합계</td><td>${n(D.TI)}</td><td>${n(D.TO)}</td><td>${n(Object.values(D.mn).reduce((a,b)=>a+b,0))}</td><td></td></tr>`;
 (function(){
  const W=940,H=300,ML=54,MR=10,MT=14,MB=34,iw=W-ML-MR,ih=H-MT-MB;
  const mi=Math.max(...D.ms.map(m=>D.mi[m]||0)), mo=Math.max(...D.ms.map(m=>D.mo[m]||0));
@@ -129,7 +150,22 @@ $('tb').innerHTML=D.ms.map(m=>{const i=D.mi[m]||0,o=D.mo[m]||0;
  const si=D.ms.indexOf('2026-06');
  if(si>0){const x=ML+bw*si;g+=`<line x1="${x}" y1="${MT}" x2="${x}" y2="${H-MB}" stroke="#5fd6a6" stroke-width="1.2" stroke-dasharray="4 3"/>
   <text class="axt" x="${x+6}" y="${MT+11}" fill="#5fd6a6" font-weight="700">NSS 시작</text>`}
- $('ch').innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 SUT 유입과 유출">${g}</svg>`})();
+ D.ms.forEach((m,i)=>{g+=`<rect class="hit" data-i="${i}" x="${ML+bw*i}" y="${MT}" width="${bw}" height="${ih}"/>`});
+ const el=$('ch'); el.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 SUT 유입과 내부 이동">${g}</svg>`);
+ const svg=el.querySelector('svg'), tp=$('tp');
+ function at(i,ev){const m=D.ms[i];
+  tp.innerHTML=`<b>${m}</b>
+   <div class="r"><span>참여자가 낸 SUT</span><em>${n(D.mi[m]||0)}</em></div>
+   <div class="r"><span>회사 내부 이동</span><em>${(D.mo[m]||0)?n(D.mo[m]):'—'}</em></div>
+   <div class="r"><span>거래 건수</span><em>${n(D.mn[m]||0)}</em></div>
+   <div class="r"><span>참여 지갑</span><em>${n(D.mw[m]||0)}</em></div>`;
+  tp.classList.add('on');
+  const r=el.getBoundingClientRect(), x=(ev.clientX-r.left), y=(ev.clientY-r.top);
+  tp.style.left=Math.min(Math.max(8,x+14),r.width-tp.offsetWidth-8)+'px';
+  tp.style.top=Math.min(Math.max(8,y-10),r.height-tp.offsetHeight-8)+'px';}
+ svg.addEventListener('pointermove',e=>{const t=e.target.closest('.hit'); if(t) at(+t.dataset.i,e); else tp.classList.remove('on');});
+ svg.addEventListener('pointerleave',()=>tp.classList.remove('on'));
+})();
 </script>
 </body>
 </html>

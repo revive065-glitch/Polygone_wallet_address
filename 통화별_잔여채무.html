@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>통화별 잔여 채무</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--usd:#3987e5;--kw:#c98500;--ns:#199e70}
+*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.65;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 70px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.6px}
+.tag{color:var(--tx3);font-size:12.4px;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+h2{font-size:17px;margin:30px 0 6px;letter-spacing:-.3px}
+h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
+
+.eq{background:rgba(145,132,217,.08);border:1px solid #4a4472;border-radius:12px;padding:13px 16px;
+margin-bottom:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:var(--tx2);text-align:center}
+.eq b{color:var(--ac2)}
+
+.grp{margin-bottom:11px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.grp .hd{display:flex;align-items:center;gap:11px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.grp .hd .nm{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.grp .hd .no{font-size:11.8px;color:var(--tx3);flex:1}
+.grp .hd .wk{text-align:right}
+.grp .hd .wk span{display:block;font-size:10.8px;color:var(--tx3)}
+.grp .hd .wk b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--red)}
+.grp.k{border-left:3px solid var(--kw)} .grp.u{border-left:3px solid var(--usd)} .grp.n{border-left:3px solid var(--ns)}
+.grp.k .nm{color:var(--kw)} .grp.u .nm{color:var(--usd)} .grp.n .nm{color:var(--ns)}
+.bd{padding:14px 16px}
+.bar{display:flex;height:34px;border-radius:8px;overflow:hidden;margin-bottom:10px}
+.bar i{display:grid;place-items:center;font-size:11.5px;font-weight:800;color:#12101c;font-style:normal}
+.bar .d{background:#5c6070;color:#dcdce4}
+.bar .r{background:var(--red)}
+.sp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.sp div{background:rgba(0,0,0,.24);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.sp span{display:block;font-size:11px;color:var(--tx3);margin-bottom:2px}
+.sp b{font-size:17px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.sp .rd b{color:var(--red)}
+
+.tot{background:linear-gradient(180deg,#241f2b,#1a1c26);border:1px solid var(--line2);border-radius:14px;padding:15px 17px;margin-top:12px}
+.tot .k{font-size:11.6px;color:var(--tx3)}
+.tot .row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line)}
+.tot .row:last-child{border:0}
+.tot .row span{font-size:13px;color:var(--tx2)}
+.tot .row b{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+.tot .row.hot b{color:var(--red);font-size:23px}
+
+.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
+.note h3{margin:0 0 8px;font-size:13.6px;color:#e5cd6b}
+.note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+@media(max-width:640px){.sp{grid-template-columns:1fr}.grp .hd{flex-wrap:wrap}}
+@media(max-width:520px){.bd,.note,.tot{padding:13px}h2{font-size:15.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>통화별 잔여 채무</h1>
+<div class="tag">회사가 갚아야 할 신용대금을 KWT · 테더 · NSS 셋으로 나눈 것 · 기준 2026-08-31</div>
+
+<div class="eq">총 신용대금 &nbsp;=&nbsp; <b>지급기일이 온 몫</b> &nbsp;+&nbsp; <b>아직 안 온 몫 (잔여 잔신)</b></div>
+
+<div id="gs"></div>
+
+<div class="tot">
+  <div class="k" style="margin-bottom:6px">세 가지 합계</div>
+  <div class="row"><span>총 신용대금</span><b class="num" id="t1"></b></div>
+  <div class="row"><span>지급기일이 온 몫</span><b class="num" id="t2"></b></div>
+  <div class="row hot"><span>잔여 잔신</span><b class="num" id="t3"></b></div>
+  <div class="row"><span>주정산 재개 시 매주</span><b class="num" id="t4"></b></div>
+</div>
+
+<div class="note warn">
+<h3>KWT와 테더를 더하지 마십시오</h3>
+<p><b>테더 6,516억원은 참여자가 실제 현금으로 넣은 돈</b>입니다.
+<b>KWT 18.12조원은 회사가 발행한 토큰을 1원으로 친 명목가</b>입니다. 성격이 다릅니다.</p>
+<p>합계 18.77조원은 편의상 더한 숫자이니, 협상이나 논의 자리에서는 반드시 나눠서 말씀하십시오.
+<b>실질 현금 채무는 테더 쪽 6,516억원</b>입니다.</p>
+</div>
+
+<div class="note">
+<h3>NSS는 아직 작습니다</h3>
+<p>6월 1일 이후 새로 들어온 참여는 <b>결제 32억원, 신용대금 77억원</b>입니다.
+전체 신용대금의 <b>0.04%</b>에 불과합니다. 재개했다는 사실보다 규모가 이 정도라는 점이 중요합니다.</p>
+<p>다만 <b>NSS만 지금 지급이 이뤄지고 있습니다.</b> KWT와 기존 테더는 2026년 5월 18일부터 멈춰 있습니다.</p>
+</div>
+
+<div class="note">
+<h3>계산 기준</h3>
+<p><b>참여 결제</b> — CC2C 수금지갑 유입 중 같은 통화로 권리(DeCT)가 발급된 건만 골랐습니다.
+발급 내역 1,892,266건과 대조했고, 권리 발급이 없는 송금(MPC 구매·SUT 전환 등)은 뺐습니다.</p>
+<p><b>총 신용대금</b> = 참여 결제 × 2.4. <b>지급기일이 온 몫</b>은 참여일부터 52주 균등 지급으로 계산해
+KWT·기존 테더는 2026-05-18까지, NSS는 오늘까지 도래한 금액입니다.</p>
+<p><b>주정산</b>은 아직 52주가 안 끝난 참여 건의 주간 합계입니다.</p>
+<p><b>환산</b> — KWT 1개 = 1원(명목), USDT 1개 = 1,400원. 현금(KRW) 참여분은 온체인에 없어 빠져 있습니다.</p>
+</div>
+</div>
+<script>const D=
+{"rows":[{"nm":"KWT","pay":7548415221945.537,"tot":18116196532669.29,"due":10098725989210.783,"rem":8017470543458.506,"wk":233250705138.3124,"note":"1 KWT = 1원 명목"},{"nm":"테더 (기존)","pay":268299612945.1774,"tot":643919071068.4266,"due":139693207053.6626,"rem":504225864014.76404,"wk":12235251414.893768,"note":"5/18 지급 중단"},{"nm":"NSS (6/1~)","pay":3204979546.0130005,"tot":7691950910.431201,"due":841672564.2490063,"rem":6850278346.182195,"wk":147922132.89290774,"note":"현재 지급 중"}],"TT":18767807554648.145,"TD":10239260868828.693,"TR":8528546685819.452,"TW":245633878686.0991,"MPC":10000000000.0};
+const $=i=>document.getElementById(i);
+const Z=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(2)+'조원':Math.round(v/1e8).toLocaleString()+'억원';
+const CLS={'KWT':'k','테더 (기존)':'u','NSS (6/1~)':'n'};
+$('gs').innerHTML=D.rows.map(r=>{
+ const dp=r.tot>0?r.due/r.tot*100:0, rp=100-dp;
+ return `<div class="grp ${CLS[r.nm]||''}">
+  <div class="hd"><div class="nm">${r.nm}</div><div class="no">${r.note}</div>
+   <div class="wk"><span>주정산 (주당)</span><b>${Z(r.wk)}</b></div></div>
+  <div class="bd">
+   <div class="bar">
+    <i class="d" style="width:${dp}%">${dp>13?'지급기일 도래 '+dp.toFixed(0)+'%':''}</i>
+    <i class="r" style="width:${rp}%">${rp>13?'잔여 '+rp.toFixed(0)+'%':''}</i></div>
+   <div class="sp">
+    <div><span>참여 결제</span><b>${Z(r.pay)}</b></div>
+    <div><span>총 신용대금 (×2.4)</span><b>${Z(r.tot)}</b></div>
+    <div class="rd"><span>잔여 잔신</span><b>${Z(r.rem)}</b></div></div>
+  </div></div>`}).join('');
+$('t1').textContent=Z(D.TT); $('t2').textContent=Z(D.TD);
+$('t3').textContent=Z(D.TR); $('t4').textContent=Z(D.TW);
+</script>
+</body>
+</html>
