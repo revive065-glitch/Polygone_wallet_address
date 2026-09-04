@@ -61,6 +61,26 @@ color:var(--tx2);line-height:2.1;text-align:center}
 .note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
 .note b{color:var(--tx)}
 .warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+.ev{display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line2);
+color:var(--tx2);border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:600;text-decoration:none;
+white-space:nowrap;margin:9px 6px 0 0}
+.ev:hover{border-color:var(--ac);color:var(--tx)}
+.ev i{font-style:normal;font-size:10px;opacity:.7}
+.evs{display:flex;flex-wrap:wrap;gap:0;margin-top:2px}
+.oe{background:rgba(201,162,39,.08);border:1px solid #5c4f1e;border-radius:14px;padding:15px 17px;margin:12px 0}
+.oe h3{margin:0 0 9px;font-size:15px;color:#e5cd6b}
+.oe p{margin:0 0 9px;font-size:12.9px;color:var(--tx2)}.oe p:last-child{margin:0}.oe b{color:var(--tx)}
+.oebar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:12px 0}
+.oebar div{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.oebar span{display:block;font-size:11px;color:var(--tx3);margin-bottom:3px}
+.oebar b{font-size:16px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums;color:var(--gold)}
+.doc{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.doc a{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+padding:13px 15px;text-decoration:none;transition:border-color .12s}
+.doc a:hover{border-color:var(--ac)}
+.doc b{display:block;font-size:13.8px;color:var(--tx);margin-bottom:3px}
+.doc em{font-style:normal;font-size:11.8px;color:var(--tx3);display:block;line-height:1.5}
+@media(max-width:700px){.oebar,.doc{grid-template-columns:1fr}}
 @media(max-width:640px){.grp .hd{flex-wrap:wrap}.eq{font-size:11.5px;line-height:2.2}}
 @media(max-width:520px){.bd,.note,.sum{padding:13px}h2{font-size:15.5px}}
 </style>
@@ -68,36 +88,78 @@ color:var(--tx2);line-height:2.1;text-align:center}
 <body>
 <div class="wrap">
 <h1>통화별 잔여 채무</h1>
-<div class="tag">회사가 갚아야 할 신용대금을 KWT · 테더 · NSS 셋으로 나눈 것 · 온체인 실측 · 기준 2026-08-31</div>
+<div class="tag">슈퍼세이브 + 외매권 채무를 KWT · 테더 · NSS 셋으로 나눈 것 · 온체인 실측 · 기준 2026-08-31</div>
 
 <div class="eq">
-투입한 돈 <span class="g">×</span> <b>2.4</b> <span class="g">=</span> <b>총 신용대금</b><br>
-<b>총 신용대금</b> <span class="g">−</span> <span class="g">지급한 신용대금</span> <span class="g">=</span> <span class="r">남은 신용대금</span>
+결제한 돈 <span class="g">×</span> <b>2.4</b> <span class="g">=</span> 슈퍼세이브 &nbsp;&nbsp; <span class="g">+</span> &nbsp;&nbsp; 결제한 돈 <span class="g">×</span> <b>1.2</b> <span class="g">=</span> 외매권<br>
+<span class="g">──────────────────────────────</span><br>
+결제한 돈 <span class="g">×</span> <b>3.6</b> <span class="g">=</span> <b>총 채무</b> &nbsp;&nbsp;<span class="g">−</span>&nbsp;&nbsp; 지급한 금액 <span class="g">=</span> <span class="r">남은 채무</span>
 </div>
 
 <div id="gs"></div>
 
 <div class="sum">
   <div class="k">세 가지 합계</div>
-  <div class="row"><span>총 신용대금</span><b class="num" id="t1"></b></div>
-  <div class="row"><span>지급한 신용대금</span><b class="num" id="t2" style="color:#8f93a6"></b></div>
-  <div class="row hot"><span>남은 신용대금</span><b class="num" id="t3"></b></div>
+  <div class="row"><span>총 채무 (외매권 포함)</span><b class="num" id="t1"></b></div>
+  <div class="row"><span>지급한 금액</span><b class="num" id="t2" style="color:#8f93a6"></b></div>
+  <div class="row hot"><span>남은 채무</span><b class="num" id="t3"></b></div>
   <div class="row"><span>주정산 재개 시 매주</span><b class="num" id="t4"></b></div>
+</div>
+
+
+<h2>외매권을 어떻게 넣었나</h2>
+<p class="sub">IDM(권리 발급 기록)이 답을 갖고 있었습니다.</p>
+<div class="oe">
+  <h3>참여자와 소개자가 같은 SUT를 냅니다</h3>
+  <p>예를 들어 <b>1,000만 KWT로 참여하면서 500 SUT를 넣으면</b>,
+  소개자도 <b>같은 500 SUT를 내고 1,200만 KWT를 받을 권리</b>가 생깁니다.
+  이 둘이 각각 IDM에 한 장씩 기록됩니다.</p>
+  <p>그래서 <b>전체 IDM에 적힌 SUT의 절반이 참여자 몫</b>입니다. 실제로 맞는지 검산해 봤습니다.</p>
+  <div class="oebar">
+    <div><span>KWT 전체 IDM SUT</span><b>307,141,260</b></div>
+    <div><span>절반 ÷ 참여 결제 = 역산 단가</span><b>49,153 KWT</b></div>
+    <div><span>따로 실측한 단가</span><b>50,000 KWT</b></div>
+  </div>
+  <p><b>오차 1.7%로 맞습니다.</b> 서로 다른 방법으로 구한 값이 이만큼 붙는 건 우연이 아닙니다.</p>
+  <p>같은 구조가 SUT 데이터에서도 확인됩니다 — <b>1,000 USDT 참여에 3,600 SUT</b>가 들어가는데,
+  본인 1,800(→2,400 수령) + Pairs 1,800(→1,200 수령)입니다. <b>합쳐서 결제의 3.6배</b>입니다.</p>
+  <div class="evs">
+    <a class="ev" href="주정산_산출근거.html" target="_blank" rel="noopener">외매권 산출 근거 <i>↗</i></a>
+    <a class="ev" href="외매권_소각효과.html" target="_blank" rel="noopener">외매권 소각 효과 <i>↗</i></a>
+  </div>
+</div>
+
+<h2>증빙 자료</h2>
+<p class="sub">위 숫자가 어떻게 나왔는지, 돈이 어디로 흘렀는지 직접 확인하실 수 있습니다.</p>
+<div class="doc">
+  <a href="주정산_산출근거.html" target="_blank" rel="noopener">
+    <b>주정산 산출 근거 ↗</b><em>실제 거래 두 건으로 확인 · 월별 입금 내역 · 누구나 직접 검증하는 법</em></a>
+  <a href="순증_수령자_랭킹.html" target="_blank" rel="noopener">
+    <b>순증 수령자 랭킹 ↗</b><em>받은 권리에서 낸 돈을 뺀 순증 랭킹 36,632명과 조직 계보도</em></a>
+  <a href="외매권_소각효과.html" target="_blank" rel="noopener">
+    <b>외매권 소각 효과 ↗</b><em>외매권을 회수하면 잔여 신용대금이 얼마나 줄어드는가</em></a>
+  <a href="상환_시나리오.html" target="_blank" rel="noopener">
+    <b>상환 시나리오 ↗</b><em>분할 상환 · 강제 재참여 · 실제 지급 능력으로 본 경로 비교</em></a>
+  <a href="wallet_address_arc.html" target="_blank" rel="noopener">
+    <b>지갑 등록소 ↗</b><em>폴리곤스캔 주소에 커뮤니티 이름표를 덧씌운 자금 흐름 지도</em></a>
+  <a href="월별_SUT_유입량.html" target="_blank" rel="noopener">
+    <b>월별 SUT 유입량 ↗</b><em>참여자가 회사로 보낸 SUT와 회사 내부 이동 내역</em></a>
 </div>
 
 <div class="note warn">
 <h3>KWT와 테더를 더하지 마십시오</h3>
-<p><b>테더 6,439억원은 참여자가 실제 현금으로 넣은 돈</b>입니다.
-<b>KWT 18.12조원은 회사가 발행한 토큰을 1원으로 친 명목가</b>입니다. 성격이 다릅니다.</p>
-<p>실질 현금 채무는 <b>테더 쪽 남은 2,009억원</b>입니다. 협상 자리에서는 반드시 나눠서 말씀하십시오.</p>
+<p><b>테더 9,659억원은 참여자가 실제 현금으로 넣은 돈</b>에서 나온 채무입니다.
+<b>KWT 27.17조원은 회사가 발행한 토큰을 1원으로 친 명목가</b> 위의 숫자입니다. 성격이 다릅니다.</p>
+<p>실질 현금 채무는 <b>테더 쪽 남은 5,229억원</b>입니다. 협상 자리에서는 반드시 나눠서 말씀하십시오.</p>
 </div>
 
 <div class="note">
 <h3>지급률 차이가 눈에 띕니다</h3>
-<p><b>테더는 68.8%를 지급했는데 KWT는 25.6%뿐입니다.</b>
-회사가 현금(테더)은 상당 부분 돌려줬지만, 자기가 발행한 KWT 쪽은 4분의 1만 나갔다는 뜻입니다.</p>
-<p><b>NSS는 6월 1일 이후 3개월 만에 64.5%를 지급했습니다.</b> 규모가 작아서 가능한 속도입니다.
-전체 신용대금에서 NSS가 차지하는 비중은 <b>0.04%</b>입니다.</p>
+<p><b>외매권까지 넣으면 전체 지급률이 18.1%로 내려갑니다.</b>
+테더 45.9%, KWT 17.1%입니다. 회사가 현금(테더)은 절반 가까이 돌려줬지만
+자기가 발행한 KWT 쪽은 6분의 1만 나갔다는 뜻입니다.</p>
+<p><b>NSS는 규모가 작습니다.</b> 총 채무 115억원으로 전체의 <b>0.04%</b>입니다.
+재개했다는 사실보다 규모가 이 정도라는 점이 중요합니다.</p>
 </div>
 
 <div class="note">
@@ -106,33 +168,43 @@ color:var(--tx2);line-height:2.1;text-align:center}
 발급 내역 1,892,266건과 대조했고, 권리 발급이 없는 송금(MPC 구매·SUT 전환 등)은 뺐습니다.</p>
 <p><b>지급한 신용대금</b> — 회사 지갑에서 참여자 지갑으로 실제로 나간 전량입니다.
 KWT <span id="n1"></span>건, USDT <span id="n2"></span>건. 회사 지갑끼리 주고받은 것과 거래소로 간 것은 뺐습니다.</p>
-<p><b>여기 섞여 있는 것</b> — 나간 돈에는 주정산 말고도 <b>소개수당과 외매권 정산</b>이 함께 들어 있습니다.
-그래서 "지급한 신용대금"은 주정산만 따지면 실제보다 크고, <b>남은 신용대금은 실제보다 작게 잡힙니다.</b>
-회사에 유리한 쪽으로 계산한 값이라고 보시면 됩니다.</p>
+<p><b>여기 섞여 있는 것</b> — 나간 돈에는 주정산과 외매권 정산 말고도 <b>소개수당</b>이 함께 들어 있습니다.
+그만큼 <b>남은 채무는 실제보다 작게 잡힙니다.</b> 회사에 유리한 쪽으로 계산한 값입니다.</p>
 <p><b>환산</b> — KWT 1개 = 1원(명목), USDT 1개 = 1,400원. 현금(KRW) 참여분은 온체인에 없어 빠져 있습니다.</p>
 </div>
 </div>
 <script>const D=
-{"rows":[{"nm":"KWT","inp":7548415221945.537,"tot":18116196532669.29,"paid":4645875987173.65,"rem":13470320545495.639,"note":"1 KWT = 1원 명목","wk":233300000000.0},{"nm":"테더 (기존)","inp":268299612945.17776,"tot":643919071068.4266,"paid":443015788470.6413,"rem":200903282597.78534,"note":"2026-05-18 지급 중단","wk":12200000000.0},{"nm":"NSS (6/1~)","inp":3204979546.0130005,"tot":7691950910.431201,"paid":4962987470.31728,"rem":2728963440.113921,"note":"현재 지급 중","wk":100000000.0}],"TT":18767807554648.145,"TP":5093854763114.609,"TR":13673952791533.537,"TW":245600000000.0,"MPC":10000000000.0,"kwt_n":1338693,"kwt_w":37233,"usdt_n":594899};
+{"rows":[{"nm":"KWT","pay":7548415221945.537,"ss":18116196532669.29,"oe":9058098266334.645,"tot":27174294799003.934,"paid":4645875987173.65,"rem":22528418811830.28,"wk":349950000000.0},{"nm":"테더 (기존)","pay":268299612945.17776,"ss":643919071068.4266,"oe":321959535534.2133,"tot":965878606602.64,"paid":443015788470.6413,"rem":522862818131.9987,"wk":18300000000.0},{"nm":"NSS (6/1~)","pay":3204979546.0130005,"ss":7691950910.431201,"oe":3845975455.2156005,"tot":11537926365.646803,"paid":4962987470.31728,"rem":6574938895.329523,"wk":150000000.0}],"TT":28151711331972.223,"TP":5093854763114.609,"TR":23057856568857.61,"MPC":10000000000.0,"TW":368400000000.0,"rate_k":49152.72680684801,"idm":{"KWT":307141260,"USDT":100949853,"KRW":37848238},"kwt_n":1338693,"usdt_n":594899}
+
+;
 const $=i=>document.getElementById(i);
 const Z=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(2)+'조원':Math.round(v/1e8).toLocaleString()+'억원';
 const CLS={'KWT':'k','테더 (기존)':'u','NSS (6/1~)':'n'};
 $('gs').innerHTML=D.rows.map(r=>{
  const pp=r.tot>0?r.paid/r.tot*100:0, rp=100-pp;
  return `<div class="grp ${CLS[r.nm]||''}">
-  <div class="hd"><div class="nm">${r.nm}</div><div class="no">${r.note}</div>
+  <div class="hd"><div class="nm">${r.nm}</div><div class="no">${r.nm==='KWT'?'1 KWT = 1원 명목':r.nm==='NSS (6/1~)'?'현재 지급 중':'2026-05-18 지급 중단'}</div>
    <div class="wk"><span>주정산 (주당)</span><b>${Z(r.wk)}</b></div></div>
   <div class="bd">
-   <div class="line"><div class="l">투입한 돈<em>참여자가 회사로 보낸 결제대금</em></div><div class="v">${Z(r.inp)}</div></div>
-   <div class="line tot"><div class="l">총 신용대금<em>투입한 돈 × 2.4</em></div><div class="v">${Z(r.tot)}</div></div>
-   <div class="line paid"><div class="l">지급한 신용대금<em>회사가 참여자에게 실제로 보낸 것</em></div><div class="v">${Z(r.paid)}</div></div>
-   <div class="line rem"><div class="l">남은 신용대금<em>총 신용대금 − 지급한 신용대금</em></div><div class="v">${Z(r.rem)}</div></div>
+   <div class="line"><div class="l">결제한 돈<em>참여자가 회사로 보낸 결제대금</em></div><div class="v">${Z(r.pay)}</div></div>
+   <div class="line"><div class="l">슈퍼세이브 채무<em>결제한 돈 × 2.4 — 참여자 본인 몫</em></div><div class="v">${Z(r.ss)}</div></div>
+   <div class="line"><div class="l">외매권 채무<em>결제한 돈 × 1.2 — 소개자 몫</em></div><div class="v" style="color:var(--gold)">${Z(r.oe)}</div></div>
+   <div class="line tot"><div class="l">총 채무<em>결제한 돈 × 3.6</em></div><div class="v">${Z(r.tot)}</div></div>
+   <div class="line paid"><div class="l">지급한 금액<em>회사가 참여자에게 실제로 보낸 것</em></div><div class="v">${Z(r.paid)}</div></div>
+   <div class="line rem"><div class="l">남은 채무<em>총 채무 − 지급한 금액</em></div><div class="v">${Z(r.rem)}</div></div>
    <div class="bar"><i class="d" style="width:${pp}%"></i><i class="r" style="width:${rp}%"></i></div>
    <div class="blab"><span>지급 ${pp.toFixed(1)}%</span><span>남음 ${rp.toFixed(1)}%</span></div>
+   <div class="evs">
+     <a class="ev" href="주정산_산출근거.html" target="_blank" rel="noopener">산출 근거 <i>↗</i></a>
+     <a class="ev" href="wallet_address_arc.html" target="_blank" rel="noopener">자금 흐름 <i>↗</i></a>
+     <a class="ev" href="순증_수령자_랭킹.html" target="_blank" rel="noopener">누가 받았나 <i>↗</i></a>
+   </div>
   </div></div>`}).join('');
 $('t1').textContent=Z(D.TT); $('t2').textContent=Z(D.TP);
 $('t3').textContent=Z(D.TR); $('t4').textContent=Z(D.TW);
-$('n1').textContent=D.kwt_n.toLocaleString(); $('n2').textContent=D.usdt_n.toLocaleString();
+const n1=document.getElementById('n1'), n2=document.getElementById('n2');
+if(n1) n1.textContent=D.kwt_n.toLocaleString();
+if(n2) n2.textContent=D.usdt_n.toLocaleString();
 </script>
 </body>
 </html>

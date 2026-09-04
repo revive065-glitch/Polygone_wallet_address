@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>채무 산출 근거</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--usd:#3987e5;--kw:#c98500;--ns:#199e70}
+*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.65;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 70px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.6px}
+.tag{color:var(--tx3);font-size:12.4px;margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+h2{font-size:17.5px;margin:32px 0 6px;letter-spacing:-.35px}
+h2 i{font-style:normal;color:var(--ac2);margin-right:8px;font-size:15px}
+h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
+h3{font-size:14px;margin:18px 0 8px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px}
+.box+.box{margin-top:9px}
+
+.hero{background:linear-gradient(180deg,#221d26,#1a1d22);border:1px solid var(--line2);
+border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.hero .k{font-size:11.8px;color:var(--tx3)}
+.hero .v{font-size:clamp(28px,7.5vw,42px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:var(--red)}
+.hero .sp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.hero .sp span{display:block;font-size:11px;color:var(--tx3)}
+.hero .sp b{font-size:16px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.hero .sp .k2 b{color:var(--kw)} .hero .sp .u2 b{color:var(--usd)} .hero .sp .n2 b{color:var(--ns)}
+
+.eq{background:rgba(145,132,217,.08);border:1px solid #4a4472;border-radius:12px;padding:14px 16px;
+margin:11px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.7px;
+color:var(--tx2);line-height:2.1;text-align:center}
+.eq b{color:var(--ac2)}.eq .g{color:#8f93a6}
+
+.tx{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin-bottom:9px}
+.tx .w{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--tx3);
+word-break:break-all;margin-bottom:9px}
+.tx .r{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding:5px 0}
+.tx .r+.r{border-top:1px solid var(--line)}
+.tx .r time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--tx3);white-space:nowrap}
+.tx .r .d{font-size:12.6px;color:var(--tx2)}
+.tx .r .d code{background:rgba(145,132,217,.13);border-radius:4px;padding:1px 6px;
+font-size:11.6px;color:var(--ac2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.tx .r b{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tx .fin{margin-top:10px;padding-top:10px;border-top:1px solid var(--line2);font-size:12.7px;color:var(--tx2)}
+.tx .fin b{color:var(--gold);font-variant-numeric:tabular-nums}
+
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:0 14px}
+table{width:100%;border-collapse:collapse;font-size:12.9px;min-width:500px}
+th{color:var(--tx3);font-size:11.4px;font-weight:600;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+th.l,td.l{text-align:left}
+td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .k2{display:block;color:var(--tx3);font-size:11px;margin-top:2px;font-weight:400}
+tr.sum td{background:#20222f;font-weight:800;border-top:1px solid var(--line2)}
+td.v{font-weight:700}
+.rd{color:var(--red)}.gd{color:var(--green)}.wd{color:var(--gold)}.kwc{color:var(--kw)}.usc{color:var(--usd)}
+
+.chk{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:11px 0}
+.chk div{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:10px;padding:11px 13px;text-align:center}
+.chk span{display:block;font-size:11px;color:var(--tx3);margin-bottom:3px}
+.chk b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.chk .ok b{color:var(--green)}
+
+.lnk{display:block;background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:10px;
+padding:11px 13px;margin-bottom:8px;text-decoration:none;transition:border-color .12s}
+.lnk:hover{border-color:var(--ac)}
+.lnk b{display:block;font-size:13px;color:var(--tx);margin-bottom:3px}
+.lnk code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.8px;color:var(--tx3);word-break:break-all}
+
+.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
+.note h3{margin:0 0 8px;font-size:13.6px;color:#e5cd6b}
+.note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+.note ul{margin:7px 0 0;padding-left:20px;font-size:12.8px;color:var(--tx2)}
+.note li{margin-bottom:6px}.note li:last-child{margin:0}
+.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+.ok2{background:rgba(63,157,120,.07);border-color:#2c5c48}.ok2 h3{color:var(--green)}
+@media(max-width:700px){.hero .sp,.chk{grid-template-columns:1fr}.tx .r{grid-template-columns:1fr;gap:2px}}
+@media(max-width:520px){.box,.note{padding:13px}h2{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>채무 산출 근거</h1>
+<div class="tag">KWT · 테더 · NSS 전부 · 폴리곤 온체인 실측 · 누구나 같은 숫자를 뽑을 수 있습니다 · 기준 2026-08-31</div>
+
+<div class="hero">
+  <div class="k">회사가 참여자에게 갚아야 할 남은 채무</div>
+  <div class="v num" id="h"></div>
+  <div class="sp">
+    <div class="k2"><span>KWT</span><b class="num" id="s1"></b></div>
+    <div class="u2"><span>테더 (기존)</span><b class="num" id="s2"></b></div>
+    <div class="n2"><span>NSS (6/1~)</span><b class="num" id="s3"></b></div>
+  </div>
+</div>
+
+<h2><i>1</i>계산식은 딱 하나입니다</h2>
+<div class="eq">
+결제한 돈 <span class="g">×</span> <b>2.4</b> <span class="g">=</span> 슈퍼세이브 &nbsp;<span class="g">+</span>&nbsp; 결제한 돈 <span class="g">×</span> <b>1.2</b> <span class="g">=</span> 외매권<br>
+<span class="g">─────────────────────────</span><br>
+결제한 돈 <span class="g">×</span> <b>3.6</b> <span class="g">=</span> 총 채무 &nbsp;<span class="g">−</span>&nbsp; 지급한 금액 <span class="g">=</span> <b>남은 채무</b>
+</div>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">구분</th><th>결제한 돈</th><th>슈퍼세이브</th><th>외매권</th><th>총 채무</th><th>지급</th><th>남은 채무</th></tr></thead>
+<tbody id="t1"></tbody></table></div></div>
+
+<h2><i>2</i>KWT — 실제 거래로 확인</h2>
+<p class="sub">참여자가 KWT를 내고 권리를 받는 과정이 체인에 그대로 남아 있습니다. 지갑 주소를 폴리곤스캔에 넣으면 바로 나옵니다.</p>
+<div id="txk"></div>
+<div class="note ok2">
+<h3>단가가 정확히 50,000 KWT로 떨어집니다</h3>
+<p>결제한 KWT를 발급 원문의 SUT 수량으로 나누면 <b>50,000</b>이 나옵니다.
+서로 다른 지갑, 서로 다른 금액인데 같은 값입니다. <b>추정이 아니라 회사가 쓰는 실제 단가</b>입니다.</p>
+</div>
+
+<h2><i>3</i>테더 — 같은 방식으로 확인</h2>
+<div id="txu"></div>
+
+<h2><i>4</i>외매권은 어떻게 넣었나</h2>
+<p class="sub">발급 원문(IDM)에 금액이 안 적혀 있어서, 다른 방법으로 풀었습니다.</p>
+<div class="box">
+  <p style="margin:0 0 10px;font-size:12.9px;color:var(--tx2)">
+  <b style="color:var(--tx)">참여자와 소개자가 같은 SUT를 냅니다.</b>
+  1,000만 KWT로 참여하며 200 SUT를 넣으면, 소개자도 같은 200 SUT를 내고 1,200만 KWT를 받을 권리가 생깁니다.
+  이 둘이 각각 IDM에 한 장씩 기록됩니다.</p>
+  <p style="margin:0 0 11px;font-size:12.9px;color:var(--tx2)">
+  그러면 <b style="color:var(--tx)">전체 IDM에 적힌 SUT의 절반이 참여자 몫</b>이어야 합니다. 검산해 봤습니다.</p>
+  <div class="chk">
+    <div><span>KWT 전체 IDM SUT</span><b class="num" id="c1"></b></div>
+    <div><span>절반 ÷ 참여 결제</span><b class="num" id="c2"></b></div>
+    <div class="ok"><span>2번에서 실측한 단가</span><b class="num">50,000</b></div>
+  </div>
+  <p style="margin:0;font-size:12.9px;color:var(--tx2)">
+  <b style="color:var(--green)" id="c3"></b> 서로 다른 방법으로 구한 값이 이만큼 붙는 건 우연이 아닙니다.
+  같은 구조가 SUT 데이터에서도 나옵니다 — <b style="color:var(--tx)">1,000 USDT 참여에 3,600 SUT</b>가 들어가는데,
+  본인 1,800(→2,400 수령) + Pairs 1,800(→1,200 수령)입니다.</p>
+</div>
+
+<h2><i>5</i>월별 결제 원자료</h2>
+<p class="sub">CC2C 수금지갑으로 들어온 금액 중 권리가 발급된 것만 월별로 묶었습니다. 아래 합계가 위 계산의 출발점입니다.</p>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">월</th><th>KWT 결제</th><th>테더 결제 (USDT)</th></tr></thead>
+<tbody id="t2"></tbody></table></div></div>
+
+<h2><i>6</i>누구나 직접 검증하는 법</h2>
+<div class="box">
+  <a class="lnk" href="https://polygonscan.com/token/0x435001Af7fC65B621B0043df99810B2f30860c5d?a=0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">
+    <b>KWT 수금지갑 내역 열기 ↗</b>
+    <code>polygonscan.com/token/0x435001Af…860c5d?a=0xaaa4d5dd…89cc2c</code></a>
+  <a class="lnk" href="https://polygonscan.com/token/0xc2132D05D31c914a87C6611C10748AEb04B58e8F?a=0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">
+    <b>테더 수금지갑 내역 열기 ↗</b>
+    <code>polygonscan.com/token/0xc2132D05…4B58e8F?a=0xaaa4d5dd…89cc2c</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0x0a594e644211d9118d473860371bb321774a1849" target="_blank" rel="noopener">
+    <b>위 KWT 샘플 지갑 열기 ↗</b>
+    <code>0x0a594e644211d9118d473860371bb321774a1849</code></a>
+  <p style="margin:11px 0 0;font-size:12.7px;color:var(--tx2)">
+  <b style="color:var(--tx)">발급 원문 보는 법</b> — 발급 트랜잭션의 Input Data를 UTF-8로 바꿔 보면
+  <code style="background:rgba(145,132,217,.13);border-radius:4px;padding:1px 6px;font-size:11.6px;color:var(--ac2)">DeCT,시작일,만료일,SUT 수량,결제통화</code>
+  형식의 평문이 그대로 적혀 있습니다. 시작일과 만료일이 정확히 1년 차이라는 것도 여기서 확인됩니다.</p>
+  <p style="margin:9px 0 0;font-size:12.7px;color:var(--tx2)">
+  <b style="color:var(--tx)">합계를 직접 세려면</b> 함께 드린 검증 스크립트(<code style="background:rgba(145,132,217,.13);border-radius:4px;padding:1px 6px;font-size:11.6px;color:var(--ac2)">verify.py</code>)를 돌리면 됩니다.
+  무료 API 키만 있으면 누구나 같은 숫자가 나옵니다. <b style="color:var(--tx)">다른 값이 나오면 알려주십시오.</b></p>
+</div>
+
+<div class="note warn">
+<h3>스캔할 때 반드시 주의할 것</h3>
+<p><b>중복 제거는 (시각 + 보낸주소 + 받은주소 + 금액)으로 해야 합니다.</b>
+폴리곤 API가 logIndex를 주지 않아, 거래해시만으로 묶으면 <b>한 번에 여러 명에게 보낸 전송이 통째로 뭉개집니다.</b>
+저도 처음에 이 함정에 빠져 지급액을 절반 이하로 잘못 셌습니다.</p>
+<p><b>심볼로 필터하면 안 됩니다.</b> <code style="color:var(--red)">UЅDТ</code>(키릴 문자) 같은 사칭 토큰이 많습니다.
+반드시 컨트랙트 주소로 거르십시오.</p>
+</div>
+
+<div class="note">
+<h3>확실한 것과 전제인 것</h3>
+<p><b>확실</b> — 수금지갑이 받은 KWT·테더 금액, 각 거래의 시각과 해시, 발급 원문에 적힌 SUT 수량·결제통화·시작일·만료일,
+회사가 참여자에게 보낸 금액. 전부 체인에 기록된 값이고 누구나 같은 숫자를 뽑을 수 있습니다.</p>
+<p><b>전제</b> — 배수 2.4, 외매권 배수 1.2, 기간 52주. 공식 안내의 "1,000 USDT 참여 시 주정산 46.02"와 맞습니다
+(1,000 × 2.4 ÷ 52 = 46.15). 앱 화면과 다르면 알려주십시오. 다시 계산하겠습니다.</p>
+<p><b>회사에 유리하게 잡은 부분</b> — "지급한 금액"에는 주정산·외매권 정산 말고 <b>소개수당</b>도 섞여 있습니다.
+그만큼 남은 채무가 실제보다 작게 나옵니다.</p>
+</div>
+
+<div class="note">
+<h3>빠져 있는 것</h3>
+<ul>
+  <li><b>현금(KRW) 결제분</b> — 발급 내역의 7.5%가 현금 결제인데 온체인에 기록이 없습니다.</li>
+  <li><b>KWT는 명목가입니다</b> — 1 KWT = 1원으로 환산했습니다. 회사가 발행한 토큰이라 실제 시장가치와 다를 수 있습니다.
+  실질 현금 채무는 테더 쪽입니다.</li>
+  <li><b>이자와 지연손해금</b> — 넣지 않았습니다.</li>
+</ul>
+</div>
+</div>
+<script>const D=
+{"rows":[{"nm":"KWT","pay":7548415221945.537,"ss":18116196532669.29,"oe":9058098266334.645,"tot":27174294799003.934,"paid":4645875987173.65,"rem":22528418811830.28,"wk":349950000000.0},{"nm":"테더 (기존)","pay":268299612945.17776,"ss":643919071068.4266,"oe":321959535534.2133,"tot":965878606602.64,"paid":443015788470.6413,"rem":522862818131.9987,"wk":18300000000.0},{"nm":"NSS (6/1~)","pay":3204979546.0130005,"ss":7691950910.431201,"oe":3845975455.2156005,"tot":11537926365.646803,"paid":4962987470.31728,"rem":6574938895.329523,"wk":150000000.0}],"TT":28151711331972.223,"TP":5093854763114.609,"TR":23057856568857.61,"TW":368400000000.0,"idm":{"KWT":307141260,"USDT":100949853,"KRW":37848238},"rate_k":49152.72680684801,"kwt_n":1338693,"usdt_n":594899,"mk":{"2025-04":132681384990,"2025-05":465001175041,"2025-06":540513755485,"2025-07":704048899650,"2025-08":652404728783,"2025-09":579559346392,"2025-10":666678074515,"2025-11":734956762293,"2025-12":773981241373,"2026-01":790777895434,"2026-02":650159432284,"2026-03":446436876322,"2026-04":302828877200,"2026-05":108386772184},"mu":{"2025-03":567400,"2025-04":651077,"2025-05":225907,"2025-06":279324,"2025-07":306891,"2025-08":256900,"2025-09":333800,"2025-10":693956,"2025-11":1674354,"2025-12":16846494,"2026-01":32017706,"2026-02":38212029,"2026-03":35182596,"2026-04":43881557,"2026-05":20512588,"2026-06":328550,"2026-07":1113268,"2026-08":847453},"samp_k":[{"w":"0x0a594e644211d9118d473860371bb321774a1849","t1":"2025-04-28 09:06:58","pay":7000000,"t2":"2025-04-28 09:16:57","idm":"DeCT,2025-Apr-29,2026-Apr-28,SUT 140,KWT","gap":599,"sut":140},{"w":"0x13af928645796e7809dd8065f61341faf4ac261e","t1":"2025-04-28 04:25:16","pay":1000000,"t2":"2025-04-28 04:31:50","idm":"DeCT,2025-Apr-29,2026-Apr-28,SUT 20,KWT","gap":394,"sut":20}],"samp_u":[{"w":"0x…","t1":"2025-03-28 05:46:16","pay":1800,"t2":"2025-03-28 05:47:44","idm":"DeCT,2025-Mar-29,2026-Mar-28,SUT 307.6,USDT","gap":88,"sut":307.6}]};
+const $=i=>document.getElementById(i);
+const n=v=>Math.round(v).toLocaleString();
+const Z=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(2)+'조원':Math.round(v/1e8).toLocaleString()+'억원';
+const CC={'KWT':'kwc','테더 (기존)':'usc','NSS (6/1~)':'gd'};
+$('h').textContent=Z(D.TR);
+$('s1').textContent=Z(D.rows[0].rem); $('s2').textContent=Z(D.rows[1].rem); $('s3').textContent=Z(D.rows[2].rem);
+$('t1').innerHTML=D.rows.map(r=>`<tr><td class="l"><b class="${CC[r.nm]}">${r.nm}</b></td>
+ <td>${Z(r.pay)}</td><td>${Z(r.ss)}</td><td class="wd">${Z(r.oe)}</td>
+ <td class="v">${Z(r.tot)}</td><td style="color:#8f93a6">${Z(r.paid)}</td>
+ <td class="v rd">${Z(r.rem)}</td></tr>`).join('')
++`<tr class="sum"><td class="l">합계</td><td></td><td></td><td></td>
+ <td>${Z(D.TT)}</td><td>${Z(D.TP)}</td><td class="rd">${Z(D.TR)}</td></tr>`;
+function tx(s,cur,unit){
+ const rate=s.pay/s.sut;
+ return `<div class="tx"><div class="w">지갑 ${s.w}</div>
+  <div class="r"><time>${s.t1}</time><div class="d">참여자 → 회사 수금지갑 <b style="color:var(--tx)">결제</b></div>
+   <b class="${cur==='KWT'?'kwc':'usc'}">${n(s.pay)} ${unit}</b></div>
+  <div class="r"><time>${s.t2}</time><div class="d"><b style="color:var(--tx)">권리 발급</b> <code>${s.idm}</code> · ${s.gap}초 뒤</div>
+   <b style="color:var(--ac2)">SUT ${s.sut}</b></div>
+  <div class="fin">단가 ${n(s.pay)} ÷ ${s.sut} = <b>${n(rate)} ${unit}/SUT</b>
+   &nbsp;·&nbsp; 슈퍼세이브 신용대금 ${n(s.pay*2.4)} ${unit}
+   &nbsp;·&nbsp; 외매권 ${n(s.pay*1.2)} ${unit}</div></div>`;
+}
+$('txk').innerHTML=D.samp_k.map(s=>tx(s,'KWT','KWT')).join('');
+$('txu').innerHTML=D.samp_u.map(s=>tx(s,'USDT','USDT')).join('')
+ +`<p style="margin:9px 0 0;font-size:12.7px;color:var(--tx2)">테더도 같습니다 — 결제 1,800 USDT에 SUT 307.6이 발급됐고,
+   단가는 <b style="color:var(--tx)">5.85 USDT/SUT</b>입니다. 88초 만에 짝지어졌습니다.</p>`;
+$('c1').textContent=n(D.idm.KWT);
+$('c2').textContent=n(D.rate_k)+' KWT';
+$('c3').textContent='오차 '+(Math.abs(D.rate_k/50000-1)*100).toFixed(1)+'%로 맞습니다.';
+const ms=[...new Set([...Object.keys(D.mk),...Object.keys(D.mu)])].sort();
+$('t2').innerHTML=ms.map(m=>`<tr><td class="l"><b>${m}</b></td>
+ <td class="kwc">${D.mk[m]?n(D.mk[m]):'—'}</td><td class="usc">${D.mu[m]?n(D.mu[m]):'—'}</td></tr>`).join('')
++`<tr class="sum"><td class="l">합계</td>
+ <td>${n(Object.values(D.mk).reduce((a,b)=>a+b,0))}</td>
+ <td>${n(Object.values(D.mu).reduce((a,b)=>a+b,0))}</td></tr>`;
+</script>
+</body>
+</html>

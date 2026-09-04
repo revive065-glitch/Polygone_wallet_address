@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>외매권 소각 시 줄어드는 잔여신용대금</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+:root{--bg:#161826;--panel:#1c1e2c;--line:#292b31;--line2:#3f424d;--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;
+--ac:#9184d9;--red:#e0857f;--green:#5fd6a6;--gold:#c9a227}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.55;
+font-family:"Inter",system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:16px 14px 60px}
+h1{font-size:18.5px;margin:0 0 3px;letter-spacing:-.5px}
+.tag{color:var(--tx3);font-size:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.par{background:#1e2130;border:1px solid var(--line2);border-radius:12px;padding:11px 13px;margin-bottom:13px;
+display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
+.par label{display:block;font-size:11px;color:var(--tx3);margin-bottom:4px}
+.par input{width:100%;background:#232532;border:1px solid var(--line);color:var(--tx);border-radius:8px;
+padding:8px 10px;font:inherit;font-size:13.5px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto;margin:0 -14px;padding:0 14px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+th{color:var(--tx3);font-size:11.2px;font-weight:600;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2)}
+th.l,td.l{text-align:left}
+td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;background:var(--panel)}
+td .k{display:block;color:var(--tx3);font-size:11px;margin-top:2px}
+tr.sum td{background:#20222f;font-weight:800;border-top:1px solid var(--line2)}
+tr.cut td{background:#1e2a25}tr.cut td.l b{color:var(--green)}tr.cut td.v{color:var(--green)}
+td.v{font-weight:700;font-size:14px}tr.sum td.v{color:var(--red);font-size:15px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:13px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.card .k{font-size:11.2px;color:var(--tx3);margin-bottom:4px}
+.card .v{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.card .s{font-size:11.2px;color:var(--tx2);margin-top:4px}
+.card.g .v{color:var(--green)}.card.hot .v{color:var(--red)}
+.note{background:rgba(208,90,90,.07);border:1px solid #6e3535;border-radius:12px;padding:12px 14px;margin-top:13px}
+.note h3{margin:0 0 6px;font-size:13px;color:var(--red)}
+.note p{margin:0 0 6px;font-size:12.3px;color:var(--tx2);line-height:1.7}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+@media(max-width:600px){.cards{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<h1>외매권을 소각하면 줄어드는 잔여신용대금</h1>
+<div class="tag">2026-05-18 이전 참여분만 · 뉴슈세 제외 · 테더(USDT) 결제 계열 · 기준 2026-08-31</div>
+<div class="par">
+<div><label>슈퍼세이브 배수</label><input type="number" id="a" step="0.1" value="2.4"></div>
+<div><label>외매권 배수</label><input type="number" id="b" step="0.1" value="1.2"></div>
+<div><label>인정 이익 (%)</label><input type="number" id="c" step="1" value="20"></div>
+<div><label>USDT 환율</label><input type="number" id="d" step="10" value="1400"></div>
+</div>
+<div class="tw"><table><thead><tr><th class="l">구분</th><th>신용대금</th><th>잔여 신용대금</th><th>주정산 (주당)</th></tr></thead><tbody id="t"></tbody></table></div>
+<div class="cards" id="cd"></div>
+<div class="note"><h3>꼭 확인하셔야 할 점</h3>
+<p><b>“주정산 140억”에는 외매권이 들어있지 않습니다.</b> 140억은 참여자가 테더를 실제로 낸 슈퍼세이브만 계산한 값입니다.
+외매권은 SUT만 내고 참여해 테더 결제 기록이 없으므로, <b>140억 위에 따로 얹혀 있는 부담</b>입니다.</p>
+<p>그래서 외매권을 소각해도 <b>140억이 60억으로 내려가는 것이 아니라, 195억이 140억으로 내려갑니다.</b>
+줄어드는 폭은 <span id="pc"></span>입니다.</p>
+<p><b>산출 방법</b> — 발급지갑 5곳의 DeCT 발급 내역 109만 건을 읽어, 결제통화가 USDT인 건을 CC2C 입금과 ±40분 안에서 짝지었습니다.
+짝이 있으면 슈퍼세이브, 없으면 외매권입니다. 외매권 신용대금은 슈퍼세이브에서 측정한 단가(<span id="rt"></span> USDT/DeCT)에 외매권 배수를 곱해 환산했습니다.
+테더 결제 기준 커버리지 <span id="cv"></span>이며, 그 비율로 전체를 보정했습니다.</p>
+<p><b>소각 기준</b> — 투입 SUT의 <span id="ic"></span>% 이상을 이미 받은 건은 잔여를 전부 소각. 총액 대비 <span id="tc"></span>%에 해당하며,
+52주 기준 <span id="wk"></span>주가 지나면 도달합니다. 즉 <b>2026-03-18 이전 참여 외매권은 전액 소각 대상</b>입니다.</p>
+</div>
+</div><script>const D=
+{"sup":{"tot":520642052,"rem":450657628.87093246,"wk":10012347.0},"oe":{"tot":206877639.2903134,"rem":179719998.43614644,"wk":3961724.7064125664},"burn":169689195.6489121,"keep":10030802.787369754,"nb":48978,"nk":82283,"cov":0.7419891835621509,"sup_n":141254,"oe_n":139249,"sp":51786396.80000407,"op":49744863.00000208,"krw":1400,"rate":3.1619};const $=i=>document.getElementById(i);let P={a:2.4,b:1.2,c:20,d:1400};
+const f=v=>Math.round(v).toLocaleString();
+const w=v=>{v=Math.abs(v)*P.d;return v>=1e12?(v/1e12).toFixed(2)+'조원':Math.round(v/1e8).toLocaleString()+'억원'};
+function R(){
+ const ka=P.a/2.4, kb=P.b/1.2;
+ const S={tot:D.sup.tot*ka,rem:D.sup.rem*ka,wk:D.sup.wk*ka};
+ const O={tot:D.oe.tot*kb,rem:D.oe.rem*kb,wk:D.oe.wk*kb};
+ const thr=(P.c/100)/P.b;                  // 총액 대비 인정 비율
+ const scale=(P.c/20)*(1.2/P.b);
+ const burn=D.burn*kb*Math.min(1.6,Math.max(.4,1)), keep=D.keep*kb*(P.c/20);
+ const bn=Math.max(0,O.rem-keep);
+ const row=(n,g,cls)=>`<tr class="${cls||''}"><td class="l"><b>${n}</b></td>
+  <td class="v">${f(g.tot)}<span class="k">${w(g.tot)}</span></td>
+  <td class="v">${f(g.rem)}<span class="k">${w(g.rem)}</span></td>
+  <td class="v">${f(g.wk)}<span class="k">${w(g.wk)} / 주</span></td></tr>`;
+ const T={tot:S.tot+O.tot,rem:S.rem+O.rem,wk:S.wk+O.wk};
+ $('t').innerHTML=row('슈퍼세이브 (테더 결제)',S)+row('외매권 (SUT만 참여)',O)+row('합계',T,'sum')
+  +row('외매권 소각 후',{tot:S.tot,rem:S.rem+keep,wk:S.wk},'cut');
+ const dr=T.rem-(S.rem+keep), dw=T.wk-S.wk;
+ $('cd').innerHTML=
+  `<div class="card g"><div class="k">소각되는 잔여 신용대금</div><div class="v">${f(dr)}</div><div class="s">${w(dr)} · 전체의 ${(dr/T.rem*100).toFixed(1)}%</div></div>`
+ +`<div class="card g"><div class="k">줄어드는 주정산액</div><div class="v">${f(dw)}</div><div class="s">${w(dw)} / 주 · ${(dw/T.wk*100).toFixed(1)}% 감소</div></div>`
+ +`<div class="card hot"><div class="k">소각 후에도 남는 주정산액</div><div class="v">${f(S.wk)}</div><div class="s">${w(S.wk)} / 주 — 이건 안 줄어듭니다</div></div>`;
+ $('pc').textContent=`잔여 ${(dr/T.rem*100).toFixed(1)}%, 주정산 ${(dw/T.wk*100).toFixed(1)}%`;
+ $('rt').textContent=D.rate.toFixed(3);
+ $('cv').textContent=(D.cov*100).toFixed(1)+'%';
+ $('ic').textContent=P.c; $('tc').textContent=(thr*100).toFixed(1);
+ $('wk').textContent=(52*thr).toFixed(2);
+}
+for(const k of ['a','b','c','d'])$(k).addEventListener('input',e=>{const v=parseFloat(e.target.value);if(!isNaN(v)&&v>0){P[k]=v;R();}});
+R();</script></body></html>

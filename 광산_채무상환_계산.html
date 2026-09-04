@@ -91,9 +91,9 @@ td.v{font-weight:800;font-size:15px}
 </div>
 
 <div class="hero">
-  <div class="k">남은 신용대금 전액을 갚으려면</div>
-  <div class="v num">13.67조원</div>
-  <div class="s">그때 <b>1 MPC = 1,367원</b></div>
+  <div class="k">남은 채무 전액을 갚으려면</div>
+  <div class="v num">23.06조원</div>
+  <div class="s">그때 <b>1 MPC = 2,306원</b></div>
 </div>
 
 <h2>광산 수익을 넣어 보십시오</h2>
@@ -103,8 +103,8 @@ td.v{font-weight:800;font-size:15px}
   <div class="quick" id="qk"></div>
   <div class="res">
     <div id="r1"><span>그때 1 MPC 가격</span><b class="num" id="v1"></b><em id="e1"></em></div>
-    <div id="r2"><span>남은 신용대금 상환</span><b class="num" id="v2"></b><em id="e2"></em></div>
-    <div id="r3"><span>총 신용대금 전액 상환</span><b class="num" id="v3"></b><em id="e3"></em></div>
+    <div id="r2"><span>남은 채무 상환</span><b class="num" id="v2"></b><em id="e2"></em></div>
+    <div id="r3"><span>총 채무 전액 상환</span><b class="num" id="v3"></b><em id="e3"></em></div>
     <div id="r4"><span>테더 남은 분 상환</span><b class="num" id="v4"></b><em id="e4"></em></div>
   </div>
 </div>
@@ -117,23 +117,24 @@ td.v{font-weight:800;font-size:15px}
 
 <div class="note warn">
 <h3>15조원이면 어디까지 갚나</h3>
-<p>말씀하신 <b>15조원 (1 MPC = 1,500원)</b>이면 <b>남은 신용대금 13.67조원은 갚고 1.33조원이 남습니다.</b>
-다만 <b>총 신용대금 18.77조원 전액은 못 갚습니다.</b> 3.77조원이 모자랍니다.</p>
-<p>총 신용대금까지 다 갚으려면 <b>18.77조원, 즉 1 MPC = 1,877원</b>이 필요합니다.</p>
+<p>말씀하신 <b>15조원 (1 MPC = 1,500원)</b>이면 <b>남은 채무 23.06조원에 8.06조원이 모자랍니다.</b>
+총 채무 28.15조원 전액은 13.15조원이 부족합니다.</p>
+<p>남은 채무를 다 갚으려면 <b>23.06조원, 즉 1 MPC = 2,306원</b>이 필요합니다.
+총 채무 전액이면 <b>28.15조원, 1 MPC = 2,815원</b>입니다.</p>
 </div>
 
 <div class="note">
 <h3>테더와 KWT는 성격이 다릅니다</h3>
-<p><b>테더분은 참여자가 실제 현금으로 넣은 돈</b>입니다. 아직 안 준 <b>2,036억원</b>만 갚는다면
-<b>1 MPC = 20원</b>이면 됩니다. 광산 수익 2,036억원이면 되는 셈이라, 훨씬 현실적인 숫자입니다.</p>
-<p>나머지 18.12조원은 KWT분이고, <b>1 KWT = 1원이라는 명목가</b> 위에 세워진 금액입니다.
+<p><b>테더분은 참여자가 실제 현금으로 넣은 돈</b>입니다. 아직 안 준 <b>5,294억원</b>만 갚는다면
+<b>1 MPC = 53원</b>이면 됩니다. 광산 수익 5,294억원이면 되는 셈이라, 훨씬 현실적인 숫자입니다.</p>
+<p>나머지 27.17조원은 KWT분이고, <b>1 KWT = 1원이라는 명목가</b> 위에 세워진 금액입니다.
 회사가 KWT를 더 발행해 갚을 수도 있는 채무를 광산 수익으로 환산하는 것이 맞는지는 따로 볼 문제입니다.</p>
 </div>
 
 <div class="note">
 <h3>계산 기준</h3>
 <p><b>채무 금액</b>은 CC2C 수금지갑 유입 중 실제 권리 발급으로 이어진 참여 결제만 골라
-발급 내역 189만 건과 대조해 계산했습니다. <b>총 신용대금 = 투입한 돈 × 2.4</b>, <b>남은 신용대금 = 총 신용대금 − 회사가 실제로 지급한 금액</b>입니다.</p>
+발급 내역 189만 건과 대조해 계산했습니다. <b>총 채무 = 결제한 돈 × 3.6</b>(슈퍼세이브 2.4 + 외매권 1.2), <b>남은 채무 = 총 채무 − 회사가 실제로 지급한 금액</b>입니다.</p>
 <p><b>MPC 발행량 100억 개</b>는 폴리곤 컨트랙트에서 확인한 총 발행량입니다.</p>
 <p><b>환산</b> — KWT 1개 = 1원(명목), USDT 1개 = 1,400원. 현금(KRW) 참여분은 온체인에 없어 빠져 있습니다.</p>
 <p><b>넣지 않은 것</b> — 광산 개발비·운영비·세금·지분 구조. 광산 수익이 전액 상환에 쓰인다고 가정한 값이라,
@@ -142,7 +143,7 @@ td.v{font-weight:800;font-size:15px}
 
 </div>
 <script>
-const MPC=1e10, TOT=18.77e12, REM=13.67e12, USDT_T=6516e8, USDT_R=2036e8, KWT_T=18.12e12;
+const MPC=1e10, TOT=28.15e12, REM=23.06e12, USDT_T=9774e8, USDT_R=5294e8, KWT_T=27.17e12;
 const $=i=>document.getElementById(i);
 const Z=v=>Math.abs(v)>=1e12?(v/1e12).toFixed(2)+'조원':Math.round(v/1e8).toLocaleString()+'억원';
 const W=v=>v>=1?Math.round(v).toLocaleString()+'원':v.toFixed(2)+'원';
@@ -157,14 +158,14 @@ function render(){
     $('e'+k).textContent=(ok?'여유 ':'모자람 ')+Z(Math.abs(gap))+' · 필요 '+Z(d);
   });
 }
-$('qk').innerHTML=[0.2,2,6.52,13.67,15,18.77].map(v=>`<button data-v="${v}">${v}조</button>`).join('');
+$('qk').innerHTML=[0.53,5,15,23.06,28.15,40].map(v=>`<button data-v="${v}">${v}조</button>`).join('');
 $('qk').addEventListener('click',e=>{const b=e.target.closest('button'); if(b){$('rev').value=b.dataset.v; render();}});
 $('rev').addEventListener('input',render);
 $('tb').innerHTML=[
  ['테더 남은 분','참여자 현금 · 아직 안 준 몫',USDT_R],
- ['테더 전액','참여자 현금 · 총 신용대금',USDT_T],
- ['남은 신용대금 전체','KWT + 테더 · 아직 안 준 몫',REM],
- ['총 신용대금 전체','KWT + 테더 · 전액',TOT],
+ ['테더 전액','참여자 현금 · 총 채무',USDT_T],
+ ['남은 채무 전체','KWT + 테더 · 아직 안 준 몫',REM],
+ ['총 채무 전체','KWT + 테더 · 슈퍼세이브 + 외매권',TOT],
 ].map(([nm,d,v],i)=>`<tr class="${i===2?'hi':''}"><td class="l"><b>${nm}</b><span class="k2">${d}</span></td>
  <td class="v">${Z(v)}</td><td class="v wd">${Z(v)}</td><td class="v" style="color:var(--ac2)">${W(v/MPC)}</td></tr>`).join('');
 render();
