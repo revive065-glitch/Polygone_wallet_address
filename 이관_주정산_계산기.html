@@ -55,6 +55,11 @@ background:rgba(255,255,255,.06);color:var(--tx3)}
 .cmp .r span{font-size:11.6px;color:var(--tx3)}
 .cmp .r b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 .dlt{text-align:center;font-size:13px;font-weight:700;color:var(--green);margin:2px 0 12px}
+
+#pxt tr.cur td{background:rgba(145,132,217,.12)}
+#pxt tr.cur td:first-child b{color:var(--ac2)}
+#pxt tr.neg td.v{color:var(--red)}
+#pxt td.fix{color:var(--tx3)}
 .in label{display:block;font-size:11.8px;color:var(--tx3);margin-bottom:6px}
 .in input{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--tx);
 border-radius:10px;padding:13px 15px;font:inherit;font-size:22px;font-weight:800;
@@ -116,6 +121,8 @@ td.v{font-weight:700}
 @media(max-width:700px){.mile{grid-template-columns:1fr}}
 @media(max-width:560px){.out,.in,.in2,.cmp{grid-template-columns:1fr}.box,.note,.qa,.calc{padding:13px}
 .step{grid-template-columns:26px 1fr;row-gap:4px}.step .r{grid-column:2;text-align:left}}
+.note.ok3{background:rgba(95,214,166,.07);border:1px solid #2f6b55}
+.note.ok3 h3{color:var(--green)}
 </style>
 </head>
 <body>
@@ -193,6 +200,27 @@ td.v{font-weight:700}
 소요량이 반이 된 이득보다 단가가 2.38배인 손해가 조금 더 큽니다.</p>
 </div>
 
+<h2>SUT 가격이 바꾸는 것 — 주정산이 아니라 실수령</h2>
+<p class="sub">헷갈리기 쉬운 부분이라 따로 뗐습니다. 지금 입력한 잔신·이관률·소요량 기준입니다.</p>
+<div class="note ok3">
+<h3>주정산은 SUT 가격과 아무 상관이 없습니다</h3>
+<p><b>주정산 = 합산 잔신 ÷ 52.142857.</b> 이 식에 SUT는 들어가지 않습니다.
+SUT가 10원이든 1만원이든 <b>매주 승인되는 금액은 똑같습니다.</b></p>
+<p>SUT 가격은 <b>그 주정산에서 얼마를 도로 내놓아야 하는지</b>만 바꿉니다.
+듀티(의무참여)로 30%가 묶이고, 그 재참여에 필요한 SUT를 시장에서 사야 하는데
+<b>그 SUT 값이 비싸질수록 손에 남는 게 줄어드는</b> 구조입니다.</p>
+<p>208주 시뮬레이션을 SUT $0.278 · $0.647 · $2.00으로 각각 돌려봤더니
+<b>주정산 경로는 세 경우가 완전히 동일</b>했습니다 (314.52 → 373.44 → 449.84 → 649.14 → …).
+달라지는 건 실수령 줄뿐입니다.</p>
+</div>
+<div class="box"><div class="tw"><table>
+<thead><tr><th class="l">SUT 가격</th><th>주정산</th><th>의무참여</th><th>SUT 매수</th><th>실수령</th><th>1,000 회수</th></tr></thead>
+<tbody id="pxt"></tbody></table></div></div>
+<div class="note warn" id="bebox">
+<h3 id="beh"></h3>
+<p id="bep"></p>
+</div>
+
 <h2>계산 순서</h2>
 <div class="box"><div class="steps" id="sp"></div></div>
 
@@ -235,7 +263,8 @@ td.v{font-weight:700}
   <li><b>"비율은 변동 가능"</b>이라고 적혀 있습니다. 20%가 확정이 아니라 위 이관률 칸을 바꿔가며 보십시오.</li>
   <li><b>MPC를 이관비율만큼 반환</b>해야 합니다. 위 계산에는 안 들어 있습니다.</li>
   <li><b>초대자 재지정이 필수</b>입니다. 안 하면 회사 계정으로 갑니다.</li>
-  <li><b>SUT 가격이 오르면 실수령이 줄어듭니다.</b> 매주 사야 하는 재참여용 SUT가 비싸지기 때문입니다.</li>
+  <li><b>SUT 가격이 올라도 주정산은 그대로입니다.</b> 줄어드는 것은 실수령입니다 —
+  매주 사야 하는 재참여용 SUT가 비싸지기 때문입니다.</li>
 </ul>
 </div>
 
@@ -330,6 +359,28 @@ function render(){
       <div class="r"><span>SUT 매수</span><b style="color:var(--red)">${f2(x.sut)}</b></div>
       <div class="r"><span>실수령 (주)</span><b style="color:var(--green)">${f2(x.net)}</b></div>
       <div class="r"><span>1,000 회수</span><b>${wkTxt(x.wks)}</b></div></div>`).join('');
+   /* 가격 민감도 표 + 손익분기 */
+   {const be = c.duty>0 ? (c.pay/c.duty-1)/(SREQ/1000) : null;
+    const list=[...new Set([0.278,0.5,PX,1,1.5,2,be].filter(v=>v&&v>0&&isFinite(v)))]
+      .sort((a,b)=>a-b);
+    $('pxt').innerHTML=list.map(v=>{
+      const x=calc(jan,rt,SREQ,v), isCur=Math.abs(v-PX)<1e-9, isBe=be&&Math.abs(v-be)<1e-9;
+      return `<tr class="${isCur?'cur':''} ${x.net<0?'neg':''}">
+        <td class="l"><b>$${v.toFixed(3)}</b>${isCur?' <em style="font-style:normal;font-size:10.6px;color:var(--ac2)">현재</em>':''}${isBe?' <em style="font-style:normal;font-size:10.6px;color:var(--red)">손익분기</em>':''}</td>
+        <td class="fix">${f2(x.pay)}</td><td class="fix">${n(x.duty)}</td>
+        <td class="rd">${f2(x.sut)}</td><td class="v gd">${f2(x.net)}</td>
+        <td class="v wd">${wkTxt(x.wks)}</td></tr>`;}).join('');
+    if(be){
+      $('beh').textContent=`SUT가 $${be.toFixed(2)}를 넘으면 실수령이 마이너스가 됩니다`;
+      const be18=(c.pay/c.duty-1)/1.8;
+      $('bep').innerHTML=`주정산 ${f2(c.pay)}에서 의무참여 ${n(c.duty)}를 빼고 남는 ${f2(c.pay-c.duty)}로`
+        +` SUT ${n(c.duty*SREQ/1000)}개를 사야 하므로, 개당 <b>$${be.toFixed(2)}</b>가 한계입니다.`
+        +` 그 위로는 <b>듀티를 이행할수록 현금이 나갑니다.</b>`
+        +` 현재 <b>$${PX.toFixed(4)}</b>이니 <b>${(be/PX).toFixed(1)}배</b>까지 버팁니다.`
+        +` 소요량이 1,800이던 시절의 한계는 <b>$${be18.toFixed(2)}</b>(${(be18/PX).toFixed(1)}배)였습니다 —`
+        +` <b>소요량이 절반이 되면서 버티는 폭이 두 배</b>가 됐습니다.`;
+      $('bebox').style.display='';
+    } else { $('bebox').style.display='none'; }}
    const up=A.net>0?(B.net/A.net-1)*100:0;
    $('dl').textContent = A.net>0
      ? `실수령 ${f2(A.net)} → ${f2(B.net)} (${up>=0?'+':''}${up.toFixed(1)}%) · 회수 ${wkTxt(A.wks)} → ${wkTxt(B.wks)}`
