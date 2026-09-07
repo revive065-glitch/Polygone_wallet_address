@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>유동성 풀 직접 운영 검토 보고서</title>
+<meta name="description" content="지금 SUT 풀은 누가 만들고 운영하는가. 회사가 직접 운영할 때의 이점과 위험을 온체인 실측으로 정리한 검토 보고서.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.72;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.doc{font-size:11.5px;color:var(--tx3);letter-spacing:.5px;margin-bottom:6px}
+h1{font-size:24px;line-height:1.34;letter-spacing:-.5px;margin:0 0 8px;font-weight:800}
+h2{font-size:18px;letter-spacing:-.3px;margin:46px 0 12px;font-weight:700;
+ padding-top:20px;border-top:1px solid var(--line);scroll-margin-top:12px}
+h2 .no{color:var(--ac);font-weight:800;margin-right:8px}
+h3{font-size:15px;margin:24px 0 8px;font-weight:700}
+p{margin:11px 0}
+.lede{color:var(--tx2);font-size:14px;margin:0 0 22px}
+em{font-style:normal;color:var(--tx3)}
+a{color:var(--ac)}
+code{font-size:12px;color:var(--tx2);background:#22243a;padding:1px 5px;border-radius:4px;word-break:break-all}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px 16px;margin:16px 0}
+.card.hi{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(201,162,39,.02))}
+.card.ac{border-color:#463f6b;background:linear-gradient(180deg,rgba(145,132,217,.09),rgba(145,132,217,.02))}
+.card.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.10),rgba(217,89,38,.02))}
+.kh{font-size:12px;color:var(--tx3);margin-bottom:5px}
+
+/* 항목 리스트 */
+.items{margin:14px 0}
+.items .it{display:grid;grid-template-columns:26px 1fr;gap:11px;padding:12px 0;border-top:1px solid var(--line)}
+.items .it:first-child{border-top:0}
+.items .n{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;
+ font-size:12px;font-weight:800;margin-top:2px}
+.items.good .n{background:rgba(25,158,112,.18);color:#2bb984;border:1px solid #1d6b50}
+.items.risk .n{background:rgba(217,89,38,.16);color:#e8763f;border:1px solid #7a3c1e}
+.items h4{margin:0 0 3px;font-size:14.5px;font-weight:700}
+.items p{margin:3px 0;font-size:13.5px;color:var(--tx2)}
+.items .num{font-size:12.5px;color:var(--hi);font-weight:700;margin-top:4px}
+
+.spec{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;margin:16px 0}
+.spec .r{display:grid;grid-template-columns:118px 1fr;gap:12px;padding:10px 15px;
+ border-top:1px solid var(--line);font-size:13.5px;align-items:baseline}
+.spec .r:first-child{border-top:0}
+.spec .k{color:var(--tx3);font-size:12px}
+.spec .v{font-weight:600;word-break:break-all}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;white-space:nowrap}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--tx3);font-weight:600;font-size:12px;border-bottom:1px solid var(--line2)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:700}
+td.pk,th.pk{color:var(--hi)} td.dn{color:var(--s2)} td.up{color:var(--s3)}
+ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
+.note{font-size:12.5px;color:var(--tx3);line-height:1.65;margin-top:6px}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc">검토 보고서 · 2026-09-08</div>
+<h1>회사가 유동성 풀을<br>직접 운영한다면</h1>
+<p class="lede">지금 SUT 풀은 누가 만들었고 누가 운영하고 있는지 온체인으로 확인한 뒤,
+회사가 직접 운영할 때의 이점과 위험을 정리했습니다. 모든 수치는 폴리곤 체인 실측입니다.</p>
+
+<div class="card hi">
+  <div class="kh">결론</div>
+  <p style="margin:2px 0 0;font-size:15.5px;line-height:1.7">
+  ① 지금 SUT 유동성은 <b>전부 외부인의 돈</b>입니다. 회사가 넣은 것은 <b>0원</b>이고,
+  회사가 그 풀에서 한 일은 <b>12,000개를 판 것</b>뿐입니다.<br>
+  ② 그 외부 유동성은 <b>빠져나가는 중</b>입니다. 유동성 추가 4,413건 대 <b>제거 5,355건</b>.<br>
+  ③ 회사가 직접 운영하면 <b>이점이 위험보다 큽니다.</b> 다만 <b>공시·키관리·회수규칙</b> 셋을 먼저 갖춰야 합니다.<br>④ <b>기술적 제한은 없습니다.</b> SUT는 2026-07-20에 소유권이 포기돼 정지·추가발행·블랙리스트가 전부 불가능한 상태입니다.</p>
+</div>
+
+<h2 id="s1"><span class="no">1</span>지금 누가 만들고 운영하는가</h2>
+
+<h3>풀을 만든 사람</h3>
+<div class="spec">
+  <div class="r"><div class="k">주풀 개설</div><div class="v">2025-11-01 16:11 KST · <code>0x6cccd2da…275fb</code></div></div>
+  <div class="r"><div class="k">보조풀 개설</div><div class="v">2026-06-12 08:44 KST · <code>0x81ce9d1a…0944b</code></div></div>
+  <div class="r"><div class="k">개설 방법</div><div class="v">유니스왑 공식 인터페이스 (Positions NFT) — 누구나 가능</div></div>
+  <div class="r"><div class="k">회사 계통 연결</div><div class="v" style="color:var(--s3)">없음 — 회사 지갑에서 SUT를 받은 기록 0건</div></div>
+</div>
+<p>주풀 개설자는 <b>LP 포지션 35개</b>를 보유하고 있고 <b>오늘 03:06에도 활동</b>했습니다.
+SUT 이동 850건 중 대부분이 풀 상대이고 순 보유는 <b>+2,660개</b>뿐 — 물량을 쌓는 게 아니라
+회전시키는 <b>전형적인 마켓메이커</b>입니다.</p>
+
+<h3>지금 실제로 유동성을 대는 곳</h3>
+<p>최근 유동성 추가 120건의 발신자를 보면 개설자가 아닙니다.</p>
+<table>
+<thead><tr><th>지갑</th><th>최근 120건 중</th><th>LP 포지션</th><th>첫 활동</th></tr></thead>
+<tbody>
+<tr><td><code>0xad69f18b…0896</code></td><td class="pk">90건</td><td class="pk">158개</td><td>2021-10-25</td></tr>
+<tr><td><code>0xd1d33da7…8532</code></td><td>20건</td><td>102개</td><td>2025-01-25</td></tr>
+<tr><td><code>0x6cccd2da…275fb</code> <em>개설자</em></td><td>1건</td><td>35개</td><td>2025-04-24</td></tr>
+</tbody></table>
+<p><b>주 공급자는 2021년부터 활동한 지갑</b>입니다. SUT가 생기기 한참 전부터 돌던 주소이고,
+LP 포지션을 <b>158개</b> 굴립니다. <b>전문 유동성 공급자(봇)</b>로 보이며 회사와의 연결은 없습니다.</p>
+
+<div class="card warn">
+<div class="kh">그리고 이들은 빠져나가는 중입니다</div>
+<table style="margin:6px 0 0">
+<tbody>
+<tr><td>주풀 유동성 <b>추가</b></td><td>4,413건</td></tr>
+<tr><td>주풀 유동성 <b>제거</b></td><td class="dn">5,355건</td></tr>
+<tr class="tot"><td>차이</td><td class="dn">제거가 942건 더 많음</td></tr>
+</tbody></table>
+<p class="note" style="margin-top:9px"><b>용병 유동성</b>입니다. 수익이 안 나면 언제든 뺍니다.
+지금 유동성이 시가총액의 0.13%까지 얇아진 것도 그 결과입니다.
+<b>회사는 이 사람들이 언제 빼는지 통제할 수단이 없습니다.</b></p>
+</div>
+
+<h3>같은 개설자가 다루는 다른 토큰</h3>
+<p>주풀 개설자는 <b>CES(WhaleBit)</b> 라는 토큰도 27건 다룹니다. 그 토큰의 상태가 SUT와 판박이입니다.</p>
+<table>
+<thead><tr><th>토큰</th><th>시가총액(FDV)</th><th>유동성</th><th>비율</th></tr></thead>
+<tbody>
+<tr><td>SUT</td><td>$112,115,700</td><td>$141,579</td><td class="dn">0.13%</td></tr>
+<tr><td>CES (WhaleBit)</td><td>$102,728,651</td><td>$33,527</td><td class="dn">0.03%</td></tr>
+</tbody></table>
+<p class="note">이 운영자가 <b>"명목 시총 1억 달러 · 실제 유동성 수만 달러"</b> 형태의 토큰을
+여러 개 맡고 있다는 뜻입니다. 문제 삼는 게 아니라, <b>SUT만의 특수 상황이 아니라는 참고</b>입니다.</p>
+
+<h3>회사가 그 풀에서 한 일</h3>
+<table>
+<thead><tr><th>일시(KST)</th><th>행위</th><th>수량</th><th>금액</th></tr></thead>
+<tbody>
+<tr><td>09-05 16:54</td><td>MPC금고 → 매도지갑</td><td>200,000</td><td>—</td></tr>
+<tr><td>09-07 13:25</td><td class="dn">매도</td><td class="dn">10,000</td><td>$6,012.96</td></tr>
+<tr><td>09-08 14:57</td><td class="dn">매도</td><td class="dn">2,000</td><td>$1,179.24</td></tr>
+<tr class="tot"><td>합계</td><td>—</td><td>12,000</td><td>$7,192.20</td></tr>
+</tbody></table>
+<p><b>유동성 공급은 0원, 매도는 12,000개.</b> 그리고 9월 7일의 10,000개 매도가
+<b>1분 만에 −13.9%</b>를 만든 그 거래입니다. 남은 잔고는 188,001개입니다.</p>
+
+<h2 id="s2"><span class="no">2</span>회사가 직접 운영할 때 — 좋은 점</h2>
+<div class="items good">
+  <div class="it"><div class="n">1</div><div>
+    <h4>9월 28일 공급 절벽이 사라집니다</h4>
+    <p>개인 재고가 마르면 회원이 살 물건이 필요한데, 지금 풀에는 24,080개뿐입니다.</p>
+    <div class="num">300만 개 예치 → 월요일 요구량의 8% → 1,018%</div></div></div>
+  <div class="it"><div class="n">2</div><div>
+    <h4>물량을 잃지 않습니다</h4>
+    <p>매도는 소유권이 넘어가지만, 예치는 회사 소유로 남고 언제든 회수할 수 있습니다.</p></div></div>
+  <div class="it"><div class="n">3</div><div>
+    <h4>수수료가 계속 들어옵니다</h4>
+    <p>주풀 수수료가 1%입니다. 지금 하루 거래대금 기준으로도 무시할 수 없습니다.</p>
+    <div class="num">주풀 24h 거래 $104,353 × 1% ≈ 하루 $1,000 수준</div></div></div>
+  <div class="it"><div class="n">4</div><div>
+    <h4>가격 방어가 자동화됩니다</h4>
+    <p>깊이가 두꺼우면 큰 매도가 와도 스스로 흡수합니다. 사람이 개입할 필요가 없습니다.</p>
+    <div class="num">1만 개 매도 충격 −13.9% → 300만 개 예치 시 −0.6%</div></div></div>
+  <div class="it"><div class="n">5</div><div>
+    <h4>세력이 흔들지 못합니다</h4>
+    <p>지금은 약 150만원이면 1%가 움직입니다. 얇은 게 세력을 막는 게 아니라 얇아서 노는 것입니다.</p></div></div>
+  <div class="it"><div class="n">6</div><div>
+    <h4>매도를 "공시된 규칙"으로 바꿀 수 있습니다</h4>
+    <p>구간을 정해 편면 예치하면 매도 스케줄이 코드로 공개된 셈이라,
+    자전거래 의혹이 생길 여지가 없어집니다.</p></div></div>
+  <div class="it"><div class="n">7</div><div>
+    <h4>용병 유동성 의존에서 벗어납니다</h4>
+    <p>지금 유동성은 외부 LP 것이고 제거가 추가보다 많습니다. 그들이 빼면 회사가 할 수 있는 게 없습니다.
+    <b>이게 가장 큰 이점</b>일 수 있습니다.</p>
+    <div class="num">상장 심사에 쓸 실적도 여기서 쌓입니다</div></div></div>
+</div>
+
+<h2 id="s3"><span class="no">3</span>개선해야 할 점 — 위험과 대응</h2>
+<div class="items risk">
+  <div class="it"><div class="n">1</div><div>
+    <h4>"결국 파는 것 아니냐"는 오해</h4>
+    <p>편면 예치는 가격이 오르면 실제로 팔려나갑니다. 회원 입장에서는 매도로 보일 수 있습니다.</p>
+    <p><b>대응</b> — 구간·물량·지갑을 <b>먼저</b> 공지합니다. 사후에 발견되면 "몰래 팔았다"가 되고,
+    먼저 밝히면 "유동성을 공급했다"가 됩니다. 같은 거래인데 순서가 결과를 바꿉니다.</p></div></div>
+  <div class="it"><div class="n">2</div><div>
+    <h4>LP 포지션 NFT를 잃으면 유동성 전액을 잃습니다</h4>
+    <p>예치 증서는 NFT 한 장이고, 그 지갑 키를 가진 사람이 전부 회수할 수 있습니다.</p>
+    <p><b>대응</b> — 반드시 <b>멀티시그</b>로 운영합니다. 이미 보유한
+    Gnosis Safe <code>0xca976c53…d4faf</code> 를 쓸 수 있습니다.</p></div></div>
+  <div class="it"><div class="n">3</div><div>
+    <h4>뺄 때도 충격이 납니다</h4>
+    <p>넣는 것만 공지하고 조용히 빼면, 그날 유동성이 사라지며 가격이 흔들립니다.</p>
+    <p><b>대응</b> — <b>회수 규칙도 함께 공지</b>합니다. "최소 N개월 유지, 회수 시 M일 전 공지" 같은 형태입니다.</p></div></div>
+  <div class="it"><div class="n">4</div><div>
+    <h4>외부 LP가 동시에 빠지면 효과가 상쇄됩니다</h4>
+    <p>회사가 넣는 만큼 기존 LP가 빼면 총 깊이는 그대로입니다. 이미 제거가 추가보다 942건 많습니다.</p>
+    <p><b>대응</b> — 넣은 뒤 <b>총 유동성 추이를 계속 확인</b>해야 합니다.
+    회사 예치액이 아니라 <b>풀 전체 깊이</b>가 관리 지표입니다.</p></div></div>
+  <div class="it"><div class="n">5</div><div>
+    <h4>회사가 유동성의 대부분을 쥐게 됩니다</h4>
+    <p>300만 개를 넣으면 풀 SUT의 99%가 회사 것이 됩니다.
+    "회사가 가격을 정한다"는 지적이 다시 나올 수 있습니다.</p>
+    <p><b>대응</b> — 구간을 공개하고 <b>넓게</b> 잡습니다. 좁은 구간에 몰아넣으면 실제로 가격 통제에 가까워집니다.</p></div></div>
+  <div class="it"><div class="n">6</div><div>
+    <h4>회계·세무 처리가 정리돼 있지 않습니다</h4>
+    <p>예치 자산의 평가, 수수료 수익의 인식 시점, 구성 비율 변동(IL)의 처리가 모두 검토 대상입니다.</p>
+    <p><b>대응</b> — 소액으로 먼저 시작해 <b>한 분기 돌려보고</b> 규모를 키웁니다.</p></div></div>
+  <div class="it"><div class="n">7</div><div>
+    <h4>유동성을 여러 곳에 나누면 오히려 나빠집니다</h4>
+    <p>지금도 주풀·보조풀에 갈려 각각 얇습니다. 여기에 다른 DEX까지 더하면 더 쪼개집니다.</p>
+    <p><b>대응</b> — <b>수수료 1% 주풀 한 곳에 집중</b>합니다.
+    참고로 SUT 풀은 지금 20개나 있고, 그중에는 <b>수수료 88%짜리 함정 풀</b>도 있습니다.</p></div></div>
+  <div class="it"><div class="n">8</div><div>
+    <h4>근본 문제는 이걸로 풀리지 않습니다</h4>
+    <p>유동성은 <b>SUT를 사고팔 수 있게</b> 만들 뿐, 채무를 줄이지 않습니다.
+    채무는 KWT·테더 기준이라 SUT 가격과 무관합니다.</p>
+    <p><b>대응</b> — 유동성은 <b>시간을 버는 조치</b>로 보고,
+    외부 현금흐름(광산 등)에 대한 자료 공개를 병행해야 합니다.</p></div></div>
+</div>
+
+<h2 id="s4"><span class="no">4</span>제한사항 — 무엇이 막고 무엇이 안 막나</h2>
+
+<h3>기술적 제한 — 사실상 없습니다</h3>
+<p>유니스왑은 <b>허가가 필요 없습니다.</b> 지갑만 있으면 누구나 풀을 만들고 예치할 수 있습니다.
+문제는 토큰 쪽인데, SUT 컨트랙트를 열어보니 <b>오히려 이상적인 상태</b>입니다.</p>
+<div class="spec">
+  <div class="r"><div class="k">컨트랙트명</div><div class="v">SuperTrust · OpenZeppelin 기반 · 소스 공개</div></div>
+  <div class="r"><div class="k">프록시 여부</div><div class="v" style="color:var(--s3)">아니오 — 로직을 몰래 바꿀 수 없음</div></div>
+  <div class="r"><div class="k">소유권</div><div class="v" style="color:var(--s3)"><b>2026-07-20 17:06 포기 완료</b> (owner = 0x0)</div></div>
+  <div class="r"><div class="k">일시정지</div><div class="v" style="color:var(--s3)">불가 — owner 전용인데 owner가 없음</div></div>
+  <div class="r"><div class="k">추가 발행</div><div class="v" style="color:var(--s3)">불가 — public mint 함수 자체가 없음</div></div>
+  <div class="r"><div class="k">블랙리스트</div><div class="v" style="color:var(--s3)">없음</div></div>
+  <div class="r"><div class="k">전송 수수료·거래한도</div><div class="v" style="color:var(--s3)">없음 — V3 예치에 지장 없음</div></div>
+  <div class="r"><div class="k">총발행</div><div class="v">238,403,732 고정</div></div>
+</div>
+<p>소유권 이전 기록은 <b>2024-01-29 → 2025-08-27 → 2025-09-25 → 2026-06-21</b> 로 네 번 바뀌다가,
+<b>2026년 7월 20일에 0x0으로 넘겨 완전히 포기</b>됐습니다.</p>
+<div class="card ac">
+<div class="kh">이게 뜻하는 것</div>
+<p style="margin:4px 0 0"><b>회사를 포함해 누구도 SUT를 멈추거나 더 찍거나 뺏을 수 없습니다.</b>
+유동성을 넣어도 컨트랙트 쪽에서 잠길 위험이 <b>0</b>이라는 뜻입니다.
+많은 프로젝트가 이걸 못 해서 LP를 못 붙이는데, SUT는 이미 통과해 있습니다.</p>
+</div>
+
+<h3>실무적 제한 — 셋</h3>
+<table>
+<thead><tr><th>항목</th><th>제약</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>물량</td><td>2,152만 개 중 613만은 공급용 유보</td><td class="up">300만 예치는 여유 안</td></tr>
+<tr><td>테더</td><td class="up">편면이면 0원</td><td>양면 시 300만 개당 약 $179,400</td></tr>
+<tr><td>가스비</td><td class="up">POL 몇백 원 수준</td><td>사실상 제약 아님</td></tr>
+<tr><td>키 관리</td><td class="dn">LP NFT를 잃으면 전액 상실</td><td>멀티시그 필수</td></tr>
+<tr><td class="dn">매도와의 상충</td><td class="dn">지금 매도지갑에 18.8만 개가 대기 중</td><td>팔면서 넣으면 메시지가 엇갈림</td></tr>
+</tbody></table>
+<p class="note">마지막 항목이 실질적으로 가장 큰 제약입니다.
+<b>9월 5일에 20만 개를 매도지갑으로 옮겨 이미 12,000개를 팔았습니다.</b>
+예치와 매도를 동시에 하면 회원 입장에서는 "결국 파는 것"으로만 보입니다.
+<b>둘 중 하나를 정하거나, 정한다면 비중과 순서를 먼저 공지</b>해야 합니다.</p>
+
+<h3>제도적 제한 — 확인 필요</h3>
+<ul>
+<li><b>발행사가 유동성을 공급하는 것 자체는 일반적입니다.</b> 대부분의 프로젝트가 초기에 직접 합니다.
+자전거래와 달리 실제 거래 상대가 제3자이기 때문입니다.</li>
+<li>다만 <b>공시 없이 하면 시세조종 시비가 붙을 수 있습니다.</b> 구간·물량·지갑을 먼저 밝히는 것이
+법적 안전판이기도 합니다.</li>
+<li><b>국내 가상자산 관련 규제와 회계·세무 처리는 이 보고서의 범위 밖</b>입니다.
+실행 전에 별도 법률·세무 검토가 필요합니다.</li>
+</ul>
+
+<h3>돈으로도 못 막는 것 둘</h3>
+<div class="items risk">
+  <div class="it"><div class="n">!</div><div>
+    <h4>외부 LP가 빠지는 것</h4>
+    <p>이미 제거가 추가보다 942건 많습니다. 회사가 넣는 만큼 그들이 빼면 총 깊이는 그대로입니다.
+    <b>회사 예치액이 아니라 풀 전체 깊이를 지표로 봐야 합니다.</b></p></div></div>
+  <div class="it"><div class="n">!</div><div>
+    <h4>되돌리기</h4>
+    <p>소유권을 이미 포기해서, <b>문제가 생겨도 회사가 토큰을 멈출 수 없습니다.</b>
+    안전장치이자 동시에 제약입니다. 예치 규모를 단계적으로 늘려야 하는 이유입니다.</p></div></div>
+</div>
+
+<h2 id="s5"><span class="no">5</span>지금과 직접 운영의 비교</h2>
+<table>
+<thead><tr><th>항목</th><th>지금 (외부 LP)</th><th>회사 직접 운영</th></tr></thead>
+<tbody>
+<tr><td>유동성 소유</td><td class="dn">외부인</td><td class="up">회사</td></tr>
+<tr><td>언제 빠지나</td><td class="dn">통제 불가</td><td class="up">회사가 결정</td></tr>
+<tr><td>수수료 1%</td><td class="dn">외부인 몫</td><td class="up">회사 몫</td></tr>
+<tr><td>9/28 공급 절벽</td><td class="dn">해결 안 됨</td><td class="up">해소</td></tr>
+<tr><td>회사 물량</td><td class="dn">팔면 사라짐</td><td class="up">예치하면 남음</td></tr>
+<tr><td>큰 매도가 오면</td><td class="dn">−13.9%</td><td class="up">−0.6%</td></tr>
+<tr><td>자전거래 의혹</td><td>매도 시 발생 가능</td><td class="up">사전 공시로 차단</td></tr>
+<tr><td>상장 심사 실적</td><td class="dn">없음</td><td class="up">축적</td></tr>
+<tr><td>필요한 준비</td><td>없음</td><td class="dn">공시·멀티시그·회수규칙</td></tr>
+<tr><td>채무 해결</td><td class="dn">안 됨</td><td class="dn">안 됨</td></tr>
+</tbody></table>
+
+<h2 id="s6"><span class="no">6</span>권고 — 단계별</h2>
+<div class="card ac">
+<p style="margin:0"><b>1단계 · 이번 주</b> — 편면으로 소액 시작.
+SUT 30만~50만 개를 현재가 위 구간에 예치. <b>테더 부담 0원.</b> 동작을 확인합니다.</p>
+</div>
+<div class="card ac">
+<p style="margin:0"><b>2단계 · 9월 28일 전</b> — 300만 개까지 확대.
+동시에 <b>구간·물량·지갑·회수규칙을 공지</b>합니다. 여기까지가 공급 절벽 대비의 핵심입니다.</p>
+</div>
+<div class="card ac">
+<p style="margin:0"><b>3단계 · 한 분기 뒤</b> — 수수료 수익과 회계 처리를 확인하고,
+필요하면 양면 예치로 넓혀 하락 방어까지 확보합니다.</p>
+</div>
+<div class="card ac">
+<p style="margin:0"><b>4단계 · 가격이 형성된 뒤</b> — 그때 소각을 검토합니다.
+<b>순서를 바꾸면 2024년 3월 소각(5,000만 개)처럼 아무 일도 일어나지 않습니다.</b>
+그때 1억 개를 묶고도 2년 반 동안 $0.19였습니다.</p>
+</div>
+
+<h3>물량 배분안</h3>
+<table>
+<thead><tr><th>구분</th><th>수량</th><th>용도</th></tr></thead>
+<tbody>
+<tr><td>회사 보유 총합</td><td>21,523,218</td><td>MPC금고 + 수금지갑 + 매도지갑</td></tr>
+<tr><td>공급용 유보</td><td class="dn">−6,134,187</td><td>14주 시장 조달분</td></tr>
+<tr><td class="pk">유동성 예치</td><td class="pk">−3,000,000</td><td>회사 보유의 14%</td></tr>
+<tr class="tot"><td>소각 여력</td><td>12,389,031</td><td>3단계 이후 검토</td></tr>
+</tbody></table>
+
+<h2 id="s7"><span class="no">7</span>이 보고서가 단정하지 않는 것</h2>
+<ul>
+<li><b>풀 개설자·LP의 정체를 단정하지 않습니다.</b> 회사 지갑과의 직접 연결이 발견되지 않았다는 것까지입니다.
+간접 연결이나 오프체인 관계는 확인할 수 없습니다.</li>
+<li><b>CES(WhaleBit) 언급은 문제 제기가 아닙니다.</b> 같은 운영자가 비슷한 구조의 토큰을 다룬다는 참고 사실입니다.</li>
+<li><b>가격을 예측하지 않습니다.</b> 예치 시 충격이 얼마나 줄어드는지까지가 계산의 범위이고,
+그 수치도 실측 한 점으로 보정한 근사입니다.</li>
+<li><b>회사가 이렇게 하겠다고 밝힌 적이 없습니다.</b> 이 보고서의 권고는 전부 작성자 의견입니다.</li>
+<li><b>법률·회계 자문이 아닙니다.</b> 실제 실행 전에 별도 검토가 필요합니다.</li>
+</ul>
+
+<div class="foot">
+<p><b>확인 주소</b></p>
+<p>· 주풀 <a href="https://polygonscan.com/address/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">0x0922…e165</a>
+ · 주풀 개설자 <a href="https://polygonscan.com/address/0x6cccd2daa6ef1469377f775a2e384657353275fb" target="_blank" rel="noopener">0x6ccc…75fb</a>
+ · 현재 주 LP <a href="https://polygonscan.com/address/0xad69f18b0ad9d03a793a000e97af523dacb60896" target="_blank" rel="noopener">0xad69…0896</a></p>
+<p>· 매도지갑 <a href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">0x686a…a6a6</a>
+ · MPC금고 <a href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">0xf46e…7bc8</a></p>
+<p>실행 방법은 <a href="SUT_유동성_예치방법.html">유동성 예치 방법</a>,
+배경은 <a href="SUT_공급과_가격.html">SUT 공급과 가격</a>에 정리돼 있습니다.</p>
+<p>모든 숫자는 폴리곤 체인과 풀에서 직접 뽑았습니다. 다른 값이 나오면 알려주십시오.</p>
+</div>
+
+</div>
+</body>
+</html>
