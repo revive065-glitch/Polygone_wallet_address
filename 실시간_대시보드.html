@@ -10,7 +10,7 @@
 <style>
 :root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
 --tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;
---bar:#7f76b8;--hi:#c9a227;--green:#5fd6a6;--red:#e0857f;--grid:#262838}
+--bar:#7f76b8;--hi:#c9a227;--green:#5fd6a6;--red:#e0857f;--grid:#262838;--in:#4bb3e8;--out:#e0857f}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.55;
@@ -52,17 +52,35 @@ h2+.cap{font-size:11.6px;color:var(--tx3);margin:0 0 9px}
 .ch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 14px 9px;margin-bottom:16px}
 .plot{position:relative;height:150px;margin-bottom:7px}
 .gl{position:absolute;left:0;right:0;border-top:1px solid var(--grid)}
-.gl b{position:absolute;left:0;top:-8px;background:var(--panel);padding-right:6px;
+.gl b{position:absolute;left:0;top:-8px;background:var(--panel);padding-right:7px;z-index:2;
 font-size:10px;color:var(--tx3);font-weight:500;font-variant-numeric:tabular-nums}
+#gls{position:absolute;inset:0;z-index:2;pointer-events:none}
+.bars{z-index:1}
 .bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px}
 .bars i{flex:1;max-width:24px;background:var(--bar);border-radius:4px 4px 0 0;min-height:2px;cursor:default}
 .bars i.today{background:var(--hi)}
 .bars i:hover{filter:brightness(1.25)}
 .xl{display:flex;justify-content:space-between;font-size:10.4px;color:var(--tx3);font-variant-numeric:tabular-nums}
+/* 양방향(유입/유출) 차트 */
+.lg{display:flex;gap:14px;margin-bottom:10px;font-size:11.6px;color:var(--tx2)}
+.lg span{display:flex;align-items:center;gap:5px}
+.lg i{width:9px;height:9px;border-radius:2px;display:block}
+.dplot{position:relative;height:190px;margin-bottom:7px}
+.zero{position:absolute;left:0;right:0;top:50%;border-top:1px solid var(--line2)}
+.zl{position:absolute;left:0;top:-8px;background:var(--panel);padding-right:6px;
+font-size:10px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.dbars{position:absolute;inset:0;display:flex;gap:2px}
+.dbars .col{flex:1;max-width:26px;display:flex;flex-direction:column;cursor:default}
+.dbars .up{flex:1;display:flex;align-items:flex-end}
+.dbars .dn{flex:1;display:flex;align-items:flex-start}
+.dbars .up b{display:block;width:100%;background:var(--in);border-radius:3px 3px 0 0;min-height:1px}
+.dbars .dn b{display:block;width:100%;background:var(--out);border-radius:0 0 3px 3px;min-height:1px}
+.dbars .col:hover b{filter:brightness(1.3)}
 .tip{position:fixed;pointer-events:none;background:#0b0c14;border:1px solid var(--line2);border-radius:8px;
 padding:7px 10px;font-size:11.8px;color:var(--tx);white-space:nowrap;opacity:0;transition:opacity .1s;z-index:9;
 font-variant-numeric:tabular-nums;box-shadow:0 6px 18px rgba(0,0,0,.55)}
-.tip.on{opacity:1}.tip b{color:var(--hi)}.tip em{font-style:normal;color:var(--tx3)}
+.tip.on{opacity:1}.tip b{color:var(--in)}.tip em{font-style:normal;color:var(--tx3)}
+.tip{line-height:1.6}
 /* 표 */
 .tb{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:2px 15px;margin-bottom:16px}
 .rw{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
@@ -88,9 +106,8 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
 .dbody code{font-family:ui-monospace,Menlo,monospace;font-size:11.4px;color:var(--tx3)}
 .dbody a{color:var(--ac);text-decoration:none;border-bottom:1px solid rgba(145,132,217,.35)}
 .dbody a:hover{color:var(--tx)}
-.dbody .mini{height:96px;margin:10px 0 4px}
-@media(max-width:640px){.duo,.kpi{grid-template-columns:1fr 1fr}.hz .big{font-size:29px}.plot{height:124px}}
-@media(max-width:400px){.duo{grid-template-columns:1fr}}
+@media(max-width:640px){.duo,.kpi{grid-template-columns:1fr 1fr}.hz .big{font-size:29px}.plot{height:124px}.dplot{height:158px}}
+@media(max-width:520px){.duo{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -100,6 +117,7 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
   <h1>실시간 대시보드</h1>
   <button id="ref" type="button">새로고침</button>
   <div class="stamp" id="stamp">체인 조회 중…</div>
+  <div class="stamp" style="margin-top:2px">모든 시각은 한국시간(KST) 기준입니다</div>
 </div>
 
 <div class="duo">
@@ -125,11 +143,21 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
 </div>
 
 <h2>일별 유입 — 최근 30일</h2>
-<p class="cap">막대에 손을 올리면 날짜와 금액이 나옵니다. 노란 막대가 오늘입니다.</p>
+<p class="cap">한국시간 기준 하루 단위입니다. 막대에 손을 올리면 날짜와 금액이 나옵니다. 노란 막대가 오늘입니다.</p>
 <div class="ch">
   <div class="plot"><div id="gls"></div><div class="bars" id="bars"></div></div>
   <div class="xl"><span id="x1">—</span><span id="x2">—</span></div>
 </div>
+
+<h2>월별 유입 · 유출 — 20개월</h2>
+<p class="cap">위쪽이 회사로 들어온 SUT, 아래쪽이 회사에서 나간 SUT입니다. 막대에 손을 올리면 숫자가 나옵니다.</p>
+<div class="ch">
+  <div class="lg"><span><i style="background:var(--in)"></i>들어온 SUT</span>
+                  <span><i style="background:var(--out)"></i>나간 SUT</span></div>
+  <div class="dplot"><div class="zero"><b class="zl">0</b></div><div class="dbars" id="mb"></div></div>
+  <div class="xl"><span id="mx1">—</span><span id="mxm">—</span><span id="mx2">—</span></div>
+</div>
+<div class="tb" style="padding:2px 15px;margin-bottom:16px" id="msum"></div>
 
 <h2>회사 보유 자금 상세</h2>
 <p class="cap">회사 지갑 5곳 합계입니다. 오른쪽이 원화 환산.</p>
@@ -159,13 +187,6 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
 <p><b>이 잔고가 줄면 계속 파는 중, 늘면 회사가 또 내려보낸 것</b>입니다.</p>
 </div></details>
 
-<details><summary>월별 추이 20개월 ▾</summary><div class="dbody">
-<div class="plot mini"><div class="bars" id="mbars"></div></div>
-<div class="xl"><span id="mx1">—</span><span id="mx2">—</span></div>
-<p>2025년 1월부터 누적 유입 <b>499,076,454 SUT</b>, 그중 <b>256,928,254</b>가 다시 나갔고
-현재 회사 지갑들에 <b>238,403,732</b>가 남아 있습니다.</p>
-</div></details>
-
 <details><summary>직접 확인하는 법 ▾</summary><div class="dbody">
 <p><a href="https://polygonscan.com/token/0x98965474ecbec2f532f1f780ee37b0b05f77ca55?a=0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">CC2C 수금지갑 SUT 내역 ↗</a><br><code>0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c</code></p>
 <p><a href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">매도 지갑 ↗</a><br><code>0x686a2630ab724f07a1a1de7e2590efb621c5a6a6</code></p>
@@ -179,9 +200,18 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
 <div class="tip" id="tip"></div>
 
 <script>
-const DASH={"daily": [["2026-08-08", 82, 225211], ["2026-08-09", 97, 201781], ["2026-08-10", 514, 221195], ["2026-08-11", 195, 327654], ["2026-08-12", 219, 120559], ["2026-08-13", 157, 112281], ["2026-08-14", 139, 123227], ["2026-08-15", 32, 91409], ["2026-08-16", 11, 10102], ["2026-08-17", 484, 234549], ["2026-08-18", 222, 74749], ["2026-08-19", 229, 189958], ["2026-08-20", 179, 176164], ["2026-08-21", 153, 139328], ["2026-08-22", 67, 187133], ["2026-08-23", 25, 76848], ["2026-08-24", 498, 220801], ["2026-08-25", 202, 109017], ["2026-08-26", 223, 198107], ["2026-08-27", 167, 165014], ["2026-08-28", 142, 93846], ["2026-08-29", 114, 178189], ["2026-08-30", 42, 62388], ["2026-08-31", 590, 511402], ["2026-09-01", 257, 175010], ["2026-09-02", 248, 100625], ["2026-09-03", 167, 88142], ["2026-09-04", 194, 168191], ["2026-09-05", 211, 178240], ["2026-09-06", 63, 55256]], "mon": [["2025-01", 24055, 8237391], ["2025-02", 81416, 36114904], ["2025-03", 103261, 28806555], ["2025-04", 106094, 37469332], ["2025-05", 123762, 36079817], ["2025-06", 124873, 31610112], ["2025-07", 164295, 55241607], ["2025-08", 154624, 37716452], ["2025-09", 151021, 22962322], ["2025-10", 141875, 18006708], ["2025-11", 138396, 18457269], ["2025-12", 157505, 18511225], ["2026-01", 174600, 49282608], ["2026-02", 154888, 14595172], ["2026-03", 134559, 37949620], ["2026-04", 124813, 22272391], ["2026-05", 62608, 15440133], ["2026-06", 1173, 2171185], ["2026-07", 4510, 4089870], ["2026-08", 5936, 4061780]], "ytd": {"TI": 499076454, "TO": 256928254, "SUP": 238403732}, "base": {"d7": 182409, "d30": 160546, "yday": 55256, "ydayN": 63, "ydayD": "2026-09-06"}};
-const RPCS=['https://polygon-rpc.com','https://rpc.ankr.com/polygon','https://polygon.llamarpc.com',
-            'https://polygon-bor-rpc.publicnode.com','https://1rpc.io/matic','https://polygon.drpc.org'];
+const DASH={"daily": [["2026-08-08", 82, 225211], ["2026-08-09", 97, 201781], ["2026-08-10", 514, 221195], ["2026-08-11", 195, 327654], ["2026-08-12", 219, 120559], ["2026-08-13", 157, 112281], ["2026-08-14", 139, 123227], ["2026-08-15", 32, 91409], ["2026-08-16", 11, 10102], ["2026-08-17", 484, 234549], ["2026-08-18", 222, 74749], ["2026-08-19", 229, 189958], ["2026-08-20", 179, 176164], ["2026-08-21", 153, 139328], ["2026-08-22", 67, 187133], ["2026-08-23", 25, 76848], ["2026-08-24", 498, 220801], ["2026-08-25", 202, 109017], ["2026-08-26", 223, 198107], ["2026-08-27", 167, 165014], ["2026-08-28", 142, 93846], ["2026-08-29", 114, 178189], ["2026-08-30", 42, 62388], ["2026-08-31", 590, 511402], ["2026-09-01", 257, 175010], ["2026-09-02", 248, 100625], ["2026-09-03", 167, 88142], ["2026-09-04", 194, 168191], ["2026-09-05", 211, 178240], ["2026-09-06", 63, 55256]], "mon": [["2025-01", 24055, 8237391, 0], ["2025-02", 81416, 36114904, 7500480], ["2025-03", 103261, 28806555, 5009363], ["2025-04", 106094, 37469332, 5750], ["2025-05", 123762, 36079817, 2769], ["2025-06", 124873, 31610112, 17000000], ["2025-07", 164295, 55241607, 60000000], ["2025-08", 154624, 37716452, 36000000], ["2025-09", 151021, 22962322, 13000000], ["2025-10", 141875, 18006708, 29000000], ["2025-11", 138396, 18457269, 19701662], ["2025-12", 157505, 18511225, 7500000], ["2026-01", 174600, 49282608, 44101804], ["2026-02", 154888, 14595172, 8936000], ["2026-03", 134559, 37949620, 9170425], ["2026-04", 124813, 22272391, 0], ["2026-05", 62608, 15440133, 0], ["2026-06", 1173, 2171185, 0], ["2026-07", 4510, 4089870, 0], ["2026-08", 5936, 4061780, 0]], "ytd": {"TI": 499076454, "TO": 256928254, "SUP": 238403732}, "base": {"d7": 182409, "d30": 160546, "yday": 55256, "ydayN": 63, "ydayD": "2026-09-06"}};
+const NODES=['https://polygon-rpc.com','https://rpc.ankr.com/polygon','https://polygon.llamarpc.com',
+             'https://polygon-bor-rpc.publicnode.com','https://1rpc.io/matic','https://polygon.drpc.org'];
+/* 방문자마다 시작 노드를 섞는다 — 모두가 1번 노드를 동시에 때리면 그 노드만 막힌다 */
+const RPCS=(()=>{const a=NODES.slice();
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;})();
+/* 짧은 캐시 — 탭을 오갈 때마다 체인을 다시 때리지 않게 */
+const TTL=60000;
+function cacheGet(){try{const o=JSON.parse(localStorage.getItem('dash')||'null');
+  return o&&Date.now()-o.t<TTL?o:null;}catch(e){return null;}}
+function cacheSet(o){try{localStorage.setItem('dash',JSON.stringify({...o,t:Date.now()}));}catch(e){}}
 const T={KWT:['0x435001af7fc65b621b0043df99810b2f30860c5d',6],
          USDT:['0xc2132d05d31c914a87c6611c10748aeb04b58e8f',6],
          SUT:['0x98965474ecbec2f532f1f780ee37b0b05f77ca55',18],
@@ -207,6 +237,9 @@ const WATCH=[
 ];
 const $=i=>document.getElementById(i);
 const nf=(v,d)=>v.toLocaleString(undefined,{maximumFractionDigits:d||0,minimumFractionDigits:0});
+/* 보는 사람의 기기 시간대와 무관하게 항상 한국시간(KST)으로 표시한다 */
+const kstNow=()=>new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul',
+  year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
 function won(v){ if(!isFinite(v))return'—';
   if(v>=1e12)return nf(v/1e12,2)+'조원'; if(v>=1e8)return nf(v/1e8,1)+'억원';
   if(v>=1e4)return nf(v/1e4,0)+'만원'; return nf(v)+'원';}
@@ -241,10 +274,11 @@ async function todayLogs(u,blk){
       if(j.error||!Array.isArray(j.result))throw 0;
       logs=logs.concat(j.result);got+=hi-lo+1;
     }catch(e){ if(i===0)throw 0; break; }}
-  return {logs,got,need,hrs:secs/3600};
+  return {sum:logs.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0),n:logs.length,
+          part:got<need,hoursGot:got*BLKSEC/3600,hrs:secs/3600};
 }
 function nice(mx){const p=Math.pow(10,Math.floor(Math.log10(mx)));
-  for(const s of [1,2,2.5,5,10]) if(mx<=p*s) return p*s; return p*10;}
+  for(const s of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(mx<=p*s) return p*s; return p*10;}
 function chart(barsEl,glsEl,x1,x2,rows,fmtL,px){
   const mx=nice(Math.max(...rows.map(r=>r[2]),1));
   if(glsEl){glsEl.innerHTML=[1,.5,0].map(f=>
@@ -256,8 +290,36 @@ function chart(barsEl,glsEl,x1,x2,rows,fmtL,px){
       data-n="${r[1]?nf(r[1])+'건':''}"></i>`;}).join('');
   $(x1).textContent=fmtL(rows[0][0]); $(x2).textContent=fmtL(rows[rows.length-1][0]);
 }
+function divChart(px){
+  const M=DASH.mon, mx=nice(Math.max(...M.map(r=>Math.max(r[2],r[3]))));
+  $('mb').innerHTML=M.map(([k,n,i,o])=>{
+    const w=px?` · ${won(i*px*FX)}`:'', w2=px?` · ${won(o*px*FX)}`:'';
+    return `<div class="col" data-t="${k}" data-i="${nf(i)} SUT${w}" data-o="${nf(o)} SUT${w2}"
+      data-net="${(i-o>=0?'+':'−')+nf(Math.abs(i-o))} SUT">
+      <div class="up"><b style="height:${(i/mx*100).toFixed(2)}%"></b></div>
+      <div class="dn"><b style="height:${(o/mx*100).toFixed(2)}%"></b></div></div>`;}).join('');
+  $('mx1').textContent=M[0][0]; $('mx2').textContent=M[M.length-1][0];
+  $('mxm').textContent=`위아래 최대 ${nf(mx)} SUT`;
+  const ti=M.reduce((a,r)=>a+r[2],0), to=M.reduce((a,r)=>a+r[3],0);
+  $('msum').innerHTML=[
+    ['누적 들어온 SUT','2025년 1월 이후 참여자가 낸 것',nf(ti),'var(--in)'],
+    ['누적 나간 SUT','회사 지갑에서 다시 빠져나간 것',nf(to),'var(--out)'],
+    ['차이',`유입의 ${nf((ti-to)/ti*100,1)}%가 남아 있습니다`,nf(ti-to),'var(--tx)'],
+  ].map(([t,sb,v,c])=>`<div class="rw"><div class="n" style="font-weight:600">${t}<em>${sb}</em></div>
+    <div class="r"><b class="w" style="color:${c}">${v}</b><span class="q">SUT</span></div></div>`).join('');
+}
 const tip=$('tip');
 document.addEventListener('pointermove',e=>{
+  const c=e.target.closest('.dbars .col');
+  if(c){
+    tip.innerHTML=`<em>${c.dataset.t}</em><br>들어옴 <b>${c.dataset.i}</b>`
+      +`<br>나감 <span style="color:var(--out)">${c.dataset.o}</span>`
+      +`<br><em>차이 ${c.dataset.net}</em>`;
+    tip.classList.add('on');
+    tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,Math.max(8,e.clientX-tip.offsetWidth/2))+'px';
+    tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-14)+'px';
+    return;
+  }
   const b=e.target.closest('.bars i');
   if(!b){tip.classList.remove('on');return;}
   tip.innerHTML=`<em>${b.dataset.t}</em> &nbsp;<b>${b.dataset.v}</b>`+(b.dataset.n?` <em>· ${b.dataset.n}</em>`:'');
@@ -268,15 +330,19 @@ document.addEventListener('pointermove',e=>{
 function draw(bal,blk,px,tl,src){
   const B=DASH.base;
   let today=null,n=0;
-  if(tl){ today=tl.logs.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0); n=tl.logs.length; }
+  if(tl==='pending'){ $('l1').textContent='오늘 들어온 SUT';
+    $('v1').textContent='집계 중…'; $('s1').textContent='유입 기록을 읽고 있습니다'; $('f1').textContent='\u00a0'; }
+  else if(tl){ today=tl.sum; n=tl.n; }
   /* 히어로 1 — 오늘 */
   if(today!=null){
-    $('l1').textContent=tl.got<tl.need?`오늘 들어온 SUT (최근 ${(tl.got*BLKSEC/3600).toFixed(1)}시간)`:'오늘 들어온 SUT';
+    $('l1').textContent=tl.part?`오늘 들어온 SUT (최근 ${tl.hoursGot.toFixed(1)}시간)`
+      :'오늘 들어온 SUT · 한국시간 0시부터';
     $('v1').innerHTML=`${nf(today)}<span class="unit">개</span>`;
     $('s1').textContent=`${won(today*px*FX)} · ${nf(n)}건`;
     const r=today/B.yday-1;
     $('f1').innerHTML=`어제 ${nf(B.yday)}개 대비 <span class="${r>=0?'up':'dn'}">${r>=0?'▲':'▼'} ${nf(Math.abs(r*100))}%</span>`;
-  }else{ $('v1').textContent='—'; $('s1').textContent='유입 조회 실패'; $('f1').textContent='공개 노드가 로그 조회를 지원하지 않습니다'; }
+  }else if(tl!=='pending'){ $('v1').textContent='—'; $('s1').textContent='유입 조회 실패';
+    $('f1').textContent='공개 노드가 로그 조회를 지원하지 않습니다'; }
   /* 히어로 2 — 보유 */
   const sum=t=>HOLD.reduce((a,[k])=>a+((bal[k]||{})[t]||0),0);
   const U=sum('USDT'),S=sum('SUT'),KW=sum('KWT'),MP=sum('MPC');
@@ -294,7 +360,7 @@ function draw(bal,blk,px,tl,src){
   const rows=DASH.daily.map(r=>[r[0],r[1],r[2],false]);
   if(today!=null) rows.push(['오늘',n,today,true]);
   chart($('bars'),$('gls'),'x1','x2',rows,s=>s==='오늘'?'오늘':s.slice(5),px);
-  chart($('mbars'),null,'mx1','mx2',DASH.mon.map(r=>[r[0],r[1],r[2],false]),s=>s,px);
+  divChart(px);
   /* 보유 표 */
   $('tb').innerHTML=[
    ['cash','USDT','밖에서 들어온 진짜 달러',won(U*FX),nf(U)+' USDT'],
@@ -312,29 +378,38 @@ function draw(bal,blk,px,tl,src){
       <div class="r"><b class="w" style="color:var(--tx)">${nf(v,w.dec||0)}</b>
       <span class="q ${hit?'al':''}">${mv?(d>0?'+':'−')+nf(Math.abs(d),w.dec||0):'변동 없음'}</span></div></div>`;}).join('');
   $('dot').className='dot ok';
-  $('stamp').textContent=`${new Date().toLocaleString('ko-KR')} · 블록 ${nf(blk)} · SUT ${nf(px*FX)}원 · ${src.replace(/^https:\/\//,'')}`;
+  $('stamp').textContent=`${kstNow()} 한국시간 · 블록 ${nf(blk)} · SUT ${nf(px*FX)}원 · ${src.replace(/^https:\/\//,'')}`;
 }
-let busy=false;
-async function poll(){
-  if(busy)return;busy=true;$('ref').disabled=true;
+let busy=false,last=0;
+async function poll(force){
+  if(busy)return;
+  const c=!force&&cacheGet();
+  if(c){ draw(c.bal,c.blk,c.px,c.tl,c.src+' · 캐시'); return; }
+  busy=true;$('ref').disabled=true;last=Date.now();
   $('dot').className='dot';$('stamp').textContent='체인 조회 중…';
   for(const u of RPCS){
     try{
       const {bal,blk,px}=await getAll(u);
-      let tl=null; for(const u2 of [u,...RPCS]){try{tl=await todayLogs(u2,blk);break;}catch(e){}}
-      draw(bal,blk,px,tl,u);busy=false;$('ref').disabled=false;return;
+      draw(bal,blk,px,'pending',u);          /* ① 잔고를 먼저 보여준다 */
+      let tl=null;
+      for(const u2 of [u,...RPCS]){try{tl=await todayLogs(u2,blk);break;}catch(e){}}
+      draw(bal,blk,px,tl,u);                 /* ② 유입이 오면 채운다 */
+      cacheSet({bal,blk,px,tl,src:u});
+      busy=false;$('ref').disabled=false;return;
     }catch(e){}
   }
   $('dot').className='dot err';
   $('stamp').textContent='조회 실패 — 공개 노드가 응답하지 않습니다. 잠시 후 새로고침해 주십시오.';
   const rows=DASH.daily.map(r=>[r[0],r[1],r[2],false]);
   chart($('bars'),$('gls'),'x1','x2',rows,s=>s.slice(5),null);
-  chart($('mbars'),null,'mx1','mx2',DASH.mon.map(r=>[r[0],r[1],r[2],false]),s=>s,null);
+  divChart(null);
   busy=false;$('ref').disabled=false;
 }
-$('ref').addEventListener('click',poll);
+$('ref').addEventListener('click',()=>poll(true));
 poll();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
+/* 탭을 다시 켤 때는 캐시가 만료됐을 때만 다시 읽는다 */
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden && Date.now()-last>TTL) poll();});
 </script>
 </body>
 </html>

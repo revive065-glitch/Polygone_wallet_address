@@ -309,7 +309,8 @@ async function fetchPx(){
     try{
       const px=await slot0(u,pool);
       lv.className='lv ok';
-      lv.textContent=`실시간 $${px.toFixed(4)} · ${pn} · ${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}`;
+      lv.textContent=`실시간 $${px.toFixed(4)} · ${pn} · `
+        +new Date().toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'})+' KST';
       if(LIVE){ document.getElementById('px').value=px.toFixed(4); readSpec(true); }
       return px;
     }catch(e){}
