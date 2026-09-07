@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>SUT 유동성 예치 — 파는 게 아니라 넣는 것</title>
+<meta name="description" content="회사가 SUT를 팔지 않고 유동성으로 넣는 방법. 어느 풀에 어떤 방식으로, 테더 0원으로 하는 편면 예치까지 실제 절차로 정리했습니다.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ /* 계열색 — 표면 #1c1e2c 에서 검증 통과 (명도대·채도·색각·대비 PASS) */
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.72;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:25px;line-height:1.32;letter-spacing:-.6px;margin:0 0 8px;font-weight:800}
+h2{font-size:18.5px;letter-spacing:-.3px;margin:46px 0 12px;font-weight:700;
+ padding-top:20px;border-top:1px solid var(--line);scroll-margin-top:12px}
+h2 .no{color:var(--ac);font-weight:800;margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 8px;font-weight:700}
+p{margin:11px 0}
+.lede{color:var(--tx2);font-size:14px;margin:0 0 22px}
+em{font-style:normal;color:var(--tx3)}
+a{color:var(--ac)}
+code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border-radius:4px;
+ word-break:break-all}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px 16px;margin:16px 0}
+.card.hi{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(201,162,39,.02))}
+.card.ac{border-color:#463f6b;background:linear-gradient(180deg,rgba(145,132,217,.09),rgba(145,132,217,.02))}
+.card.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.10),rgba(217,89,38,.02))}
+.kh{font-size:12px;color:var(--tx3);margin-bottom:5px}
+
+/* 사양 카드 */
+.spec{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;margin:16px 0}
+.spec .r{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px 15px;
+ border-top:1px solid var(--line);font-size:13.5px;align-items:baseline}
+.spec .r:first-child{border-top:0}
+.spec .k{color:var(--tx3);font-size:12px}
+.spec .v{font-weight:600;word-break:break-all}
+.spec .v b{color:var(--hi)}
+
+/* 단계 */
+.step{border-left:2px solid var(--line2);margin:18px 0 18px 9px;padding-left:20px;position:relative}
+.step>.s{position:relative;padding-bottom:20px}
+.step>.s:last-child{padding-bottom:0}
+.step>.s::before{content:attr(data-n);position:absolute;left:-31px;top:0;width:22px;height:22px;
+ border-radius:50%;background:var(--ac);color:#12101c;font-size:12px;font-weight:800;
+ display:grid;place-items:center}
+.step h4{margin:0 0 5px;font-size:15px;font-weight:700}
+.step p{margin:5px 0}
+
+/* 구간 다이어그램 */
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 14px 12px;margin:18px 0}
+.figt{font-size:14px;font-weight:700}
+.figs{font-size:12px;color:var(--tx3);margin:2px 0 14px}
+.rng{width:100%;height:auto;display:block;overflow:visible}
+
+/* 가로 막대 */
+.hb .row{padding:10px 0;border-top:1px solid var(--line)}
+.hb .row:first-child{border-top:0}
+.hb .top{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:4px}
+.hb .q{font-weight:700}
+.hb .q em{margin-left:6px;font-size:11.5px;font-weight:400}
+.hb .r{font-weight:800;white-space:nowrap;color:var(--s2)}
+.hb .row.ok .r{color:var(--s3)}
+.hb .trk{height:12px;background:#22243a;border-radius:6px;overflow:hidden}
+.hb .fil{height:100%;border-radius:6px;background:var(--s2)}
+.hb .row.ok .fil{background:var(--s3)}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;white-space:nowrap}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--tx3);font-weight:600;font-size:12px;border-bottom:1px solid var(--line2)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:700}
+td.pk,th.pk{color:var(--hi)} td.dn{color:var(--s2)} td.up{color:var(--s3)}
+ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
+.note{font-size:12.5px;color:var(--tx3);line-height:1.65;margin-top:6px}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;
+ margin:14px 0;font-size:12.5px;line-height:1.9;overflow-x:auto;color:var(--tx2);
+ font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre b{color:var(--tx);font-weight:700}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>SUT 유동성 예치<br>— 파는 게 아니라 넣는 것</h1>
+<p class="lede">회사가 SUT를 시장에 팔지 않으면서 회원이 살 수 있게 만드는 방법.
+어느 풀에 어떤 방식으로 넣는지, 테더를 한 푼도 안 쓰는 방법까지 실제 절차로 정리했습니다.
+<br>기준 2026-09-07 · 폴리곤 온체인 실측</p>
+
+<div class="card hi">
+  <div class="kh">한 줄로</div>
+  <p style="margin:2px 0 0;font-size:16px;line-height:1.68">
+  <b>파는 건 소유권이 넘어가고, 예치는 자판기에 넣어두는 것</b>입니다.
+  넣어둔 SUT는 <b>여전히 회사 것</b>이고 언제든 뺄 수 있으며, 거래될 때마다 <b>수수료 1%</b>가 쌓입니다.
+  현재가보다 위쪽 구간만 잡으면 <b>테더는 한 푼도 안 듭니다.</b></p>
+</div>
+
+<h2><span class="no">1</span>왜 지금 필요한가</h2>
+<p>두 풀에 <b>사고팔 수 있는 SUT가 24,080개</b>뿐입니다. 월요일 유입의 <b>1시간 55분치</b>이고,
+시가총액 1억 1,200만 달러짜리 토큰의 유동성이 <b>$141,579 — 0.13%</b>입니다.</p>
+<p>그래서 <b>오늘 13:22에 누가 10,000개를 팔자 1분 만에 −13.9%</b>가 났습니다.
+그리고 <b>9월 28일 주부터</b> 개인 재고가 마르면서 회원들이 시장에서 사야 하는데,
+<b>월요일 요구량의 8%만 사도 풀의 SUT가 사라집니다.</b></p>
+<p class="note">배경은 <a href="SUT_공급과_가격.html">SUT 공급과 가격</a>에 정리돼 있습니다.</p>
+
+<h2><span class="no">2</span>파는 것과 넣는 것의 차이</h2>
+<table>
+<thead><tr><th>&nbsp;</th><th>시장에 매도</th><th>유동성 예치</th></tr></thead>
+<tbody>
+<tr><td>소유권</td><td class="dn">넘어감</td><td class="up">회사 것으로 남음</td></tr>
+<tr><td>가격에 주는 영향</td><td class="dn">즉시 하락</td><td class="up">양방향 완충</td></tr>
+<tr><td>수익</td><td>매각대금 1회</td><td class="up">수수료 1% 계속</td></tr>
+<tr><td>회원이 살 수 있나</td><td>그 순간만</td><td class="up">상시</td></tr>
+<tr><td>큰 매도가 왔을 때</td><td class="dn">무방비</td><td class="up">깊이가 흡수</td></tr>
+<tr><td>되돌릴 수 있나</td><td class="dn">불가</td><td class="up">언제든 회수</td></tr>
+</tbody></table>
+<p><b>자전거래와도 다릅니다.</b> 자전거래는 자기가 사고 자기가 파는 <b>가짜 거래</b>이고,
+예치는 <b>남이 거래할 물건을 놓아두는 것</b>입니다. 거래 상대는 전부 제3자입니다.</p>
+
+<h2><span class="no">3</span>어디에 넣나 — 이미 있는 그 풀</h2>
+<p>새로 만들 것 없습니다. 지금 가격이 찍히고 있는 풀에 물량만 보태면 됩니다.</p>
+
+<div class="spec">
+  <div class="r"><div class="k">체인</div><div class="v">Polygon</div></div>
+  <div class="r"><div class="k">프로토콜</div><div class="v">Uniswap V3</div></div>
+  <div class="r"><div class="k">풀 주소</div><div class="v"><code>0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165</code></div></div>
+  <div class="r"><div class="k">수수료 구간</div><div class="v"><b>1%</b> — 반드시 이것</div></div>
+  <div class="r"><div class="k">token0</div><div class="v">SUT <code>0x98965474ecbec2f532f1f780ee37b0b05f77ca55</code> · 18 decimals</div></div>
+  <div class="r"><div class="k">token1</div><div class="v">USDT <code>0xc2132d05d31c914a87c6611c10748aeb04b58e8f</code> · 6 decimals</div></div>
+  <div class="r"><div class="k">현재가</div><div class="v">$0.5999 <em>(tick −281435)</em></div></div>
+  <div class="r"><div class="k">tickSpacing</div><div class="v">200</div></div>
+</div>
+
+<div class="card warn">
+<div class="kh">가장 흔한 실수</div>
+<p style="margin:4px 0 0"><b>수수료 구간을 1%로 맞추지 않는 것.</b>
+0.05%나 0.3%를 고르면 <b>다른 풀</b>이 되어 유동성이 갈라집니다.
+지금 이미 주풀(1%) / 보조풀(0.05%) 둘로 나뉘어 각각 얇아진 상태라, 더 쪼개면 안 됩니다.</p>
+<p class="note">다른 DEX에 넣는 것도 같은 문제입니다.
+두 곳에 150만 개씩 넣으면 <b>150만 개짜리 얇은 풀이 두 개</b> 생길 뿐,
+<b>300만 개짜리 하나</b>만 못합니다.</p>
+</div>
+
+<h2><span class="no">4</span>편면 예치 — 테더 0원으로 하는 방법</h2>
+<p>유니스왑 V3는 <b>가격 구간을 지정</b>할 수 있습니다.
+SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 들어가고 테더 칸은 아예 비활성화됩니다.</p>
+
+<div class="fig">
+  <div class="figt">$0.60 ~ $1.20 구간에 SUT 300만 개를 넣으면</div>
+  <div class="figs">가격이 어디에 있느냐에 따라 자동으로 동작이 바뀝니다</div>
+  <svg class="rng" viewBox="0 0 700 250" role="img"
+       aria-label="가격 구간별 동작 — 0.60 아래는 대기, 0.60에서 1.20 사이는 점진 매도, 1.20 위는 전량 소진">
+    <defs>
+      <linearGradient id="band" x1="0" x2="1">
+        <stop offset="0" stop-color="#3987e5" stop-opacity=".6"/>
+        <stop offset="1" stop-color="#199e70" stop-opacity=".6"/>
+      </linearGradient>
+    </defs>
+    <path d="M40 30 L664 30" stroke="#3f424d" stroke-width="1.5"/>
+    <path d="M652 23 L664 30 L652 37" fill="none" stroke="#3f424d" stroke-width="2"/>
+    <text x="352" y="18" fill="#75798c" font-size="18" text-anchor="middle">가격 →</text>
+
+    <text x="130" y="78" fill="#3987e5" font-size="19" text-anchor="middle" font-weight="700">SUT 300만 개 그대로</text>
+    <text x="385" y="78" fill="#b2b6ca" font-size="19" text-anchor="middle">SUT ↓ · 테더 ↑</text>
+    <text x="608" y="78" fill="#199e70" font-size="19" text-anchor="middle" font-weight="700">전액 테더</text>
+
+    <rect x="40" y="96" width="178" height="46" rx="8" fill="#22243a"/>
+    <rect x="222" y="96" width="326" height="46" rx="8" fill="url(#band)"/>
+    <rect x="552" y="96" width="118" height="46" rx="8" fill="#22243a"/>
+    <text x="129" y="126" fill="#b2b6ca" font-size="20" text-anchor="middle" font-weight="600">안 팔림</text>
+    <text x="385" y="126" fill="#ffffff" font-size="20" text-anchor="middle" font-weight="700">조금씩 자동 매도</text>
+    <text x="611" y="126" fill="#b2b6ca" font-size="20" text-anchor="middle" font-weight="600">전량 소진</text>
+
+    <line x1="220" y1="88" x2="220" y2="166" stroke="#c9a227" stroke-width="3"/>
+    <line x1="550" y1="88" x2="550" y2="166" stroke="#199e70" stroke-width="3"/>
+    <text x="220" y="196" fill="#c9a227" font-size="24" text-anchor="middle" font-weight="800">$0.60</text>
+    <text x="550" y="196" fill="#199e70" font-size="24" text-anchor="middle" font-weight="800">$1.20</text>
+    <text x="220" y="222" fill="#75798c" font-size="17" text-anchor="middle">구간 하단 · 현재가</text>
+    <text x="550" y="222" fill="#75798c" font-size="17" text-anchor="middle">구간 상단</text>
+  </svg>
+</div>
+
+<table>
+<thead><tr><th>가격 위치</th><th>무슨 일이 일어나나</th></tr></thead>
+<tbody>
+<tr><td>$0.60 아래</td><td><b>한 개도 안 팔립니다.</b> 300만 개 그대로 회사 것</td></tr>
+<tr><td>$0.60 → $1.20</td><td>올라가는 만큼 <b>조금씩 자동 매도</b>, 테더가 쌓임</td></tr>
+<tr><td>$1.20 돌파</td><td>전량 소진 · 회사는 약 <b>$270만</b> 확보</td></tr>
+<tr><td>다시 하락</td><td>그 테더로 <b>SUT를 도로 사들임</b></td></tr>
+</tbody></table>
+
+<div class="card ac">
+<p style="margin:0;font-size:16px"><b>지정가 매도 사다리를 코드로 걸어두는 것</b>입니다.</p>
+<p class="note" style="margin-top:8px">테더가 안 들고, 안 오르면 안 팔리고, 오를 때만 조금씩 나갑니다.
+<b>한꺼번에 던져서 −84.6%를 만드는 일이 구조적으로 불가능해집니다.</b></p>
+</div>
+
+<h2><span class="no">5</span>실제 절차</h2>
+<div class="step">
+  <div class="s" data-n="1">
+    <h4>준비</h4>
+    <p>폴리곤 지갑(메타마스크 등)과 가스비용 <b>POL 약간</b>(몇백 원 수준), 그리고 예치할 SUT.</p>
+    <p class="note">회사 물량이라면 <b>멀티시그 지갑</b>을 쓰는 게 맞습니다.
+    이미 보유한 Gnosis Safe <code>0xca976c536a0e9176e81db1b854b07efb542d4faf</code> 를 쓸 수 있습니다.</p>
+  </div>
+  <div class="s" data-n="2">
+    <h4>app.uniswap.org 접속 → 네트워크를 Polygon으로</h4>
+  </div>
+  <div class="s" data-n="3">
+    <h4>Positions → New position</h4>
+    <p>토큰 A에 <b>SUT 컨트랙트 주소를 붙여넣기</b>(목록에 안 뜹니다), 토큰 B는 <b>USDT</b>.
+    수수료는 <b>1%</b>를 선택합니다.</p>
+  </div>
+  <div class="s" data-n="4">
+    <h4>가격 범위 지정 — 여기가 핵심</h4>
+    <p>Min을 현재가 언저리(<b>$0.60</b>), Max를 <b>$1.20</b>으로 잡으면
+    화면이 <b>SUT만 입력</b> 상태로 바뀌고 테더 칸이 비활성화됩니다.</p>
+  </div>
+  <div class="s" data-n="5">
+    <h4>Approve → Add</h4>
+    <p><code>Approve SUT</code> 한 번, <code>Add</code> 한 번.
+    끝나면 <b>포지션 NFT</b>가 지갑에 들어옵니다. 그게 예치 증서이고,
+    <b>언제든 Remove로 회수</b>할 수 있습니다.</p>
+  </div>
+</div>
+
+<h2><span class="no">6</span>양면으로 넣으면 뭐가 다른가</h2>
+<p>현재가를 <b>가운데 끼고</b> 범위를 잡으면(예: $0.40 ~ $0.90) 양쪽 다 필요합니다.</p>
+<table>
+<thead><tr><th>예치 SUT</th><th>함께 필요한 테더</th></tr></thead>
+<tbody>
+<tr><td>100만 개</td><td>약 $59,800</td></tr>
+<tr><td>300만 개</td><td>약 $179,400</td></tr>
+</tbody></table>
+<p>이러면 <b>아래쪽 매수벽도 같이 두꺼워져</b> 하락 방어까지 됩니다. 다만 테더가 듭니다.</p>
+<p><b>권장 순서</b> — 부담 0원인 <b>편면부터 시작</b>해서 효과를 보고,
+필요하면 양면으로 넓히는 것이 문턱이 없습니다.</p>
+
+<h2><span class="no">7</span>넣으면 얼마나 달라지나</h2>
+<div class="fig">
+  <div class="figt">10,000개 매도가 만드는 가격 충격</div>
+  <div class="figs">지금 −13.9%가 실측 기준점 · 막대가 짧을수록 좋습니다</div>
+  <div class="hb" id="hb"></div>
+</div>
+<table>
+<thead><tr><th>추가 예치</th><th>풀의 살 수 있는 SUT</th><th>월요일 요구량의</th></tr></thead>
+<tbody>
+<tr><td>0 <em>(지금)</em></td><td>24,080개</td><td class="dn">8%</td></tr>
+<tr><td>100만 개</td><td>1,024,080개</td><td class="up">345%</td></tr>
+<tr><td class="pk">300만 개</td><td class="pk">3,024,080개</td><td class="pk">1,018%</td></tr>
+</tbody></table>
+<p><b>300만 개는 회사 보유 2,152만 개의 14%</b>입니다.
+그것만으로 9월 28일 조달 문제가 사라지고, <b>−13.9%를 만들던 매도가 −0.6%로 죽습니다.</b></p>
+
+<h2><span class="no">8</span>공개는 이렇게</h2>
+<p>포지션을 만들면 풀 컨트랙트에 <code>Mint</code> 이벤트가 남습니다. <b>어차피 누구나 봅니다.</b>
+그러니 만든 직후에 네 가지를 함께 공지하면 됩니다.</p>
+<pre><b>예치 지갑</b>   0x……
+<b>풀</b>          0x092295c9…c4e165  (Uniswap V3 · 수수료 1%)
+<b>구간</b>        $0.60 ~ $1.20
+<b>물량</b>        SUT 3,000,000개  (테더 0)</pre>
+<p><b>매도 스케줄을 코드로 공시한 셈</b>이라 자전거래 의혹이 생길 여지가 없습니다.
+나중에 물량이 줄어드는 것도 "공지한 구간에서 팔린 것"으로 설명됩니다.</p>
+<p class="note">먼저 밝히면 "유동성을 공급했다"는 실적이 되고,
+숨기다 발견되면 "몰래 팔았다"가 됩니다. <b>같은 거래인데 순서에 따라 정반대로 읽힙니다.</b></p>
+
+<h2><span class="no">9</span>주의할 점 셋</h2>
+<ul>
+<li><b>구간을 너무 좁게 잡지 말 것.</b> $0.60~$0.65처럼 좁으면 그 안에서는 방어력이 세지만,
+가격이 벗어나면 포지션이 한쪽으로 쏠려 멈춥니다. $0.60~$1.20 정도가 무난합니다.</li>
+<li><b>수수료 1%를 반드시 확인할 것.</b> 다른 구간에 넣으면 주풀은 그대로 얇습니다.</li>
+<li><b>공급용 물량을 남길 것.</b> 회사 보유 2,152만 개 중
+<b>14주 공급용 613만 개</b>는 예치와 별도로 남겨야 합니다.
+예치분은 가격이 오르면 팔려나가므로, 공급용까지 몰아넣으면 정작 회원에게 줄 게 없어집니다.</li>
+</ul>
+
+<div class="card">
+<div class="kh">비영구적 손실(IL)은 어떻게 되나</div>
+<p style="margin:4px 0 0">일반 투자자에게는 LP의 단점으로 꼽힙니다.
+가격이 크게 오르면 SUT가 팔려나가 그냥 들고 있는 것보다 덜 벌고, 내리면 SUT를 더 사들이게 되니까요.</p>
+<table style="margin:10px 0 0">
+<thead><tr><th>상황</th><th>LP가 하는 일</th><th>회사가 원하는 것</th></tr></thead>
+<tbody>
+<tr><td>가격 상승</td><td>SUT를 팔고 테더를 받음</td><td class="up">테더 확보 ✓</td></tr>
+<tr><td>가격 하락</td><td>테더로 SUT를 사들임</td><td class="up">SUT 회수 ✓</td></tr>
+</tbody></table>
+<p class="note" style="margin-top:9px">회사의 목적이 <b>SUT 회수와 테더 확보</b>입니다.
+LP가 자동으로 하는 동작이 정확히 그것이라, <b>일반 투자자에겐 비용인 것이 회사에겐 원하는 결과</b>입니다.</p>
+</div>
+
+<h2><span class="no">10</span>이 글이 주장하지 않는 것</h2>
+<ul>
+<li><b>가격을 예측하지 않습니다.</b> 예치하면 충격이 얼마나 줄어드는지까지가 계산의 범위입니다.</li>
+<li><b>사거나 팔라고 권하지 않습니다.</b> 이 글은 회사의 선택지를 설명한 것입니다.</li>
+<li><b>회사가 이렇게 하겠다고 밝힌 적이 없습니다.</b> 제안이고, 제 의견입니다.</li>
+<li><b>충격 감소 수치는 근사입니다.</b> 오늘 실측된 한 점(10,000개 = −13.9%)으로 보정했고,
+유니스왑 V3는 구간마다 깊이가 달라 실제로는 표와 다를 수 있습니다.</li>
+<li><b>세금·회계 처리는 다루지 않습니다.</b> 예치와 수수료 수익의 처리는 별도 검토가 필요합니다.</li>
+</ul>
+
+<div class="foot">
+<p><b>확인 주소</b></p>
+<p>· SUT 주풀 <a href="https://polygonscan.com/address/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">0x0922…e165</a>
+ · SUT 토큰 <a href="https://polygonscan.com/token/0x98965474ecbec2f532f1f780ee37b0b05f77ca55" target="_blank" rel="noopener">0x9896…ca55</a>
+ · 시세 <a href="https://dexscreener.com/polygon/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">DexScreener</a></p>
+<p>풀 사양(수수료 1% · token0 = SUT · tickSpacing 200 · 현재 tick −281435)은
+체인에서 직접 읽은 값입니다. 다른 값이 나오면 알려주십시오.</p>
+</div>
+
+</div>
+
+<script>
+const SELL=[[0,'지금 그대로',13.9,''],[100000,'10만 개 예치',8.2,''],[300000,'30만 개 예치',4.5,''],
+ [1000000,'100만 개 예치',1.7,'ok'],[3000000,'300만 개 예치',0.6,'ok']];
+document.getElementById('hb').innerHTML=SELL.map(([q,lab,d,c])=>
+ `<div class="row ${c}"><div class="top"><span class="q">${lab}</span>
+   <span class="r">−${d.toFixed(1)}%</span></div>
+   <div class="trk"><div class="fil" style="width:${Math.max(2,d/13.9*100)}%"></div></div></div>`).join('');
+</script>
+</body>
+</html>
