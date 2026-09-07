@@ -76,6 +76,47 @@ font-size:10px;color:var(--tx3);font-variant-numeric:tabular-nums}
 .dbars .up b{display:block;width:100%;background:var(--in);border-radius:3px 3px 0 0;min-height:1px}
 .dbars .dn b{display:block;width:100%;background:var(--out);border-radius:0 0 3px 3px;min-height:1px}
 .dbars .col:hover b{filter:brightness(1.3)}
+.dbtn{background:rgba(201,162,39,.14);border:1px solid #6b5a22;color:#e5cd6b;border-radius:16px;
+padding:4px 13px;font:inherit;font-size:11.6px;font-weight:700;cursor:pointer;margin-top:9px}
+.dbtn:hover{background:rgba(201,162,39,.24)}
+.dbtn:disabled{opacity:.5;cursor:default}
+/* 상세 패널 */
+.ov{position:fixed;inset:0;background:rgba(8,9,14,.72);z-index:20;display:none;
+align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.ov.on{display:flex}
+.sheet{background:var(--bg);border:1px solid var(--line2);border-radius:16px 16px 0 0;
+width:100%;max-width:860px;max-height:88vh;display:flex;flex-direction:column}
+.sh{display:flex;align-items:center;gap:10px;padding:14px 16px 11px;border-bottom:1px solid var(--line)}
+.sh b{font-size:15px;flex:1}
+.sh button{background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);border-radius:15px;
+padding:4px 13px;font:inherit;font-size:11.8px;font-weight:600;cursor:pointer}
+.sh button:hover{border-color:var(--ac);color:var(--tx)}
+.ssum{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px 0}
+.ssum div{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.ssum span{display:block;font-size:10.8px;color:var(--tx3)}
+.ssum b{display:block;font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:1px}
+.ssum em{font-style:normal;display:block;font-size:11px;color:var(--tx3);margin-top:1px}
+.ssum .p b{color:var(--in)} .ssum .d b{color:var(--hi)}
+.fil{display:flex;gap:6px;padding:11px 16px 9px}
+.fil button{flex:1;background:var(--panel2);border:1px solid var(--line2);color:var(--tx3);
+border-radius:9px;padding:7px 6px;font:inherit;font-size:11.8px;font-weight:700;cursor:pointer}
+.fil button.on{background:var(--ac);border-color:var(--ac);color:#14121f}
+.list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 18px}
+.li{display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;
+padding:10px 0;border-bottom:1px solid var(--line)}
+.li .tm{font-size:11.4px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.li a{font-family:ui-monospace,Menlo,monospace;font-size:11.4px;color:var(--tx2);text-decoration:none;
+overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.li a:hover{color:var(--ac2)}
+.li .tag{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:1px 5px;margin-top:2px}
+.li .tag.p{background:rgba(75,179,232,.16);color:#8fd0f5}
+.li .tag.d{background:rgba(201,162,39,.16);color:#e5cd6b}
+.li .amt{font-size:14.5px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.lmsg{padding:26px 16px;text-align:center;color:var(--tx3);font-size:12.6px;line-height:1.7}
+.lnote{flex:0 0 auto;border-top:1px solid var(--line);padding:11px 16px 16px;
+font-size:11.4px;color:var(--tx3);line-height:1.6}
+.lnote b{color:var(--tx2);font-weight:700}
+.lnote b:first-child{display:block;color:var(--tx);font-size:12.2px;margin-bottom:4px}
 .tip{position:fixed;pointer-events:none;background:#0b0c14;border:1px solid var(--line2);border-radius:8px;
 padding:7px 10px;font-size:11.8px;color:var(--tx);white-space:nowrap;opacity:0;transition:opacity .1s;z-index:9;
 font-variant-numeric:tabular-nums;box-shadow:0 6px 18px rgba(0,0,0,.55)}
@@ -126,6 +167,7 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
     <div class="big" id="v1">—</div>
     <div class="sub" id="s1">—</div>
     <div class="foot" id="f1">—</div>
+    <button class="dbtn" id="det" type="button" disabled>상세보기 — 오늘 입금 내역</button>
   </div>
   <div class="hz b">
     <div class="lbl">회사 보유 자금</div>
@@ -196,6 +238,29 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
 노드가 응답하지 않으면 그 부분은 "—"로 두고 기록값을 대신 보여주지 않습니다.</p>
 </div></details>
 
+</div>
+
+<div class="ov" id="ov">
+  <div class="sheet">
+    <div class="sh"><b>오늘 입금 내역 · 한국시간 0시부터</b><button id="cls" type="button">닫기</button></div>
+    <div class="ssum">
+      <div class="p"><span>참여</span><b id="sp">—</b><em id="spn">—</em></div>
+      <div class="d"><span>DeCT (외매권)</span><b id="sd">—</b><em id="sdn">—</em></div>
+    </div>
+    <div class="fil" id="fil">
+      <button data-f="all" class="on">전체</button>
+      <button data-f="p">참여만</button>
+      <button data-f="d">DeCT만</button>
+    </div>
+    <div class="list" id="list"><div class="lmsg">불러오는 중…</div></div>
+    <div class="lnote">
+      <b>참여 / DeCT를 어떻게 나눴나</b>
+      같은 지갑이 오늘 <b>테더나 KWT도 함께 냈으면 참여</b>, <b>SUT만 냈으면 DeCT(외매권)</b>로 봤습니다.
+      참여는 현금과 SUT를 같이 내야 하고, 외매권 행사는 SUT만 내기 때문입니다.
+      체인에 "이건 외매권"이라고 적혀 있는 게 아니라 <b>입금 방식으로 추정한 것</b>이니 참고로만 보십시오.
+      지갑 주소를 누르면 폴리곤스캔에서 그 거래를 직접 볼 수 있습니다.
+    </div>
+  </div>
 </div>
 <div class="tip" id="tip"></div>
 
@@ -282,10 +347,11 @@ async function midnightBlk(u,blk){
   let g=Math.max(1,blk-Math.round((T0-mid)/rate));
   const Tg=await blockTs(u,g);
   g=Math.max(1,g-Math.round((Tg-mid)/rate));              /* 1회 보정 */
+  RATE_SEEN=rate;
   return {from:Math.min(g,blk),secs:T0-mid,rate};
 }
 /* 조각 하나를 여러 노드로 재시도 — 실패하면 전체 실패(부분 합계는 절대 표시하지 않는다) */
-let DEADLINE=0;
+let DEADLINE=0, RATE_SEEN=1.6;
 async function chunk(nodes,lo,hi){
   for(const u of nodes){
     if(Date.now()>DEADLINE) throw 0;          /* 전체 제한시간을 넘기면 즉시 포기 */
@@ -314,7 +380,10 @@ async function todayLogs(u,blk){
   for(const x of logs){ const k=x.transactionHash+'|'+x.logIndex;
     if(!seen.has(k)){seen.add(k);uniq.push(x);} }
   return {sum:uniq.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0),n:uniq.length,
-          part:false,hrs:secs/3600,blocks:blk-from+1};
+          part:false,hrs:secs/3600,blocks:blk-from+1,
+          rows:uniq.map(x=>({b:Number(BigInt(x.blockNumber)),h:x.transactionHash,
+                             f:'0x'+x.topics[1].slice(26),v:Number(BigInt(x.data))/1e18})),
+          from,blk,nodes,rate:RATE_SEEN,mid:Math.floor((Date.now()/1000+32400)/86400)*86400-32400};
 }
 function nice(mx){const p=Math.pow(10,Math.floor(Math.log10(mx)));
   for(const s of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(mx<=p*s) return p*s; return p*10;}
@@ -347,6 +416,71 @@ function divChart(px){
   ].map(([t,sb,v,c])=>`<div class="rw"><div class="n" style="font-weight:600">${t}<em>${sb}</em></div>
     <div class="r"><b class="w" style="color:${c}">${v}</b><span class="q">SUT</span></div></div>`).join('');
 }
+/* ── 상세보기 ── */
+let TL=null, DETAIL=null, FIL='all';
+async function otherLogs(nodes,tok,from,blk){
+  const CH=10000, jobs=[];
+  for(let lo=from;lo<=blk;lo+=CH) jobs.push([lo,Math.min(lo+CH-1,blk)]);
+  const out=new Array(jobs.length); let i=0;
+  async function w(){ while(i<jobs.length){ const k=i++;
+    for(const u of nodes){
+      if(Date.now()>DEADLINE) throw 0;
+      try{
+        const j=await post(u,{jsonrpc:'2.0',id:1,method:'eth_getLogs',params:[{address:tok,
+          fromBlock:'0x'+jobs[k][0].toString(16),toBlock:'0x'+jobs[k][1].toString(16),
+          topics:[TR,null,'0x'+'0'.repeat(24)+CC.slice(2)]}]},9000);
+        if(j.error||!Array.isArray(j.result))throw 0;
+        out[k]=j.result; break;
+      }catch(e){ if(u===nodes[nodes.length-1]) throw 0; }
+    }}}
+  await Promise.all([w(),w(),w()]);
+  return out.flat();
+}
+async function loadDetail(){
+  if(DETAIL||!TL) return;
+  $('list').innerHTML='<div class="lmsg">참여인지 DeCT인지 가려내는 중…<br>테더·KWT 입금도 함께 읽습니다</div>';
+  DEADLINE=Date.now()+20000;
+  let pay=new Set();
+  try{
+    const [u,k]=await Promise.all([
+      otherLogs(TL.nodes,T.USDT[0],TL.from,TL.blk),
+      otherLogs(TL.nodes,T.KWT[0], TL.from,TL.blk)]);
+    for(const x of [...u,...k]) pay.add('0x'+x.topics[1].slice(26).toLowerCase());
+  }catch(e){
+    $('list').innerHTML='<div class="lmsg">참여·DeCT 구분에 실패했습니다.<br>'
+      +'아래는 구분 없이 입금 내역만 보여드립니다.</div>';
+    DETAIL={rows:TL.rows.map(r=>({...r,t:'?'})),ok:false}; render(); return;
+  }
+  DETAIL={ok:true,rows:TL.rows.map(r=>({...r,t:pay.has(r.f.toLowerCase())?'p':'d'}))};
+  render();
+  function render(){
+    const R=DETAIL.rows.slice().sort((a,b)=>b.b-a.b);
+    const P=R.filter(x=>x.t==='p'), D=R.filter(x=>x.t==='d');
+    const sum=a=>a.reduce((s,x)=>s+x.v,0);
+    $('sp').textContent=nf(sum(P)); $('spn').textContent=`${nf(P.length)}건 · SUT`;
+    $('sd').textContent=nf(sum(D)); $('sdn').textContent=`${nf(D.length)}건 · SUT`;
+    if(!DETAIL.ok){ $('sp').textContent='—';$('spn').textContent='구분 실패';
+                    $('sd').textContent='—';$('sdn').textContent='구분 실패'; }
+    const show=FIL==='all'?R:R.filter(x=>x.t===FIL);
+    $('list').innerHTML=show.length?show.map(x=>{
+      const t=new Date((TL.mid+(x.b-TL.from)*TL.rate)*1000)
+        .toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false});
+      const tg=x.t==='p'?'<span class="tag p">참여</span>':x.t==='d'?'<span class="tag d">DeCT</span>':'';
+      return `<div class="li"><span class="tm">${t}</span>
+        <div><a href="https://polygonscan.com/tx/${x.h}" target="_blank" rel="noopener"
+          >${x.f.slice(0,8)}…${x.f.slice(-6)}</a>${tg}</div>
+        <span class="amt">${nf(x.v,2)}</span></div>`;}).join('')
+      : '<div class="lmsg">해당하는 입금이 없습니다.</div>';
+  }
+  DETAIL.render=render;
+}
+$('det').addEventListener('click',()=>{ $('ov').classList.add('on'); loadDetail(); });
+$('cls').addEventListener('click',()=>$('ov').classList.remove('on'));
+$('ov').addEventListener('click',e=>{ if(e.target===$('ov')) $('ov').classList.remove('on'); });
+$('fil').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+  FIL=b.dataset.f; [...$('fil').children].forEach(x=>x.classList.toggle('on',x===b));
+  if(DETAIL&&DETAIL.render) DETAIL.render(); });
+addEventListener('keydown',e=>{ if(e.key==='Escape') $('ov').classList.remove('on'); });
 const tip=$('tip');
 document.addEventListener('pointermove',e=>{
   const c=e.target.closest('.dbars .col');
@@ -372,7 +506,9 @@ function draw(bal,blk,px,tl,src){
   if(tl==='pending'){ $('l1').textContent='오늘 들어온 SUT';
     $('v1').textContent='집계 중…'; $('s1').textContent='오늘 0시부터의 입금 기록을 읽고 있습니다';
     $('f1').textContent='잠시만 기다려 주십시오'; }
-  else if(tl){ today=tl.sum; n=tl.n; }
+  else if(tl){ today=tl.sum; n=tl.n;
+    if(tl.rows){ TL=tl; DETAIL=null; $('det').disabled=false;
+      $('det').textContent=`상세보기 — 오늘 입금 ${nf(tl.n)}건`; } }
   /* 히어로 1 — 오늘 */
   if(today!=null){
     $('l1').textContent=`오늘 들어온 SUT · 한국시간 0시부터 ${tl.hrs.toFixed(1)}시간`;
@@ -381,7 +517,8 @@ function draw(bal,blk,px,tl,src){
     const r=today/B.yday-1;
     $('f1').innerHTML=`어제 ${nf(B.yday)}개 대비 <span class="${r>=0?'up':'dn'}">${r>=0?'▲':'▼'} ${nf(Math.abs(r*100))}%</span>`;
   }else if(tl!=='pending'){ $('v1').textContent='—'; $('s1').textContent='유입 조회 실패';
-    $('f1').textContent='공개 노드가 로그 조회를 지원하지 않습니다'; }
+    $('f1').textContent='공개 노드가 로그 조회를 지원하지 않습니다';
+    $('det').disabled=true; $('det').textContent='상세보기 — 오늘 입금 내역'; }
   /* 히어로 2 — 보유 */
   const sum=t=>HOLD.reduce((a,[k])=>a+((bal[k]||{})[t]||0),0);
   const U=sum('USDT'),S=sum('SUT'),KW=sum('KWT'),MP=sum('MPC');
