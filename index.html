@@ -68,8 +68,8 @@ const TABS=[
  {on:true,  id:'debt',    t:'통화별 잔여 채무',  f:'통화별_잔여채무.html',
   d:'KWT · 테더 · NSS 셋으로 나눈 회사의 신용대금'},
 
- {on:true,  id:'sutflow', t:'월별 SUT 유입량',   f:'월별_SUT_유입량.html',
-  d:'참여자가 회사로 보낸 SUT의 월별 추이 (막대에 올리면 숫자)'},
+ {on:true,  id:'dash',    t:'실시간 대시보드',    f:'회사잔고_유입감시.html',
+  d:'오늘 유입 · 일별 30일 · 월별 추이 · 회사 보유금 · 감시 항목'},
 
  {on:true,  id:'mine',    t:'광산 상환 가능선',   f:'광산_채무상환_계산.html',
   d:'MPC 100억 개로 한 번에 갚으려면 광산에서 얼마가 나와야 하나'},
@@ -77,10 +77,10 @@ const TABS=[
  {on:true,  id:'mpc',     t:'MPC 10억 이동',     f:'MPC_오늘의_이동과_베스팅.html',
   d:'9월 4일 금고에서 나간 총발행 10%와, 스왑 시 베스팅이 뜻하는 것'},
 
- {on:true,  id:'live',    t:'회사 잔고 · 유입',   f:'회사잔고_유입감시.html',
-  d:'새로고침할 때마다 체인에서 직접 읽는 CC2C SUT 입금과 회사 지갑 잔고'},
-
  /* ── 아래는 꺼둔 탭 — on 을 true 로 바꾸면 켜집니다 ── */
+
+ {on:false, id:'sutflow', t:'월별 SUT 유입량',   f:'월별_SUT_유입량.html',
+  d:'실시간 대시보드에 병합됨 — 월별 원자료가 따로 필요할 때만 켜십시오'},
  {on:false, id:'registry',t:'지갑 등록소',      f:'wallet_address_arc.html',
   d:'폴리곤스캔 주소에 커뮤니티 이름표를 덧씌운 등록소'},
 
