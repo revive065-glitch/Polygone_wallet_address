@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>SUT는 어디서 오고 언제 마르는가</title>
+<meta name="description" content="회원들이 넣는 SUT의 실제 출처를 온체인으로 추적하고, 재고가 마르며 시장 매수로 넘어가는 시점을 계산했습니다">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ /* 계열색 — 표면 #1c1e2c 에서 검증 통과 (명도대·채도·색각·대비 전부 PASS) */
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.72;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:25px;line-height:1.32;letter-spacing:-.6px;margin:0 0 8px;font-weight:800}
+h2{font-size:18.5px;letter-spacing:-.3px;margin:44px 0 12px;font-weight:700;
+ padding-top:20px;border-top:1px solid var(--line)}
+h2 .no{color:var(--ac);font-weight:800;margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 8px;font-weight:700}
+p{margin:11px 0}
+.lede{color:var(--tx2);font-size:14px;margin:0 0 22px}
+em{font-style:normal;color:var(--tx3)}
+a{color:var(--ac)}
+code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border-radius:4px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px 16px;margin:16px 0}
+.card.hi{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(201,162,39,.02))}
+.card.ac{border-color:#463f6b;background:linear-gradient(180deg,rgba(145,132,217,.09),rgba(145,132,217,.02))}
+.card.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.10),rgba(217,89,38,.02))}
+.kh{font-size:12px;color:var(--tx3);margin-bottom:5px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px}
+.tile .t{font-size:11.5px;color:var(--tx3);margin-bottom:4px}
+.tile .v{font-size:21px;font-weight:800;letter-spacing:-.6px}
+.tile .s{font-size:11.5px;color:var(--tx2);margin-top:2px}
+@media(min-width:620px){.tiles{grid-template-columns:repeat(4,1fr)}}
+
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 14px 12px;margin:18px 0}
+.figt{font-size:14px;font-weight:700}
+.figs{font-size:12px;color:var(--tx3);margin:2px 0 14px}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--tx2);margin-bottom:11px}
+.lg i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px}
+
+/* 누적 막대 — 주차별 조달 구성 */
+.wb{position:relative;height:170px;display:flex;align-items:flex-end;gap:3px;
+ border-bottom:1px solid var(--line2);padding-right:2px}
+.wb .col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;cursor:default}
+.wb .seg{width:100%;transition:filter .12s}
+.wb .a{background:var(--s1)}
+.wb .b{background:var(--s2);border-radius:3px 3px 0 0;box-shadow:0 2px 0 var(--panel)}
+.wb .col:hover .seg{filter:brightness(1.25)}
+.wb .col.mk .seg.b{outline:1px solid var(--hi);outline-offset:-1px}
+.wx{display:flex;gap:3px;margin-top:6px}
+.wx div{flex:1;text-align:center;font-size:9.5px;color:var(--tx3)}
+.wx div.mk{color:var(--hi);font-weight:700}
+
+/* 가로 재고 막대 */
+.st .row{padding:10px 0;border-top:1px solid var(--line)}
+.st .row:first-child{border-top:0}
+.st .top{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:4px}
+.st .n{font-weight:700}
+.st .n em{margin-left:6px;font-size:11px;white-space:nowrap}
+.st .w{font-weight:800;white-space:nowrap}
+.st .trk{height:12px;background:#22243a;border-radius:6px;overflow:hidden}
+.st .fil{height:100%;border-radius:6px;background:var(--s1)}
+.st .row.r2 .fil{background:var(--s3)}
+.st .row.r3 .fil{background:var(--hi)}
+.st .row.r4 .fil{background:var(--s2)}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;white-space:nowrap}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--tx3);font-weight:600;font-size:12px;border-bottom:1px solid var(--line2)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:700}
+td.pk,th.pk{color:var(--hi)}
+td.dn{color:var(--s2)}
+ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
+.note{font-size:12.5px;color:var(--tx3);line-height:1.65;margin-top:6px}
+.say{border-left:3px solid var(--ac);padding:10px 0 10px 14px;margin:16px 0;
+ background:linear-gradient(90deg,rgba(145,132,217,.07),transparent);font-size:14px;color:var(--tx2)}
+.say b{color:var(--tx)}
+.flow{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;
+ margin:14px 0;font-size:12.5px;line-height:2.1;overflow-x:auto;white-space:nowrap;color:var(--tx2)}
+.flow b{color:var(--tx)}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+#tip{position:fixed;z-index:50;pointer-events:none;background:#0f1120;border:1px solid var(--line2);
+ border-radius:9px;padding:7px 10px;font-size:12px;color:var(--tx);opacity:0;transition:opacity .1s;
+ box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap;line-height:1.55}
+#tip.on{opacity:1} #tip em{display:block;font-size:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>SUT는 어디서 오고<br>언제 마르는가</h1>
+<p class="lede">회원들이 회사에 넣는 SUT가 실제로 어디서 오는지, 지갑 810곳의 전체 이력을 온체인으로 추적했습니다.
+그리고 그 재고가 마르면서 시장 매수로 넘어가는 시점을 계산했습니다.
+<br>기준 2026-09-07 · 폴리곤 온체인 실측</p>
+
+<div class="card hi">
+  <div class="kh">세 줄로</div>
+  <p style="margin:2px 0 0;font-size:15.5px;line-height:1.7">
+  ① <b>지금 시장에서 직접 사는 물량은 1.2%뿐</b>입니다. 96.6%가 지갑에서 지갑으로 옵니다.<br>
+  ② 그 지갑들을 따라가면 <b>회사가 돌려주던 순환</b>이 나오는데, <b>2026년 3~4월에 멈췄고 금고는 비었습니다</b>(잔량 11만 개).<br>
+  ③ 남은 재고는 <b>648만 개</b>, 소비는 주당 <b>112만 개</b>. <b>4~7주 뒤 시장 매수가 시작되고, 그 다음 주에 곧바로 80% 이상으로 뜁니다.</b></p>
+</div>
+
+<div class="tiles">
+  <div class="tile"><div class="t">시장에서 직접 매수</div><div class="v">1.2%</div><div class="s">최근 30일 · 118곳</div></div>
+  <div class="tile"><div class="t">남은 활성 재고</div><div class="v">648만</div><div class="s">회원 376만 + 허브 330만</div></div>
+  <div class="tile"><div class="t">주당 소비</div><div class="v" style="color:var(--s2)">112만</div><div class="s">최근 30일 실측</div></div>
+  <div class="tile"><div class="t">시장 매수 전환</div><div class="v" style="color:var(--hi)">4~7주</div><div class="s">지금 속도 유지 시</div></div>
+</div>
+
+<h2><span class="no">1</span>지금 SUT는 어디서 오는가</h2>
+<p>최근 7일 CC2C 수금지갑에 SUT를 넣은 <b>지갑 810곳 전부</b>의 SUT 이력을 받아, 그들이 받은 SUT의 출처를 갈랐습니다.</p>
+
+<table>
+<thead><tr><th>최근 30일 받은 SUT</th><th>수량</th><th>비중</th><th>지갑수</th></tr></thead>
+<tbody>
+<tr><td>다른 지갑에서</td><td>6,008,475</td><td>96.6%</td><td>663곳</td></tr>
+<tr><td>회사 지갑에서</td><td>131,429</td><td>2.1%</td><td>59곳</td></tr>
+<tr><td class="pk">유동성 풀에서 직접</td><td class="pk">77,503</td><td class="pk">1.2%</td><td class="pk">118곳</td></tr>
+<tr class="tot"><td>합계</td><td>6,217,407</td><td>100%</td><td>810곳</td></tr>
+</tbody></table>
+
+<p>거의 전부가 <b>지갑에서 지갑으로</b> 옵니다. 그런데 그 공급자 660곳 중 <b>상위 5곳이 55%</b>, 상위 20곳이 72%를 댑니다.
+소수의 허브가 물량을 쥐고 나눠주는 구조입니다.</p>
+
+<div class="say">
+<b>회원 설명</b> — SUT를 구하는 통로는 <b>TRSUT 지갑, 거래소, P2P 방</b> 셋입니다.
+P2P로 사는 사람이 적지 않은데, 그 P2P 물량도 결국 거래소에 있던 것을 되파는 것입니다.
+<div class="note" style="margin-top:7px">체인에서는 이 셋이 모두 <b>지갑 간 이체</b>로 똑같이 보입니다.
+위 표의 96.6%가 이 셋을 합친 값입니다. 셋을 서로 구분할 방법은 온체인에 없습니다.</div>
+</div>
+
+<h2><span class="no">2</span>그 허브를 따라가면 회사가 나옵니다</h2>
+<p>상위 허브들이 어디서 그 물량을 받았는지 추적했습니다.</p>
+<ul>
+<li>허브 <code>0x3fbebfb2…</code> — 회원 <b>171곳</b>에 공급 · <b>중앙금고에서 27,560,000개</b> 수령</li>
+<li>허브 <code>0xdc7f40a3…</code> — 회원 <b>148곳</b>에 공급 · <b>중앙금고에서 19,250,000개</b> 수령</li>
+</ul>
+<p>그 중앙금고에 SUT를 넣어준 것은 <b>CC2C 수금지갑</b>입니다. 즉 회원이 낸 SUT가 돌아서 회원에게 다시 갑니다.</p>
+
+<div class="flow">
+회원 → <b>CC2C 수금</b> → <b>중앙금고 · 0x697376 금고</b> → <b>지급지갑 #1·#2 · 허브</b> → 회원 &nbsp;(그리고 다시 처음으로)
+</div>
+
+<table>
+<thead><tr><th>지갑</th><th>평생 받은 SUT</th><th>평생 내보낸 SUT</th><th>차이</th></tr></thead>
+<tbody>
+<tr><td>CC2C 수금</td><td>499,076,453</td><td>495,517,320</td><td>0.7%</td></tr>
+<tr><td>0x697376 금고</td><td>387,841,446</td><td>387,841,446</td><td class="pk">0</td></tr>
+<tr><td>중앙금고</td><td>339,767,005</td><td>339,754,017</td><td>0.004%</td></tr>
+</tbody></table>
+
+<p><b>받은 만큼 정확히 다시 내보냈습니다.</b> 총발행이 2.38억 개인데 CC2C를 4.99억 개가 통과했다는 것은,
+<b>같은 물량이 두 바퀴 돌았다</b>는 뜻입니다. 새로 만들어진 공급이 아니라 순환이었습니다.</p>
+
+<div class="say">
+<b>회원 설명</b> — 예전에는 앱에서 <b>22,000 KWT를 1 SUT로</b> 바꿔줬습니다.
+KWT는 사실상 무가치인데 그것으로 회사 SUT를 받아간 셈입니다.
+바꾼 뒤에는 팔기 아까워 놔뒀다가, <b>NSS를 할 때 그 전환해둔 물량을 쓰기 시작</b>했습니다.
+<div class="note" style="margin-top:7px">온체인 교차검증 — KWT 결제액을 그 시기 발급된 SUT로 나누면 <b>1 SUT당 약 24,576 KWT</b>가 나옵니다.
+앱의 22,000:1과 같은 자릿수입니다.</div>
+</div>
+
+<h2><span class="no">3</span>그 순환이 2026년 3~4월에 멈췄습니다</h2>
+<table>
+<thead><tr><th>월</th><th>0x697376 금고 유출</th><th>중앙금고 유출</th></tr></thead>
+<tbody>
+<tr><td>2026-01</td><td>49,399,786</td><td>9,742,090</td></tr>
+<tr><td>2026-02</td><td>13,447,536</td><td>12,734,269</td></tr>
+<tr><td>2026-03</td><td>821,985</td><td>39,124,234</td></tr>
+<tr><td class="pk">2026-04</td><td class="pk">0</td><td>27,948,782</td></tr>
+<tr><td>2026-05</td><td>0</td><td>18,230,066</td></tr>
+<tr><td>2026-06</td><td>0</td><td>1,678,800</td></tr>
+<tr><td>2026-07</td><td>0</td><td>386,720</td></tr>
+<tr><td class="dn">2026-08</td><td class="dn">0</td><td class="dn">594,427</td></tr>
+</tbody></table>
+
+<p>그리고 <b>그 금고들은 지금 비어 있습니다.</b></p>
+<table>
+<thead><tr><th>재순환 계통 지갑</th><th>현재 SUT 잔고</th></tr></thead>
+<tbody>
+<tr><td>0x697376 금고</td><td class="pk">0</td></tr>
+<tr><td>지급지갑 #1</td><td class="pk">0</td></tr>
+<tr><td>중앙금고</td><td>12,988</td></tr>
+<tr><td>지급지갑 #2</td><td>97,110</td></tr>
+<tr class="tot"><td>합계</td><td>110,098</td></tr>
+</tbody></table>
+<p class="note">CC2C 수금지갑은 이제 내보내지 않고 <b>쌓고만 있습니다</b> — 현재 10,918,363개.
+2026-07 유출 0개, 2026-08 유출 1,960,000개(유입 4,061,780개).</p>
+
+<h2><span class="no">4</span>남은 재고와 소비 속도</h2>
+<p>SUT를 실제로 대고 있는 지갑들의 <b>현재 잔고를 전부 실측</b>했습니다.</p>
+
+<div class="fig">
+  <div class="figt">남은 재고 — 주당 소비 1,123,821개 기준</div>
+  <div class="figs">막대 길이는 몇 주치인가 · 회원과 허브의 중복 576,023개는 제거</div>
+  <div class="st" id="st"></div>
+</div>
+
+<p><b>MPC 금고만이 남은 예비</b>입니다. 다만 그중 <b>20만 개는 9월 5일에 매도지갑으로</b> 옮겨졌습니다 —
+회원에게 가는 방향이 아니라 시장에 파는 방향입니다.</p>
+
+<h2><span class="no">5</span>회원 개개인은 몇 주치를 들고 있나</h2>
+<p>지갑 807곳의 <b>현재 잔고 ÷ 최근 1주 입금액</b>입니다.</p>
+
+<table>
+<thead><tr><th>남은 기간</th><th>해당 지갑</th><th>비율</th><th>그들이 차지하는 주간 입금</th></tr></thead>
+<tbody>
+<tr><td>이미 0</td><td>60곳</td><td>7.4%</td><td>11.2%</td></tr>
+<tr><td class="pk">1주 이내</td><td class="pk">300곳</td><td class="pk">37.2%</td><td class="pk">61.0%</td></tr>
+<tr><td>2주 이내</td><td>350곳</td><td>43.4%</td><td>68.8%</td></tr>
+<tr><td>4주 이내</td><td>435곳</td><td>53.9%</td><td>80.5%</td></tr>
+<tr><td>8주 이내</td><td>499곳</td><td>61.8%</td><td>87.9%</td></tr>
+<tr><td>13주 이내</td><td>559곳</td><td>69.3%</td><td>92.6%</td></tr>
+</tbody></table>
+
+<p>중앙값은 <b>3.1주</b>입니다. 눈여겨볼 것은 마지막 칸입니다 —
+<b>1주 이내에 마르는 지갑들이 주간 입금액의 61%를 차지</b>합니다.
+많이 넣는 사람일수록 빨리 마릅니다.</p>
+
+<h2><span class="no">6</span>그래서 언제 시장으로 가는가</h2>
+<p>지갑 하나하나를 주 단위로 돌렸습니다. 자기 잔고가 떨어지면 허브(P2P·거래소)에서 받고,
+허브 재고도 떨어지면 <b>풀에서 살 수밖에 없습니다.</b></p>
+
+<div class="fig">
+  <div class="figt">주차별 조달 구성</div>
+  <div class="figs">허브 재고를 표본 몫만 인정한 보수적 기준 · 막대에 손을 올리면 상세</div>
+  <div class="lg"><span><i style="background:var(--s1)"></i>자기 잔고 + 허브가 충당</span>
+   <span><i style="background:var(--s2)"></i>시장에서 사야 하는 몫</span></div>
+  <div class="wb" id="wb"></div>
+  <div class="wx" id="wx"></div>
+</div>
+
+<div class="card warn">
+<div class="kh">전환은 완만하지 않습니다</div>
+<p style="margin:4px 0 0"><b>4주차 17% → 5주차 82%.</b> 한 주 만에 뛰어오릅니다.
+회원 대다수의 잔여 기간이 비슷하게 짧아서, 마르는 시점이 한꺼번에 몰리기 때문입니다.
+서서히 늘어나는 것이 아니라 <b>어느 주에 갑자기 전부가 시장으로 향합니다.</b></p>
+</div>
+
+<h3>전제를 바꾸면</h3>
+<table>
+<thead><tr><th>전제</th><th>시장 매수 시작</th><th>요구량 절반 초과</th></tr></thead>
+<tbody>
+<tr><td class="pk">보수적 (허브 재고 = 표본 몫)</td><td class="pk">4주차</td><td class="pk">5주차</td></tr>
+<tr><td>허브 재고 전액을 인정</td><td>6주차</td><td>7주차</td></tr>
+<tr><td>허브 재고가 이미 절반뿐</td><td>4주차</td><td>4주차</td></tr>
+<tr><td>P2P·허브가 이미 비었다면</td><td>1주차</td><td>2주차</td></tr>
+<tr><td>참여가 30% 줄어든다</td><td>9주차</td><td>9주차</td></tr>
+<tr><td>소요량을 900→450으로 또 내린다</td><td>12주차</td><td>12주차</td></tr>
+<tr><td>회사가 MPC금고 1,040만 개를 마저 푼다</td><td>23주차</td><td>23주차</td></tr>
+</tbody></table>
+
+<p>범위를 넓게 잡아도 <b>4주에서 9주 사이</b>입니다.
+그것을 늦출 수 있는 것은 <b>회사가 MPC 금고를 푸는 것</b>과 <b>소요량을 또 내리는 것</b> 둘뿐인데,
+둘 다 회사가 결정합니다. 회원 쪽에서 바꿀 수 있는 변수가 아닙니다.</p>
+
+<h2><span class="no">7</span>풀이 그것을 받아낼 수 있는가</h2>
+<p>못 받습니다. 보수적 기준으로 <b>14주 누적 시장 매수는 6,134,187개</b>인데,
+두 풀에 있는 SUT는 전부 합쳐 <b>24,080개</b>입니다.</p>
+
+<div class="card">
+<p style="margin:0;font-size:16px"><b>필요한 양이 풀에 있는 양의 255배입니다.</b></p>
+<p class="note" style="margin-top:8px">풀 개설(2025-11) 이후 지금까지 누적 매수 17,069,522개 / 누적 매도 17,108,245개 —
+<b>순매수 −38,723개</b>입니다. 시장은 지금껏 SUT를 <b>한 개도 순공급하지 않았습니다.</b>
+사고 판 것이 정확히 상쇄됐습니다. 순공급이 없는 곳에서 6백만 개를 꺼내오는 방법은 없습니다.</p>
+</div>
+
+<p>이미 그 방향으로 움직이고 있습니다. CC2C 유입 대비 풀에서의 매수량이
+<b>2026-04 4.6% → 05월 36.3% → 08월 44.5%</b>로 올라왔습니다.
+가격이 지난 한 달 <b>$0.188 → $0.598로 3.2배</b> 오른 것도 같은 시기입니다.</p>
+
+<h2><span class="no">8</span>무엇을 보면 아는가</h2>
+<ul>
+<li><b>풀의 SUT 재고</b> — 지금 24,080개. 줄어들면 조달 압력이 실제로 붙은 것입니다.</li>
+<li><b>MPC 금고의 SUT</b> — 지금 1,040만 개. 회원 쪽으로 나가면 시점이 미뤄지고, 매도지갑으로 가면 반대입니다.</li>
+<li><b>매도지갑 잔고</b> — 9월 5일에 받은 20만 개. 줄면 회사가 시장에 팔고 있다는 뜻입니다.</li>
+<li><b>소요량 공지</b> — 900에서 또 내려가면 수요가 그만큼 줄어 시점이 미뤄집니다.</li>
+<li><b>P2P 방 호가</b> — 시장가보다 비싸지기 시작하면 P2P 재고가 마르고 있다는 신호입니다.</li>
+</ul>
+<p class="note">앞의 넷은 <a href="실시간_대시보드.html">실시간 대시보드</a>에서 바로 확인됩니다.</p>
+
+<h2><span class="no">9</span>이 글이 주장하지 않는 것</h2>
+<ul>
+<li><b>가격을 예측하지 않습니다.</b> 재고와 소비 속도로 계산한 시점일 뿐입니다.</li>
+<li><b>사거나 팔라고 권하지 않습니다.</b> 판단에 쓸 숫자를 드릴 뿐입니다.</li>
+<li><b>표본은 최근 7일 입금자 810곳</b>이고, 그들의 주간 입금은 전체 유입의 <b>60.6%</b>입니다.
+나머지 39.4%를 넣는 지갑은 이 계산에 없습니다. 그들이 더 넉넉할 수도, 더 마를 수도 있습니다.</li>
+<li><b>허브 재고는 상위 150곳만</b> 실측했습니다. 그 아래 꼬리가 더 있을 수 있고, 그만큼 시점이 미뤄집니다.</li>
+<li><b>참여 속도가 일정하다고 가정</b>했습니다. 실제로는 참여가 줄면 시점이 미뤄집니다(30% 감소 시 9주차).</li>
+<li><b>회사의 의도를 단정하지 않습니다.</b> 3~4월에 순환이 멈췄다는 사실까지입니다.</li>
+<li>TRSUT 지갑·거래소·P2P를 <b>체인에서 구분할 수 없습니다.</b> 셋을 합쳐 '지갑 간 이체'로 묶었습니다.</li>
+</ul>
+
+<div class="foot">
+<p><b>검증 방법</b></p>
+<p>· CC2C 수금 <a href="https://polygonscan.com/address/0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">0xaaa4…cc2c</a>
+ · 중앙금고 <a href="https://polygonscan.com/address/0x7cc2f8914b4d77b68355757286f146373f4bf7ad" target="_blank" rel="noopener">0x7cc2…f7ad</a>
+ · 0x697376 금고 <a href="https://polygonscan.com/address/0x6973766e354b42d4cc255ef48ed1d2708fd84461" target="_blank" rel="noopener">0x6973…4461</a></p>
+<p>· 지급지갑#1 <a href="https://polygonscan.com/address/0xf11d0da941625c2e6df119c6b30df9d42ad0a964" target="_blank" rel="noopener">0xf11d…a964</a>
+ · MPC금고 <a href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">0xf46e…7bc8</a>
+ · 매도지갑 <a href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">0x686a…a6a6</a></p>
+<p>모든 숫자는 폴리곤 체인에서 직접 뽑았습니다. 다른 값이 나오면 알려주십시오.</p>
+</div>
+
+</div>
+<div id="tip"></div>
+
+<script>
+const nf=v=>Math.round(v).toLocaleString('ko-KR');
+/* 재고 막대 — 주당 1,123,821 기준 */
+const WK=1123821;
+const ST=[['회원 지갑 807곳',3756832,'실측 잔고',''],
+          ['공급 허브 150곳',2721664,'중복 제외','r2'],
+          ['회사 재순환 금고',110098,'사실상 소진','r3'],
+          ['두 유동성 풀',24080,'시장 전체','r4'],
+          ['(예비) MPC 금고',10412783,'회사 결정','r2']];
+const MXW=Math.max(...ST.map(r=>r[1]));
+document.getElementById('st').innerHTML=ST.map(([n,v,s,c])=>
+ `<div class="row ${c}"><div class="top"><span class="n">${n}<em>${s}</em></span>
+   <span class="w">${nf(v)}개 · ${(v/WK).toFixed(1)}주치</span></div>
+   <div class="trk"><div class="fil" style="width:${Math.max(1.2,v/MXW*100)}%"></div></div></div>`).join('');
+/* 주차별 조달 구성 — 보수적 기준선 시뮬레이션 결과 */
+const SIM=[[1,681113,0],[2,681113,0],[3,681113,0],[4,681113,118432],[5,681113,557475],
+ [6,681113,575572],[7,681113,582439],[8,681113,591113],[9,681113,600550],[10,681113,607616],
+ [11,681113,613320],[12,681113,624112],[13,681113,628148],[14,681113,635410]];
+const TOP=681113;
+document.getElementById('wb').innerHTML=SIM.map(([w,tot,mkt])=>{
+  const a=(tot-mkt)/TOP*100, b=mkt/TOP*100;
+  return `<div class="col${w===4||w===5?' mk':''}" data-w="${w}" data-t="${nf(tot)}"
+    data-m="${nf(mkt)}" data-p="${(mkt/tot*100).toFixed(0)}">
+    <div class="seg b" style="height:${b}%"></div>
+    <div class="seg a" style="height:${a}%"></div></div>`;}).join('');
+document.getElementById('wx').innerHTML=SIM.map(([w])=>
+  `<div class="${w===4||w===5?'mk':''}">${w}</div>`).join('');
+const tip=document.getElementById('tip');
+document.addEventListener('pointermove',e=>{
+  const c=e.target.closest('.wb .col');
+  if(!c){tip.classList.remove('on');return;}
+  tip.innerHTML=`<b>${c.dataset.w}주차</b> 요구량 ${c.dataset.t}개`
+    +`<em style="color:var(--s2)">시장에서 사야 ${c.dataset.m}개 (${c.dataset.p}%)</em>`;
+  tip.classList.add('on');
+  tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,Math.max(8,e.clientX-tip.offsetWidth/2))+'px';
+  tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-14)+'px';
+},{passive:true});
+</script>
+</body>
+</html>
