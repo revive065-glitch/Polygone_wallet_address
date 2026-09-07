@@ -262,20 +262,59 @@ async function getAll(u){
   const q=Number(BigInt('0x'+m[pid].slice(2,66)))/Math.pow(2,96);
   return {bal,blk:Number(BigInt(m[bid])),px:q*q*1e12};
 }
-async function todayLogs(u,blk){
-  const now=new Date(),kst=new Date(now.getTime()+(now.getTimezoneOffset()+540)*60000);
-  const mid=new Date(kst);mid.setHours(0,0,0,0);
-  const secs=(kst-mid)/1000, need=Math.min(Math.ceil(secs/BLKSEC),60000);
-  const CH=5000,N=Math.min(Math.ceil(need/CH),12);let logs=[],got=0;
-  for(let i=0;i<N;i++){const hi=blk-CH*i,lo=Math.max(blk-need+1,hi-CH+1);
-    try{const j=await post(u,{jsonrpc:'2.0',id:1,method:'eth_getLogs',params:[{address:T.SUT[0],
-      fromBlock:'0x'+lo.toString(16),toBlock:'0x'+hi.toString(16),
-      topics:[TR,null,'0x'+'0'.repeat(24)+CC.slice(2)]}]},12000);
+/* ── 한국시간 0시의 블록 번호를 체인에서 직접 찾는다 ──
+   전에는 블록 1.5초를 '가정'해서 구간이 매번 달라졌다. 실제 시각으로 보정한다. */
+async function blockTs(nodes,b){
+  for(const u of nodes){
+    try{
+      const j=await post(u,{jsonrpc:'2.0',id:1,method:'eth_getBlockByNumber',
+        params:['0x'+b.toString(16),false]},8000);
+      if(j.result&&j.result.timestamp) return Number(BigInt(j.result.timestamp));
+    }catch(e){}
+  }
+  throw 0;
+}
+async function midnightBlk(u,blk){
+  const T0=await blockTs(u,blk);
+  const T1=await blockTs(u,blk-50000);
+  const rate=Math.max(0.5,(T0-T1)/50000);                 /* 실측 초/블록 */
+  const mid=Math.floor((Date.now()/1000+32400)/86400)*86400-32400;   /* KST 0시 */
+  let g=Math.max(1,blk-Math.round((T0-mid)/rate));
+  const Tg=await blockTs(u,g);
+  g=Math.max(1,g-Math.round((Tg-mid)/rate));              /* 1회 보정 */
+  return {from:Math.min(g,blk),secs:T0-mid,rate};
+}
+/* 조각 하나를 여러 노드로 재시도 — 실패하면 전체 실패(부분 합계는 절대 표시하지 않는다) */
+let DEADLINE=0;
+async function chunk(nodes,lo,hi){
+  for(const u of nodes){
+    if(Date.now()>DEADLINE) throw 0;          /* 전체 제한시간을 넘기면 즉시 포기 */
+    try{
+      const j=await post(u,{jsonrpc:'2.0',id:1,method:'eth_getLogs',params:[{address:T.SUT[0],
+        fromBlock:'0x'+lo.toString(16),toBlock:'0x'+hi.toString(16),
+        topics:[TR,null,'0x'+'0'.repeat(24)+CC.slice(2)]}]},9000);
       if(j.error||!Array.isArray(j.result))throw 0;
-      logs=logs.concat(j.result);got+=hi-lo+1;
-    }catch(e){ if(i===0)throw 0; break; }}
-  return {sum:logs.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0),n:logs.length,
-          part:got<need,hoursGot:got*BLKSEC/3600,hrs:secs/3600};
+      return j.result;
+    }catch(e){}
+  }
+  throw 0;
+}
+async function todayLogs(u,blk){
+  const nodes=Array.isArray(u)?u:[u,...RPCS.filter(x=>x!==u)];
+  const {from,secs}=await midnightBlk(nodes,blk);
+  const CH=10000, jobs=[];
+  for(let lo=from;lo<=blk;lo+=CH) jobs.push([lo,Math.min(lo+CH-1,blk)]);
+  /* 동시 3개씩 — 순차보다 훨씬 빠르고 노드에 몰리지도 않는다 */
+  const out=new Array(jobs.length); let idx=0;
+  async function worker(){ while(idx<jobs.length){const i=idx++; out[i]=await chunk(nodes,...jobs[i]);} }
+  await Promise.all([worker(),worker(),worker()]);
+  const logs=out.flat();
+  /* 같은 로그가 두 번 들어가지 않게 (tx해시+logIndex로 중복 제거) */
+  const seen=new Set(), uniq=[];
+  for(const x of logs){ const k=x.transactionHash+'|'+x.logIndex;
+    if(!seen.has(k)){seen.add(k);uniq.push(x);} }
+  return {sum:uniq.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0),n:uniq.length,
+          part:false,hrs:secs/3600,blocks:blk-from+1};
 }
 function nice(mx){const p=Math.pow(10,Math.floor(Math.log10(mx)));
   for(const s of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(mx<=p*s) return p*s; return p*10;}
@@ -331,12 +370,12 @@ function draw(bal,blk,px,tl,src){
   const B=DASH.base;
   let today=null,n=0;
   if(tl==='pending'){ $('l1').textContent='오늘 들어온 SUT';
-    $('v1').textContent='집계 중…'; $('s1').textContent='유입 기록을 읽고 있습니다'; $('f1').textContent='\u00a0'; }
+    $('v1').textContent='집계 중…'; $('s1').textContent='오늘 0시부터의 입금 기록을 읽고 있습니다';
+    $('f1').textContent='잠시만 기다려 주십시오'; }
   else if(tl){ today=tl.sum; n=tl.n; }
   /* 히어로 1 — 오늘 */
   if(today!=null){
-    $('l1').textContent=tl.part?`오늘 들어온 SUT (최근 ${tl.hoursGot.toFixed(1)}시간)`
-      :'오늘 들어온 SUT · 한국시간 0시부터';
+    $('l1').textContent=`오늘 들어온 SUT · 한국시간 0시부터 ${tl.hrs.toFixed(1)}시간`;
     $('v1').innerHTML=`${nf(today)}<span class="unit">개</span>`;
     $('s1').textContent=`${won(today*px*FX)} · ${nf(n)}건`;
     const r=today/B.yday-1;
@@ -392,7 +431,8 @@ async function poll(force){
       const {bal,blk,px}=await getAll(u);
       draw(bal,blk,px,'pending',u);          /* ① 잔고를 먼저 보여준다 */
       let tl=null;
-      for(const u2 of [u,...RPCS]){try{tl=await todayLogs(u2,blk);break;}catch(e){}}
+      DEADLINE=Date.now()+15000;             /* 유입 집계는 15초 안에 끝내거나 포기 */
+      try{ tl=await todayLogs([u,...RPCS.filter(x=>x!==u)],blk); }catch(e){}
       draw(bal,blk,px,tl,u);                 /* ② 유입이 오면 채운다 */
       cacheSet({bal,blk,px,tl,src:u});
       busy=false;$('ref').disabled=false;return;
