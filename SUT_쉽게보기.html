@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>SUT 쉽게 보기 — 과일가게 이야기</title>
+<meta name="description" content="왜 조금만 사고팔아도 SUT 가격이 크게 움직일까. 동네 과일가게에 빗대어 그림으로 풀었습니다.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:16px;line-height:1.78;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:660px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:27px;line-height:1.3;letter-spacing:-.7px;margin:0 0 10px;font-weight:800}
+.lede{color:var(--tx2);font-size:15px;margin:0 0 26px}
+p{margin:12px 0}
+b{font-weight:700}
+em{font-style:normal;color:var(--tx3)}
+
+/* 컷 */
+.cut{background:var(--panel);border:1px solid var(--line);border-radius:18px;
+ padding:18px 16px 16px;margin:18px 0}
+.cut .no{display:inline-block;background:var(--ac);color:#12101c;font-size:12px;font-weight:800;
+ padding:3px 11px;border-radius:20px;margin-bottom:9px}
+.cut h2{font-size:19px;line-height:1.4;letter-spacing:-.4px;margin:0 0 4px;font-weight:800;border:0;padding:0}
+.cut .say{font-size:15px;color:var(--tx2);margin:6px 0 14px}
+.cut svg{width:100%;height:auto;display:block;margin:4px 0}
+.cut .pt{font-size:15.5px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
+ color:var(--tx);line-height:1.72}
+.cut .pt b{color:var(--hi)}
+.cut.big{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.08),rgba(201,162,39,.02))}
+.cut.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.09),rgba(217,89,38,.02))}
+.cut.ok{border-color:#1d6b50;background:linear-gradient(180deg,rgba(25,158,112,.09),rgba(25,158,112,.02))}
+
+/* 점 비교 */
+.dots{display:flex;flex-wrap:wrap;gap:3px;margin:8px 0}
+.dots i{width:8px;height:8px;border-radius:50%;display:block}
+.dg{margin:14px 0}
+.dg .lb{font-size:13px;color:var(--tx2);margin-bottom:6px;display:flex;justify-content:space-between}
+.dg .lb b{font-size:14px}
+
+.end{background:var(--panel2);border:1px solid var(--line2);border-radius:18px;
+ padding:20px 18px;margin:30px 0 0}
+.end h3{margin:0 0 10px;font-size:18px;font-weight:800}
+.end p{margin:9px 0;font-size:15.5px}
+.note{font-size:13px;color:var(--tx3);line-height:1.7;margin-top:10px}
+.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>왜 조금만 사고팔아도<br>가격이 확 움직일까</h1>
+<p class="lede">어렵다는 말씀이 많아서, 동네 과일가게에 빗대어 다시 써봤습니다.
+숫자는 전부 실제 값입니다.</p>
+
+<div class="cut">
+  <span class="no">1컷</span>
+  <h2>시장을 과일가게라고 생각해보세요</h2>
+  <div class="say">사려면 가게에 있는 만큼만 살 수 있습니다. 없으면 못 삽니다.</div>
+  <svg viewBox="0 0 560 210" role="img" aria-label="과일가게 진열대에 사과가 몇 개 놓여 있는 그림">
+    <rect x="30" y="30" width="500" height="130" rx="14" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <rect x="30" y="30" width="500" height="34" rx="14" fill="#2b2e42"/>
+    <text x="280" y="54" fill="#e9e9ed" font-size="19" font-weight="800" text-anchor="middle">S U T   과 일 가 게</text>
+    <line x1="55" y1="118" x2="505" y2="118" stroke="#4a4d5e" stroke-width="3"/>
+    <circle cx="110" cy="104" r="13" fill="#d95926"/><circle cx="150" cy="104" r="13" fill="#d95926"/>
+    <circle cx="190" cy="104" r="13" fill="#d95926"/><circle cx="230" cy="104" r="13" fill="#d95926"/>
+    <text x="330" y="112" fill="#75798c" font-size="17">…텅 비어 있음</text>
+    <text x="280" y="150" fill="#b2b6ca" font-size="16" text-anchor="middle">진열대에 남은 것 = 지금 시장에 나와 있는 SUT</text>
+    <rect x="180" y="176" width="200" height="30" rx="8" fill="rgba(201,162,39,.16)" stroke="#5c5030"/>
+    <text x="280" y="197" fill="#c9a227" font-size="17" font-weight="800" text-anchor="middle">24,080개</text>
+  </svg>
+  <div class="pt">지금 시장에서 <b>실제로 살 수 있는 SUT는 24,080개</b>가 전부입니다.
+  나머지는 전부 누군가의 지갑 안에 있습니다.</div>
+</div>
+
+<div class="cut">
+  <span class="no">2컷</span>
+  <h2>그런데 필요한 양은 이만큼입니다</h2>
+  <div class="say">점 하나가 1,000개입니다. 월요일 하루치만 놓고 비교해봤습니다.</div>
+  <div class="dg">
+    <div class="lb"><span>가게에 있는 것</span><b style="color:var(--hi)">24,080개</b></div>
+    <div class="dots" id="d1"></div>
+  </div>
+  <div class="dg">
+    <div class="lb"><span>월요일 하루에 필요한 것</span><b style="color:var(--s2)">296,987개</b></div>
+    <div class="dots" id="d2"></div>
+  </div>
+  <div class="pt">필요한 양이 가게에 있는 것의 <b>12배</b>입니다.
+  전부 가게로 사러 오면, 있는 걸 다 사도 <b>8%</b>밖에 못 채웁니다.</div>
+</div>
+
+<div class="cut">
+  <span class="no">3컷</span>
+  <h2>그럼 왜 지금까지 조용했을까요</h2>
+  <div class="say">사람들이 가게를 안 거치고 서로 직접 주고받았기 때문입니다.</div>
+  <svg viewBox="0 0 560 200" role="img" aria-label="사람들이 가게를 우회해서 서로 직접 주고받는 그림">
+    <rect x="215" y="112" width="130" height="58" rx="12" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <text x="280" y="140" fill="#75798c" font-size="17" font-weight="700" text-anchor="middle">과일가게</text>
+    <text x="280" y="160" fill="#75798c" font-size="13" text-anchor="middle">거의 안 감</text>
+    <circle cx="80" cy="60" r="22" fill="#1c3050" stroke="#3987e5" stroke-width="2"/>
+    <text x="80" y="67" fill="#e9e9ed" font-size="15" font-weight="700" text-anchor="middle">이웃</text>
+    <circle cx="480" cy="60" r="22" fill="#1c3050" stroke="#3987e5" stroke-width="2"/>
+    <text x="480" y="67" fill="#e9e9ed" font-size="15" font-weight="700" text-anchor="middle">나</text>
+    <path d="M106 60 Q280 8 454 60" fill="none" stroke="#199e70" stroke-width="3"/>
+    <path d="M444 52 L456 60 L444 68" fill="none" stroke="#199e70" stroke-width="3"/>
+    <text x="280" y="34" fill="#2bb984" font-size="16" font-weight="700" text-anchor="middle">정해진 값에 직접 주고받음</text>
+    <path d="M80 86 L80 106 L210 130" fill="none" stroke="#4a4d5e" stroke-width="2" stroke-dasharray="6 5"/>
+    <path d="M480 86 L480 106 L350 130" fill="none" stroke="#4a4d5e" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="280" y="192" fill="#b2b6ca" font-size="15" text-anchor="middle">가게를 안 거치니 가게 값은 안 움직임</text>
+  </svg>
+  <div class="pt">최근 한 달, 사람들이 구한 SUT의 <b>96.6%가 지갑에서 지갑으로</b> 왔습니다.
+  가게에서 직접 산 건 <b>1.2%</b>뿐입니다. 그래서 값이 조용했던 겁니다.</div>
+</div>
+
+<div class="cut warn">
+  <span class="no">4컷</span>
+  <h2>그런데 집에 쌓아둔 게 떨어져 갑니다</h2>
+  <div class="say">서로 주고받을 수 있었던 건 각자 창고에 재고가 있었기 때문입니다.</div>
+  <svg viewBox="0 0 560 180" role="img" aria-label="창고 재고가 5주 뒤 비는 그림">
+    <rect x="30" y="40" width="240" height="86" rx="12" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <text x="150" y="30" fill="#b2b6ca" font-size="15" text-anchor="middle" font-weight="700">지금</text>
+    <rect x="46" y="58" width="208" height="52" rx="7" fill="#199e70" opacity=".75"/>
+    <text x="150" y="92" fill="#ffffff" font-size="19" font-weight="800" text-anchor="middle">648만 개</text>
+    <text x="150" y="148" fill="#75798c" font-size="14" text-anchor="middle">개인들 창고에 남은 것</text>
+    <path d="M290 84 L340 84" stroke="#d95926" stroke-width="3"/>
+    <path d="M330 76 L342 84 L330 92" fill="none" stroke="#d95926" stroke-width="3"/>
+    <text x="315" y="70" fill="#e8763f" font-size="13" text-anchor="middle">5주</text>
+    <rect x="360" y="40" width="170" height="86" rx="12" fill="#22243a" stroke="#7a3c1e" stroke-width="2"/>
+    <text x="445" y="30" fill="#e8763f" font-size="15" text-anchor="middle" font-weight="700">9월 28일쯤</text>
+    <text x="445" y="92" fill="#e8763f" font-size="19" font-weight="800" text-anchor="middle">거의 0</text>
+    <text x="445" y="148" fill="#75798c" font-size="14" text-anchor="middle">주당 112만 개씩 빠짐</text>
+  </svg>
+  <div class="pt">주당 <b>112만 개</b>씩 회사로 들어갑니다. 남은 게 <b>648만 개</b>니까 <b>5~6주치</b>입니다.
+  그게 떨어지면 이웃한테 얻을 데가 없어집니다.</div>
+</div>
+
+<div class="cut warn">
+  <span class="no">5컷</span>
+  <h2>그때 다들 가게로 몰려옵니다</h2>
+  <div class="say">사과 24개짜리 가게에 297명이 줄을 서면 어떻게 될까요.</div>
+  <svg viewBox="0 0 560 210" role="img" aria-label="작은 가게에 많은 사람이 몰려 값이 치솟는 그림">
+    <rect x="30" y="40" width="180" height="110" rx="12" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <text x="120" y="70" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">과일가게</text>
+    <circle cx="80" cy="105" r="10" fill="#d95926"/><circle cx="110" cy="105" r="10" fill="#d95926"/>
+    <circle cx="140" cy="105" r="10" fill="#d95926"/>
+    <text x="120" y="137" fill="#75798c" font-size="14" text-anchor="middle">24,080개뿐</text>
+    <g fill="#3987e5">
+      <circle cx="250" cy="60" r="9"/><circle cx="280" cy="60" r="9"/><circle cx="310" cy="60" r="9"/>
+      <circle cx="340" cy="60" r="9"/><circle cx="370" cy="60" r="9"/><circle cx="400" cy="60" r="9"/>
+      <circle cx="250" cy="90" r="9"/><circle cx="280" cy="90" r="9"/><circle cx="310" cy="90" r="9"/>
+      <circle cx="340" cy="90" r="9"/><circle cx="370" cy="90" r="9"/><circle cx="400" cy="90" r="9"/>
+      <circle cx="250" cy="120" r="9"/><circle cx="280" cy="120" r="9"/><circle cx="310" cy="120" r="9"/>
+      <circle cx="340" cy="120" r="9"/><circle cx="370" cy="120" r="9"/><circle cx="400" cy="120" r="9"/>
+    </g>
+    <text x="430" y="95" fill="#b2b6ca" font-size="17">…522명</text>
+    <path d="M230 90 L215 90" stroke="#3987e5" stroke-width="3"/>
+    <path d="M223 82 L213 90 L223 98" fill="none" stroke="#3987e5" stroke-width="3"/>
+    <rect x="150" y="166" width="260" height="34" rx="8" fill="rgba(217,89,38,.16)" stroke="#7a3c1e"/>
+    <text x="280" y="189" fill="#e8763f" font-size="17" font-weight="800" text-anchor="middle">값이 치솟습니다</text>
+  </svg>
+  <div class="pt">월요일은 참여자가 가장 많은 날입니다. 주간 필요량의 <b>26%</b>가 그날 하루에 몰립니다.
+  <b>필요량의 8%만 사도 가게가 텅 빕니다.</b></div>
+</div>
+
+<div class="cut warn">
+  <span class="no">6컷</span>
+  <h2>반대로 한 사람이 왕창 팔면요</h2>
+  <div class="say">이건 가정이 아니라 <b>9월 7일에 실제로 일어난 일</b>입니다.</div>
+  <svg viewBox="0 0 560 190" role="img" aria-label="1만 개 매도로 가격이 1분 만에 13.9퍼센트 떨어진 그림">
+    <line x1="40" y1="150" x2="530" y2="150" stroke="#3f424d" stroke-width="2"/>
+    <path d="M60 60 L200 60" stroke="#199e70" stroke-width="4"/>
+    <circle cx="200" cy="60" r="7" fill="#199e70"/>
+    <text x="120" y="46" fill="#2bb984" font-size="16" font-weight="700">$0.6113</text>
+    <path d="M200 60 L260 128" stroke="#d95926" stroke-width="4"/>
+    <circle cx="260" cy="128" r="7" fill="#d95926"/>
+    <text x="330" y="128" fill="#e8763f" font-size="16" font-weight="700">$0.5265</text>
+    <path d="M260 128 L520 128" stroke="#3f424d" stroke-width="2" stroke-dasharray="5 5"/>
+    <rect x="196" y="76" width="132" height="30" rx="8" fill="rgba(217,89,38,.2)" stroke="#7a3c1e"/>
+    <text x="262" y="97" fill="#e8763f" font-size="16" font-weight="800" text-anchor="middle">−13.9%</text>
+    <text x="230" y="172" fill="#b2b6ca" font-size="15" text-anchor="middle">1만 개 매도</text>
+    <text x="400" y="172" fill="#75798c" font-size="14" text-anchor="middle">걸린 시간 · 1분</text>
+  </svg>
+  <div class="pt">누가 <b>1만 개</b>를 팔자 <b>1분 만에 13.9%</b>가 빠졌습니다.
+  가게가 작으니까 사과 한 상자만 들어와도 값이 무너지는 겁니다.</div>
+</div>
+
+<div class="cut">
+  <span class="no">7컷</span>
+  <h2>가게가 컸다면 어땠을까요</h2>
+  <div class="say">똑같이 1만 개를 팔아도 결과가 이렇게 다릅니다.</div>
+  <svg viewBox="0 0 560 200" role="img" aria-label="작은 가게와 큰 가게에서 같은 매도의 충격 차이">
+    <rect x="30" y="30" width="230" height="150" rx="14" fill="#22243a" stroke="#7a3c1e" stroke-width="2"/>
+    <text x="145" y="58" fill="#e8763f" font-size="16" font-weight="700" text-anchor="middle">지금 (작은 가게)</text>
+    <circle cx="105" cy="92" r="11" fill="#d95926"/><circle cx="145" cy="92" r="11" fill="#d95926"/>
+    <circle cx="185" cy="92" r="11" fill="#d95926"/>
+    <text x="145" y="132" fill="#b2b6ca" font-size="14" text-anchor="middle">1만 개 팔면</text>
+    <text x="145" y="162" fill="#e8763f" font-size="24" font-weight="800" text-anchor="middle">−13.9%</text>
+    <rect x="300" y="30" width="230" height="150" rx="14" fill="#22243a" stroke="#1d6b50" stroke-width="2"/>
+    <text x="415" y="58" fill="#2bb984" font-size="16" font-weight="700" text-anchor="middle">채운 뒤 (큰 가게)</text>
+    <g fill="#199e70">
+      <circle cx="335" cy="84" r="9"/><circle cx="363" cy="84" r="9"/><circle cx="391" cy="84" r="9"/>
+      <circle cx="419" cy="84" r="9"/><circle cx="447" cy="84" r="9"/><circle cx="475" cy="84" r="9"/>
+      <circle cx="335" cy="108" r="9"/><circle cx="363" cy="108" r="9"/><circle cx="391" cy="108" r="9"/>
+      <circle cx="419" cy="108" r="9"/><circle cx="447" cy="108" r="9"/><circle cx="475" cy="108" r="9"/>
+    </g>
+    <text x="415" y="140" fill="#b2b6ca" font-size="14" text-anchor="middle">1만 개 팔면</text>
+    <text x="415" y="166" fill="#2bb984" font-size="24" font-weight="800" text-anchor="middle">−0.6%</text>
+  </svg>
+  <div class="pt">진열대를 <b>300만 개</b>로 채워두면 같은 매도가 <b>−13.9%에서 −0.6%</b>로 줄어듭니다.
+  <b>23분의 1</b>입니다.</div>
+</div>
+
+<div class="cut ok">
+  <span class="no">8컷</span>
+  <h2>그래서 필요한 건 하나입니다</h2>
+  <div class="say">진열대를 채워두는 것. 파는 게 아니라 <b>놓아두는 것</b>입니다.</div>
+  <svg viewBox="0 0 560 170" role="img" aria-label="파는 것과 진열대에 놓아두는 것의 차이">
+    <rect x="30" y="24" width="230" height="120" rx="14" fill="#22243a" stroke="#7a3c1e" stroke-width="2"/>
+    <text x="145" y="52" fill="#e8763f" font-size="16" font-weight="800" text-anchor="middle">파는 것</text>
+    <text x="145" y="80" fill="#b2b6ca" font-size="15" text-anchor="middle">사과가 내 손을</text>
+    <text x="145" y="102" fill="#b2b6ca" font-size="15" text-anchor="middle">떠납니다</text>
+    <text x="145" y="130" fill="#e8763f" font-size="15" font-weight="700" text-anchor="middle">값도 그 자리서 하락</text>
+    <rect x="300" y="24" width="230" height="120" rx="14" fill="#22243a" stroke="#1d6b50" stroke-width="2"/>
+    <text x="415" y="52" fill="#2bb984" font-size="16" font-weight="800" text-anchor="middle">놓아두는 것</text>
+    <text x="415" y="80" fill="#b2b6ca" font-size="15" text-anchor="middle">여전히 내 사과이고</text>
+    <text x="415" y="102" fill="#b2b6ca" font-size="15" text-anchor="middle">언제든 다시 가져옵니다</text>
+    <text x="415" y="130" fill="#2bb984" font-size="15" font-weight="700" text-anchor="middle">팔릴 때마다 수수료까지</text>
+  </svg>
+  <div class="pt">회사가 가진 SUT는 <b>2,152만 개</b>입니다.
+  그중 <b>300만 개(14%)</b>만 진열대에 놓아두면 됩니다. 파는 게 아니라 놓아두는 것이라
+  <b>물량은 그대로 회사 것</b>입니다.</div>
+</div>
+
+<div class="end">
+  <h3>세 문장으로</h3>
+  <p><b>1.</b> 지금 시장에 나와 있는 SUT는 <b>24,080개</b>뿐입니다. 월요일 하루 필요량의 <b>8%</b>입니다.</p>
+  <p><b>2.</b> 지금까지는 다들 서로 주고받아서 가게를 안 거쳤는데, <b>그 재고가 5~6주 뒤에 마릅니다.</b></p>
+  <p><b>3.</b> 그러면 다 가게로 몰리는데 물건이 없습니다. <b>미리 진열대를 채워두면 되는 일</b>입니다.</p>
+  <p class="note">가격이 오른다 내린다를 맞히려는 글이 아닙니다.
+  가게에 물건이 24개뿐이라는 사실, 그리고 5~6주 뒤에 사람들이 몰려온다는 계산까지입니다.
+  자세한 숫자와 근거는 아래 글에 있습니다.</p>
+</div>
+
+<div class="foot">
+<p>· 자세히 — <a href="SUT_공급과_가격.html">SUT 공급과 가격</a> · <a href="SUT_유동성_예치방법.html">유동성 예치 방법</a></p>
+<p>· 숫자 확인 — <a href="https://dexscreener.com/polygon/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">SUT 시세·유동성</a>
+ · <a href="https://polygonscan.com/address/0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">회사 수금지갑</a></p>
+<p>전부 폴리곤 체인에서 직접 뽑은 숫자입니다. 다른 값이 나오면 알려주십시오.</p>
+</div>
+
+</div>
+<script>
+function dots(el,n,color){
+  el.innerHTML=Array.from({length:n},()=>`<i style="background:${color}"></i>`).join('');
+}
+dots(document.getElementById('d1'),24,'#c9a227');
+dots(document.getElementById('d2'),297,'#d95926');
+</script>
+</body>
+</html>
