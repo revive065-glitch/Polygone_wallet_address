@@ -9,192 +9,170 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
 :root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
---tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
---red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--usd:#3987e5}
-*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;
+--bar:#7f76b8;--hi:#c9a227;--green:#5fd6a6;--red:#e0857f;--grid:#262838}
+*{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.6;
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.55;
 font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
-.wrap{max-width:900px;margin:0 auto;padding:16px 14px 70px}
-h1{font-size:20px;margin:0 0 3px;letter-spacing:-.6px}
-.tag{color:var(--tx3);font-size:12.2px;margin-bottom:13px;padding-bottom:12px;border-bottom:1px solid var(--line)}
-h2{font-size:16.5px;margin:28px 0 5px;letter-spacing:-.3px}
-h2+.sub{color:var(--tx3);font-size:12.4px;margin:0 0 11px}
-code{font-family:ui-monospace,Menlo,monospace}
-.bar{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line2);
-border-radius:12px;padding:9px 13px;margin-bottom:12px;flex-wrap:wrap}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--tx3);flex:0 0 auto}
-.dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(95,214,166,.16)}
-.dot.err{background:var(--red);box-shadow:0 0 0 3px rgba(224,133,127,.16)}
-.bar b{font-size:12.6px;flex:1;min-width:110px;font-weight:600}
-.bar button{background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);border-radius:16px;
-padding:4px 13px;font:inherit;font-size:11.6px;font-weight:600;cursor:pointer}
-.bar button:hover{border-color:var(--ac);color:var(--tx)}
-.bar button:disabled{opacity:.45}
-.bar .meta{font-size:11px;color:var(--tx3);width:100%;font-variant-numeric:tabular-nums}
-/* 히어로 */
-.hero{background:linear-gradient(180deg,#20243a,#191b27);border:1px solid var(--line2);
-border-radius:17px;padding:19px 18px;margin-bottom:10px}
-.hero .k{font-size:12px;color:var(--tx3);margin-bottom:3px}
-.hero .v{font-size:46px;font-weight:800;letter-spacing:-2px;font-variant-numeric:tabular-nums;
-line-height:1.02;color:var(--gold)}
-.hero .u{font-size:13px;color:var(--tx2);margin-top:4px}
-.cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-.cmp div{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
-.cmp span{display:block;font-size:10.6px;color:var(--tx3)}
-.cmp b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;display:block;margin-top:1px}
-.cmp em{font-style:normal;font-size:11px;font-weight:700}
-.up{color:var(--green)}.dn{color:var(--red)}
-/* 막대 차트 */
-.ch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 13px 10px}
-.bars{display:flex;align-items:flex-end;gap:2px;height:132px;margin-bottom:6px}
-.bars i{flex:1;background:var(--ac);border-radius:2px 2px 0 0;min-height:2px;position:relative;
-transition:background .12s;cursor:default}
-.bars i.wk{background:#c4bbff}
-.bars i.today{background:var(--gold)}
-.bars i:hover{background:var(--ac2)}
-.bars i.today:hover{background:#e5cd6b}
+.wrap{max-width:860px;margin:0 auto;padding:14px 14px 60px}
+.top{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.top h1{font-size:17px;margin:0;letter-spacing:-.5px;flex:1}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--tx3)}
+.dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(95,214,166,.15)}
+.dot.err{background:var(--red);box-shadow:0 0 0 3px rgba(224,133,127,.15)}
+.top button{background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);border-radius:15px;
+padding:4px 12px;font:inherit;font-size:11.4px;font-weight:600;cursor:pointer}
+.top button:hover{border-color:var(--ac);color:var(--tx)}
+.top button:disabled{opacity:.4}
+.stamp{width:100%;font-size:10.8px;color:var(--tx3);font-variant-numeric:tabular-nums;margin-top:-4px}
+/* 히어로 2단 */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.hz{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:16px 17px}
+.hz.a{border-left:3px solid var(--hi)}
+.hz.b{border-left:3px solid var(--green)}
+.hz .lbl{font-size:12px;color:var(--tx3);margin-bottom:5px}
+.hz .big{font-size:34px;font-weight:800;letter-spacing:-1.4px;line-height:1.05;font-variant-numeric:tabular-nums}
+.hz.a .big{color:var(--hi)} .hz.b .big{color:var(--green)}
+.hz .sub{font-size:12.4px;color:var(--tx2);margin-top:5px;font-variant-numeric:tabular-nums}
+.hz .foot{font-size:11.6px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--line);
+font-variant-numeric:tabular-nums}
+.up{color:var(--green);font-weight:700}.dn{color:var(--red);font-weight:700}
+/* KPI 4칸 */
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.kpi div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.kpi span{display:block;font-size:10.8px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi b{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin-top:2px}
+.kpi em{font-style:normal;display:block;font-size:10.8px;color:var(--tx3);margin-top:1px}
+/* 차트 */
+h2{font-size:14.5px;margin:0 0 3px;letter-spacing:-.3px;font-weight:700}
+h2+.cap{font-size:11.6px;color:var(--tx3);margin:0 0 9px}
+.ch{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 14px 9px;margin-bottom:16px}
+.plot{position:relative;height:150px;margin-bottom:7px}
+.gl{position:absolute;left:0;right:0;border-top:1px solid var(--grid)}
+.gl b{position:absolute;left:0;top:-8px;background:var(--panel);padding-right:6px;
+font-size:10px;color:var(--tx3);font-weight:500;font-variant-numeric:tabular-nums}
+.bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px}
+.bars i{flex:1;max-width:24px;background:var(--bar);border-radius:4px 4px 0 0;min-height:2px;cursor:default}
+.bars i.today{background:var(--hi)}
+.bars i:hover{filter:brightness(1.25)}
 .xl{display:flex;justify-content:space-between;font-size:10.4px;color:var(--tx3);font-variant-numeric:tabular-nums}
-.tip{position:fixed;pointer-events:none;background:#0d0e16;border:1px solid var(--line2);border-radius:8px;
-padding:6px 9px;font-size:11.6px;color:var(--tx);white-space:nowrap;opacity:0;transition:opacity .1s;z-index:9;
-font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.5)}
-.tip.on{opacity:1}
-.tip b{color:var(--gold)}
-/* 보유금 */
-.hold{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.hc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
-.hc.cash{border-left:3px solid var(--green)}
-.hc.sut{border-left:3px solid var(--gold)}
-.hc.own{border-left:3px solid var(--tx3)}
-.hc .t{font-size:11.8px;color:var(--tx3);margin-bottom:3px}
-.hc .v{font-size:27px;font-weight:800;letter-spacing:-1.1px;font-variant-numeric:tabular-nums;line-height:1.1}
-.hc .s{font-size:11.8px;color:var(--tx2);margin-top:4px}
-.hc .n{font-size:11.4px;color:var(--tx3);margin-top:6px;padding-top:6px;border-top:1px solid var(--line)}
-.hc.cash .v{color:var(--green)}.hc.sut .v{color:var(--gold)}.hc.own .v{color:var(--tx2)}
-/* 감시 */
-.wl{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px 15px}
-.wr{display:grid;grid-template-columns:1fr auto auto;gap:11px;align-items:baseline;
-padding:11px 0;border-bottom:1px solid var(--line)}
-.wr:last-child{border:0}
-.wr .n{font-size:13px;font-weight:700}
-.wr .n em{font-style:normal;display:block;font-size:11px;color:var(--tx3);font-weight:400;margin-top:1px}
-.wr .v{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
-.wr .d{font-size:11.4px;font-variant-numeric:tabular-nums;text-align:right;color:var(--tx3);white-space:nowrap}
-.wr .d.al{color:var(--gold);font-weight:800;background:rgba(201,162,39,.15);border-radius:5px;padding:1px 6px}
-.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:13px 15px;margin-top:10px}
-.note h3{margin:0 0 7px;font-size:13.4px;color:#e5cd6b}
-.note p{margin:0 0 7px;font-size:12.6px;color:var(--tx2)}.note p:last-child{margin:0}
-.note b{color:var(--tx)}
-.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
-.lnk{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:11px;
-padding:10px 13px;text-decoration:none;margin-bottom:7px}
-.lnk:hover{border-color:var(--ac)}
-.lnk b{display:block;font-size:12.8px;color:var(--tx);margin-bottom:2px}
-.lnk code{font-size:10.6px;color:var(--tx3);overflow-wrap:anywhere}
-details{margin-top:10px}
-summary{cursor:pointer;font-size:12.8px;color:var(--tx2);padding:9px 13px;background:var(--panel2);
-border:1px solid var(--line);border-radius:11px;list-style:none}
+.tip{position:fixed;pointer-events:none;background:#0b0c14;border:1px solid var(--line2);border-radius:8px;
+padding:7px 10px;font-size:11.8px;color:var(--tx);white-space:nowrap;opacity:0;transition:opacity .1s;z-index:9;
+font-variant-numeric:tabular-nums;box-shadow:0 6px 18px rgba(0,0,0,.55)}
+.tip.on{opacity:1}.tip b{color:var(--hi)}.tip em{font-style:normal;color:var(--tx3)}
+/* 표 */
+.tb{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:2px 15px;margin-bottom:16px}
+.rw{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+padding:12px 0;border-bottom:1px solid var(--line)}
+.rw:last-child{border:0}
+.rw .n{font-size:13.4px;font-weight:700;min-width:0}
+.rw .n em{font-style:normal;display:block;font-size:11.2px;color:var(--tx3);font-weight:400;margin-top:1px}
+.rw .r{text-align:right;white-space:nowrap}
+.rw .w{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px;display:block}
+.rw .q{font-size:11.4px;color:var(--tx3);font-variant-numeric:tabular-nums;display:block;margin-top:1px}
+.rw.cash .w{color:var(--green)} .rw.sut .w{color:var(--hi)} .rw.own .w{color:var(--tx3);font-size:15px}
+.rw .q.al{color:var(--hi);font-weight:800;background:rgba(201,162,39,.15);border-radius:5px;padding:1px 6px;display:inline-block}
+/* 접기 */
+details{margin-bottom:9px}
+summary{cursor:pointer;font-size:12.6px;color:var(--tx2);padding:10px 14px;background:var(--panel);
+border:1px solid var(--line);border-radius:12px;list-style:none;font-weight:600}
 summary::-webkit-details-marker{display:none}
 summary:hover{border-color:var(--ac);color:var(--tx)}
-@media(max-width:620px){.hold{grid-template-columns:1fr}.cmp{grid-template-columns:1fr}
-.hero .v{font-size:36px}.bars{height:104px}}
+details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
+.dbody{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:2px 15px 14px}
+.dbody p{font-size:12.5px;color:var(--tx2);margin:11px 0}
+.dbody p b{color:var(--tx)}
+.dbody code{font-family:ui-monospace,Menlo,monospace;font-size:11.4px;color:var(--tx3)}
+.dbody a{color:var(--ac);text-decoration:none;border-bottom:1px solid rgba(145,132,217,.35)}
+.dbody a:hover{color:var(--tx)}
+.dbody .mini{height:96px;margin:10px 0 4px}
+@media(max-width:640px){.duo,.kpi{grid-template-columns:1fr 1fr}.hz .big{font-size:29px}.plot{height:124px}}
+@media(max-width:400px){.duo{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>실시간 대시보드</h1>
-<div class="tag">새로고침할 때마다 폴리곤 체인을 직접 읽습니다</div>
-
-<div class="bar">
-  <span class="dot" id="dot"></span><b id="msg">조회 중…</b>
+<div class="top">
+  <span class="dot" id="dot"></span>
+  <h1>실시간 대시보드</h1>
   <button id="ref" type="button">새로고침</button>
-  <div class="meta" id="meta">—</div>
+  <div class="stamp" id="stamp">체인 조회 중…</div>
 </div>
 
-<h2>오늘 회사로 들어온 SUT</h2>
-<p class="sub">참여자가 CC2C 수금지갑으로 보낸 양입니다. 오늘 0시부터 지금까지.</p>
-<div class="hero">
-  <div class="k" id="hk">오늘</div>
-  <div class="v" id="hv">—</div>
-  <div class="u" id="hu">SUT</div>
-  <div class="cmp">
-    <div><span>어제 (09-06)</span><b>55,256</b><em id="c1">—</em></div>
-    <div><span>최근 7일 평균</span><b>182,409</b><em id="c2">—</em></div>
-    <div><span>최근 30일 평균</span><b>160,546</b><em id="c3">—</em></div>
+<div class="duo">
+  <div class="hz a">
+    <div class="lbl" id="l1">오늘 들어온 돈</div>
+    <div class="big" id="v1">—</div>
+    <div class="sub" id="s1">—</div>
+    <div class="foot" id="f1">—</div>
+  </div>
+  <div class="hz b">
+    <div class="lbl">회사가 지금 든 돈</div>
+    <div class="big" id="v2">—</div>
+    <div class="sub" id="s2">—</div>
+    <div class="foot" id="f2">—</div>
   </div>
 </div>
 
+<div class="kpi">
+  <div><span>어제</span><b id="k1">—</b><em id="k1s">—</em></div>
+  <div><span>7일 평균</span><b id="k2">—</b><em id="k2s">—</em></div>
+  <div><span>30일 평균</span><b id="k3">—</b><em id="k3s">—</em></div>
+  <div><span>매도 대기</span><b id="k4">—</b><em id="k4s">—</em></div>
+</div>
+
 <h2>일별 유입 — 최근 30일</h2>
-<p class="sub">막대에 올리면 숫자가 나옵니다. 밝은 보라가 월요일, 노란색이 오늘입니다.</p>
+<p class="cap">막대에 손을 올리면 날짜와 금액이 나옵니다. 노란 막대가 오늘입니다.</p>
 <div class="ch">
-  <div class="bars" id="bars"></div>
+  <div class="plot"><div id="gls"></div><div class="bars" id="bars"></div></div>
   <div class="xl"><span id="x1">—</span><span id="x2">—</span></div>
 </div>
-<div class="note">
-<h3>9월 5일부터 필요한 SUT가 절반이 됐습니다</h3>
-<p>참여 1,000 USDT당 <b>1,800 → 900개</b>로 바뀌었습니다. <b>같은 인원이 참여해도 유입은 절반으로 보입니다.</b>
-9월 5일 이후 숫자를 그 이전과 직접 비교하면 안 됩니다.</p>
-</div>
 
-<details>
-<summary>월별 추이 20개월 펼쳐보기 ▾</summary>
-<div class="ch" style="margin-top:9px">
-  <div class="bars" id="mbars"></div>
-  <div class="xl"><span id="mx1">—</span><span id="mx2">—</span></div>
-</div>
-<div class="note">
-<p>2025년 1월부터 지금까지 <b>누적 유입 499,076,454 SUT</b>, 그중 <b>256,928,254가 다시 나갔고</b>
-현재 회사 지갑들에 <b>238,403,732</b>가 남아 있습니다.</p>
-</div>
-</details>
-
-<h2>회사가 지금 들고 있는 것</h2>
-<p class="sub">회사 지갑 5곳(CC2C·중앙금고·지급지갑 #2·MPC 금고·매도 지갑) 합계입니다.</p>
-<div class="hold">
-  <div class="hc cash"><div class="t">진짜 현금 (USDT)</div><div class="v" id="q1">—</div>
-    <div class="s" id="q1s">—</div><div class="n">밖에서 들어온 실제 달러입니다.</div></div>
-  <div class="hc sut"><div class="t">SUT — 명목 가치</div><div class="v" id="q2">—</div>
-    <div class="s" id="q2s">—</div><div class="n" id="q2n">—</div></div>
-  <div class="hc own"><div class="t">KWT (자체 발행)</div><div class="v" id="q3">—</div>
-    <div class="s" id="q3s">—</div><div class="n">회사가 찍은 토큰입니다. 거래소도 시세도 없습니다.</div></div>
-  <div class="hc own"><div class="t">MPC (자체 발행)</div><div class="v" id="q4">—</div>
-    <div class="s" id="q4s">—</div><div class="n">시세 없음. 총발행 100억 중 회사 보유분입니다.</div></div>
-</div>
-<div class="note warn">
-<h3>SUT 명목 가치를 그대로 믿으면 안 됩니다</h3>
-<p id="sw">—</p>
-<p>거래소가 아니라 <b>유동성 풀</b>에서만 팔 수 있는데, 풀이 얕아서 물량을 넣을수록 값이 급격히 떨어집니다.
-9월 7일 회사가 <b>1만 개를 팔았을 때 이미 7% 밀렸습니다.</b></p>
-</div>
+<h2>회사가 들고 있는 것</h2>
+<p class="cap">회사 지갑 5곳 합계입니다. 오른쪽이 원화 환산.</p>
+<div class="tb" id="tb"></div>
 
 <h2>감시 항목</h2>
-<p class="sub"><b style="color:var(--gold);background:rgba(201,162,39,.15);border-radius:5px;padding:1px 6px">노란색</b>이면 눈여겨볼 방향으로 움직인 것입니다.</p>
-<div class="wl" id="wl"></div>
-<div class="note warn">
-<h3>매도 지갑이 가장 중요합니다</h3>
+<p class="cap">9월 7일 대비 변동. <b style="color:var(--hi)">노란색</b>이면 눈여겨볼 방향입니다.</p>
+<div class="tb" id="wl"></div>
+
+<details><summary>이 숫자를 어떻게 읽나 ▾</summary><div class="dbody">
+<p><b>오늘 들어온 돈</b> — 참여자가 CC2C 수금지갑으로 보낸 SUT입니다. 참여 규모를 보는 가장 빠른 지표입니다.</p>
+<p><b>9월 5일부터 필요한 SUT가 절반이 됐습니다.</b> 참여 1,000 USDT당 1,800 → 900개.
+같은 인원이 참여해도 유입은 절반으로 보이니, 9월 5일 전후를 직접 비교하면 안 됩니다.</p>
+<p><b>SUT 원화 환산은 "한 개 팔 때 값"입니다.</b> 거래소가 아니라 유동성 풀에서만 팔 수 있어
+물량을 넣을수록 값이 급격히 떨어집니다. 9월 7일 회사가 <b>1만 개를 팔았을 때 이미 7% 밀렸습니다.</b>
+회사가 든 2,100만 개를 다 팔면 표시 금액의 극히 일부만 손에 들어옵니다.</p>
+<p><b>KWT와 MPC는 회사가 직접 찍은 토큰</b>이라 거래소도 시세도 없습니다. 원화로 환산하지 않았습니다.</p>
+</div></details>
+
+<details><summary>매도 지갑이 왜 중요한가 ▾</summary><div class="dbody">
 <p><code>0x686a2630…a6a6</code>은 2025년 12월부터 <b>586번에 걸쳐 SUT 205만 개를 사들여</b>
 회사 금고로 올려보내던 <b>바이백 지갑</b>이었습니다. 투입 1,507,460 USDT.</p>
-<p><b>2026년 5월 1일 매수를 멈췄고</b>, 9월 5일 SUT 200,000개를 받아 9월 7일 <b>처음으로 1만 개를 팔았습니다.</b>
-자기 평균 매입가 $0.7355 대비 <b>−18% 손해 매도</b>입니다.</p>
+<p><b>2026년 5월 1일 매수를 멈췄습니다.</b> 주정산이 멈춘 5월 18일보다 17일 빠릅니다.</p>
+<p>그리고 9월 5일 SUT 200,000개를 받아 9월 7일 <b>처음으로 1만 개를 팔았습니다.</b>
+자기 평균 매입가 $0.7355 대비 <b>−18% 손해 매도</b>입니다.
+(<a href="https://polygonscan.com/tx/0x4a4952c23fc7c3a16f360654375af8b853d983337b644ca7f759e3634e46575a" target="_blank" rel="noopener">거래 원문 ↗</a> · Logs 탭에 Swap 이벤트 2건)</p>
 <p><b>이 잔고가 줄면 계속 파는 중, 늘면 회사가 또 내려보낸 것</b>입니다.</p>
-</div>
+</div></details>
 
-<h2>직접 확인하는 법</h2>
-<div>
-  <a class="lnk" href="https://polygonscan.com/token/0x98965474ecbec2f532f1f780ee37b0b05f77ca55?a=0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">
-    <b>CC2C 수금지갑 SUT 내역 ↗</b><code>0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c</code></a>
-  <a class="lnk" href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">
-    <b>매도 지갑 ↗</b><code>0x686a2630ab724f07a1a1de7e2590efb621c5a6a6</code></a>
-  <a class="lnk" href="https://polygonscan.com/tx/0x4a4952c23fc7c3a16f360654375af8b853d983337b644ca7f759e3634e46575a" target="_blank" rel="noopener">
-    <b>9월 7일 첫 매도 거래 — Logs 탭에 Swap 이벤트 ↗</b><code>0x4a4952c2…46575a</code></a>
-  <a class="lnk" href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">
-    <b>MPC 금고 ↗</b><code>0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8</code></a>
-</div>
-<div class="note">
-<p style="color:var(--tx3)">일별·월별 과거 수치는 폴리곤 체인에서 뽑아 이 페이지에 넣어둔 값이고,
-<b style="color:var(--tx2)">오늘 유입·잔고·SUT 시세는 열 때마다 새로 읽습니다.</b>
-노드가 응답하지 않으면 그 부분은 "조회 실패"로 표시되고, 기록값을 대신 보여주지 않습니다.</p>
-</div>
+<details><summary>월별 추이 20개월 ▾</summary><div class="dbody">
+<div class="plot mini"><div class="bars" id="mbars"></div></div>
+<div class="xl"><span id="mx1">—</span><span id="mx2">—</span></div>
+<p>2025년 1월부터 누적 유입 <b>499,076,454 SUT</b>, 그중 <b>256,928,254</b>가 다시 나갔고
+현재 회사 지갑들에 <b>238,403,732</b>가 남아 있습니다.</p>
+</div></details>
+
+<details><summary>직접 확인하는 법 ▾</summary><div class="dbody">
+<p><a href="https://polygonscan.com/token/0x98965474ecbec2f532f1f780ee37b0b05f77ca55?a=0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">CC2C 수금지갑 SUT 내역 ↗</a><br><code>0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c</code></p>
+<p><a href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">매도 지갑 ↗</a><br><code>0x686a2630ab724f07a1a1de7e2590efb621c5a6a6</code></p>
+<p><a href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">MPC 금고 ↗</a><br><code>0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8</code></p>
+<p style="color:var(--tx3)">일별·월별 과거치는 체인에서 뽑아 넣어둔 값이고,
+<b>오늘 유입·잔고·SUT 시세는 열 때마다 새로 읽습니다.</b>
+노드가 응답하지 않으면 그 부분은 "—"로 두고 기록값을 대신 보여주지 않습니다.</p>
+</div></details>
+
 </div>
 <div class="tip" id="tip"></div>
 
@@ -208,40 +186,38 @@ const T={KWT:['0x435001af7fc65b621b0043df99810b2f30860c5d',6],
          MPC:['0x2d854416d2749b1f0eb8a4b2ab9027989f2ba262',18]};
 const CC='0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c';
 const POOL='0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165';
-const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const TR='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const BLKSEC=1.50, FX=1400;
-/* 잔고 조회 대상 */
 const HOLD=[['cc2c',CC,['KWT','USDT','SUT','MPC']],
             ['vault','0x7cc2f8914b4d77b68355757286f146373f4bf7ad',['KWT','USDT','SUT','MPC']],
             ['pay2','0xe6e7ec8dfbacc0dbfc8e838ff2a49a252ab4ff85',['USDT','SUT','MPC']],
             ['mpcg','0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8',['SUT','MPC']],
             ['sell','0x686a2630ab724f07a1a1de7e2590efb621c5a6a6',['USDT','SUT']],
-            ['rA','0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae',['MPC']],
-            ['rB','0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f',['MPC']]];
-/* 감시 행: 2026-09-07 기록값 */
+            ['rA','0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae',['MPC','POL']],
+            ['rB','0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f',['MPC','POL']]];
 const WATCH=[
  {k:'sell',t:'SUT',nm:'매도 지갑 SUT',sub:'줄면 계속 파는 중',base:190001,al:'dn'},
+ {k:'cc2c',t:'SUT',nm:'CC2C 보유 SUT',sub:'줄면 참여자 물량에 손댄 것',base:10790236,al:'dn'},
+ {k:'mpcg',t:'SUT',nm:'MPC 금고 SUT',sub:'줄면 매도 지갑으로 또 내려보낸 것',base:10412783,al:'dn'},
+ {k:'cc2c',t:'MPC',nm:'CC2C 보유 MPC',sub:'늘면 회원 반환이 계속되는 것',base:6055451,al:'up'},
  {k:'rA',t:'POL',nm:'수신 A 가스',sub:'들어오면 3억 MPC를 움직일 수 있음',base:0,al:'up',dec:4},
  {k:'rB',t:'POL',nm:'수신 B 가스',sub:'들어오면 3억 MPC를 움직일 수 있음',base:0,al:'up',dec:4},
- {k:'cc2c',t:'MPC',nm:'CC2C의 MPC',sub:'늘면 회원 반환이 계속되는 것',base:6055451,al:'up'},
- {k:'mpcg',t:'SUT',nm:'MPC 금고 SUT',sub:'줄면 매도 지갑으로 또 내려보낸 것',base:10412783,al:'dn'},
- {k:'cc2c',t:'SUT',nm:'CC2C의 SUT',sub:'줄면 회사가 참여자 물량에 손댄 것',base:10790236,al:'dn'},
 ];
 const $=i=>document.getElementById(i);
 const nf=(v,d)=>v.toLocaleString(undefined,{maximumFractionDigits:d||0,minimumFractionDigits:0});
-const won=v=>v>=1e12?nf(v/1e12,2)+'조원':v>=1e8?nf(v/1e8,1)+'억원':v>=1e4?nf(v/1e4,0)+'만원':nf(v,0)+'원';
-const cnt=v=>v>=1e8?nf(v/1e8,2)+'억':v>=1e4?nf(v,0):nf(v,2);
+function won(v){ if(!isFinite(v))return'—';
+  if(v>=1e12)return nf(v/1e12,2)+'조원'; if(v>=1e8)return nf(v/1e8,1)+'억원';
+  if(v>=1e4)return nf(v/1e4,0)+'만원'; return nf(v)+'원';}
+function ea(v){ if(v>=1e8)return nf(v/1e8,2)+'억 개'; if(v>=1e4)return nf(v)+' 개'; return nf(v,2)+' 개';}
 async function post(u,b,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||9000);
-  try{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},signal:c.signal,body:JSON.stringify(b)});
-    if(!r.ok)throw 0; return await r.json();}finally{clearTimeout(t);}}
+ try{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},signal:c.signal,body:JSON.stringify(b)});
+  if(!r.ok)throw 0;return await r.json();}finally{clearTimeout(t);}}
 async function getAll(u){
   let id=0;const p=[],map=[];
   for(const [k,ad,toks] of HOLD) for(const s of toks){id++;
     if(s==='POL')p.push({jsonrpc:'2.0',id,method:'eth_getBalance',params:[ad,'latest']});
     else p.push({jsonrpc:'2.0',id,method:'eth_call',params:[{to:T[s][0],data:'0x70a08231'+'0'.repeat(24)+ad.slice(2)},'latest']});
     map.push([k,s,s==='POL'?18:T[s][1]]);}
-  for(const [k,ad,toks] of HOLD) if(k==='rA'||k==='rB'){id++;
-    p.push({jsonrpc:'2.0',id,method:'eth_getBalance',params:[ad,'latest']});map.push([k,'POL',18]);}
   const bid=++id;p.push({jsonrpc:'2.0',id:bid,method:'eth_blockNumber',params:[]});
   const pid=++id;p.push({jsonrpc:'2.0',id:pid,method:'eth_call',params:[{to:POOL,data:'0x3850c7bd'},'latest']});
   const j=await post(u,p,11000);
@@ -252,105 +228,106 @@ async function getAll(u){
   return {bal,blk:Number(BigInt(m[bid])),px:q*q*1e12};
 }
 async function todayLogs(u,blk){
-  const now=new Date(), kst=new Date(now.getTime()+(now.getTimezoneOffset()+540)*60000);
-  const mid=new Date(kst); mid.setHours(0,0,0,0);
-  const secs=(kst-mid)/1000;
-  let need=Math.min(Math.ceil(secs/BLKSEC),60000);
-  const CH=5000, N=Math.min(Math.ceil(need/CH),12);
-  let logs=[],got=0;
-  for(let i=0;i<N;i++){
-    const hi=blk-CH*i, lo=Math.max(blk-need+1,hi-CH+1);
-    try{
-      const j=await post(u,{jsonrpc:'2.0',id:1,method:'eth_getLogs',params:[{address:T.SUT[0],
-        fromBlock:'0x'+lo.toString(16),toBlock:'0x'+hi.toString(16),
-        topics:[TRANSFER,null,'0x'+'0'.repeat(24)+CC.slice(2)]}]},12000);
+  const now=new Date(),kst=new Date(now.getTime()+(now.getTimezoneOffset()+540)*60000);
+  const mid=new Date(kst);mid.setHours(0,0,0,0);
+  const secs=(kst-mid)/1000, need=Math.min(Math.ceil(secs/BLKSEC),60000);
+  const CH=5000,N=Math.min(Math.ceil(need/CH),12);let logs=[],got=0;
+  for(let i=0;i<N;i++){const hi=blk-CH*i,lo=Math.max(blk-need+1,hi-CH+1);
+    try{const j=await post(u,{jsonrpc:'2.0',id:1,method:'eth_getLogs',params:[{address:T.SUT[0],
+      fromBlock:'0x'+lo.toString(16),toBlock:'0x'+hi.toString(16),
+      topics:[TR,null,'0x'+'0'.repeat(24)+CC.slice(2)]}]},12000);
       if(j.error||!Array.isArray(j.result))throw 0;
-      logs=logs.concat(j.result); got+=hi-lo+1;
-    }catch(e){ if(i===0) throw 0; break; }
-  }
+      logs=logs.concat(j.result);got+=hi-lo+1;
+    }catch(e){ if(i===0)throw 0; break; }}
   return {logs,got,need,hrs:secs/3600};
 }
-function chart(el,x1,x2,data,fmtL,todayVal){
-  const rows=data.slice(); if(todayVal!=null) rows.push(['오늘',0,todayVal]);
-  const mx=Math.max(...rows.map(r=>r[2]),1);
-  el.innerHTML=rows.map((r,i)=>{
-    const isT=todayVal!=null&&i===rows.length-1;
-    const mon=/^\d{4}-\d\d-\d\d$/.test(r[0]) && new Date(r[0]+'T00:00:00').getDay()===1;
-    return `<i class="${isT?'today':(mon?'wk':'')}" style="height:${Math.max(2,r[2]/mx*100)}%"
-      data-l="${r[0]}" data-v="${r[2]}" data-n="${r[1]}"></i>`;}).join('');
+function nice(mx){const p=Math.pow(10,Math.floor(Math.log10(mx)));
+  for(const s of [1,2,2.5,5,10]) if(mx<=p*s) return p*s; return p*10;}
+function chart(barsEl,glsEl,x1,x2,rows,fmtL,px){
+  const mx=nice(Math.max(...rows.map(r=>r[2]),1));
+  if(glsEl){glsEl.innerHTML=[1,.5,0].map(f=>
+    `<div class="gl" style="top:${(1-f)*100}%"><b>${f?nf(mx*f):'0'}</b></div>`).join('');}
+  barsEl.innerHTML=rows.map(r=>{
+    const w=px?` · ${won(r[2]*px*FX)}`:'';
+    return `<i class="${r[3]?'today':''}" style="height:${Math.max(1.5,r[2]/mx*100)}%"
+      data-t="${r[0]}${r[3]?' (오늘)':''}" data-v="${nf(r[2])} SUT${w}"
+      data-n="${r[1]?nf(r[1])+'건':''}"></i>`;}).join('');
   $(x1).textContent=fmtL(rows[0][0]); $(x2).textContent=fmtL(rows[rows.length-1][0]);
 }
 const tip=$('tip');
 document.addEventListener('pointermove',e=>{
   const b=e.target.closest('.bars i');
   if(!b){tip.classList.remove('on');return;}
-  const n=b.dataset.n>0?` · ${nf(+b.dataset.n)}건`:'';
-  tip.innerHTML=`${b.dataset.l} &nbsp;<b>${nf(+b.dataset.v)}</b> SUT${n}`;
+  tip.innerHTML=`<em>${b.dataset.t}</em> &nbsp;<b>${b.dataset.v}</b>`+(b.dataset.n?` <em>· ${b.dataset.n}</em>`:'');
   tip.classList.add('on');
   tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,Math.max(8,e.clientX-tip.offsetWidth/2))+'px';
-  tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-12)+'px';
+  tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-14)+'px';
 },{passive:true});
-function render(bal,blk,px,tl,src){
-  /* 오늘 유입 */
-  let today=null;
-  if(tl){
-    today=tl.logs.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0);
-    const part=tl.got<tl.need;
-    $('hk').textContent=part?`오늘 (최근 ${(tl.got*BLKSEC/3600).toFixed(1)}시간만 조회됨)`
-      :`오늘 0시 ~ 지금 (${tl.hrs.toFixed(1)}시간)`;
-    $('hv').textContent=nf(today);
-    $('hu').textContent=`SUT · ${nf(tl.logs.length)}건`+(tl.logs.length?` · 건당 평균 ${nf(today/tl.logs.length)}`:'');
-    const B=DASH.base;
-    [['c1',B.yday],['c2',B.d7],['c3',B.d30]].forEach(([id,b])=>{
-      if(!b){$(id).textContent='—';return;}
-      const r=today/b-1;
-      $(id).innerHTML=`<span class="${r>=0?'up':'dn'}">${r>=0?'▲':'▼'} ${nf(Math.abs(r*100),0)}%</span>`;});
-  }else{
-    $('hk').textContent='오늘 유입'; $('hv').textContent='조회 실패';
-    $('hu').textContent='공개 노드가 로그 조회를 지원하지 않습니다';
-    ['c1','c2','c3'].forEach(i=>$(i).textContent='—');
-  }
-  chart($('bars'),'x1','x2',DASH.daily,s=>s==='오늘'?'오늘':s.slice(5),today);
-  chart($('mbars'),'mx1','mx2',DASH.mon,s=>s,null);
-  /* 보유금 */
+function draw(bal,blk,px,tl,src){
+  const B=DASH.base;
+  let today=null,n=0;
+  if(tl){ today=tl.logs.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0); n=tl.logs.length; }
+  /* 히어로 1 — 오늘 */
+  if(today!=null){
+    $('l1').textContent=tl.got<tl.need?`오늘 들어온 돈 (최근 ${(tl.got*BLKSEC/3600).toFixed(1)}시간)`:'오늘 들어온 돈';
+    $('v1').textContent=won(today*px*FX);
+    $('s1').textContent=`${nf(today)} SUT · ${nf(n)}건`;
+    const r=today/B.yday-1;
+    $('f1').innerHTML=`어제 ${won(B.yday*px*FX)} 대비 <span class="${r>=0?'up':'dn'}">${r>=0?'▲':'▼'} ${nf(Math.abs(r*100))}%</span>`;
+  }else{ $('v1').textContent='—'; $('s1').textContent='유입 조회 실패'; $('f1').textContent='공개 노드가 로그 조회를 지원하지 않습니다'; }
+  /* 히어로 2 — 보유 */
   const sum=t=>HOLD.reduce((a,[k])=>a+((bal[k]||{})[t]||0),0);
-  const U=sum('USDT'), S=sum('SUT'), KW=sum('KWT'), MP=sum('MPC');
-  $('q1').textContent=won(U*FX); $('q1s').textContent=`${nf(U)} USDT`;
-  $('q2').textContent=won(S*px*FX); $('q2s').textContent=`${nf(S)} SUT × $${px.toFixed(4)}`;
-  $('q2n').textContent=`SUT 시세는 유동성 풀에서 실시간으로 읽습니다 (현재 ${nf(px*FX)}원)`;
-  $('q3').textContent=cnt(KW)+' 개'; $('q3s').textContent=`명목 1원 환산 시 ${won(KW)}`;
-  $('q4').textContent=cnt(MP)+' 개'; $('q4s').textContent=`총발행 100억의 ${nf(MP/1e10*100,1)}%`;
-  $('sw').innerHTML=`회사가 든 <b>${nf(S)} SUT</b>는 시세로 곱하면 <b>${won(S*px*FX)}</b>이지만, `
-    +`그건 <b>한 개 팔 때 값</b>입니다. 실제로 다 팔면 이 금액의 <b>극히 일부</b>만 손에 들어옵니다.`;
+  const U=sum('USDT'),S=sum('SUT'),KW=sum('KWT'),MP=sum('MPC');
+  $('v2').textContent=won((U+S*px)*FX);
+  $('s2').textContent=`현금 ${won(U*FX)} + SUT ${won(S*px*FX)}`;
+  $('f2').textContent=`SUT ${nf(S)}개 × ${nf(px*FX)}원 · 실시간 시세`;
+  /* KPI */
+  $('k1').textContent=won(B.yday*px*FX); $('k1s').textContent=nf(B.yday)+' SUT';
+  $('k2').textContent=won(B.d7*px*FX);   $('k2s').textContent=nf(B.d7)+' SUT';
+  $('k3').textContent=won(B.d30*px*FX);  $('k3s').textContent=nf(B.d30)+' SUT';
+  const sw=(bal.sell||{}).SUT||0;
+  $('k4').textContent=won(sw*px*FX);     $('k4s').textContent=nf(sw)+' SUT';
+  /* 차트 */
+  const rows=DASH.daily.map(r=>[r[0],r[1],r[2],false]);
+  if(today!=null) rows.push(['오늘',n,today,true]);
+  chart($('bars'),$('gls'),'x1','x2',rows,s=>s==='오늘'?'오늘':s.slice(5),px);
+  chart($('mbars'),null,'mx1','mx2',DASH.mon.map(r=>[r[0],r[1],r[2],false]),s=>s,px);
+  /* 보유 표 */
+  $('tb').innerHTML=[
+   ['cash','USDT','밖에서 들어온 진짜 달러',won(U*FX),nf(U)+' USDT'],
+   ['sut','SUT','유동성 풀에서만 팔 수 있음',won(S*px*FX),nf(S)+' SUT'],
+   ['own','KWT','회사가 찍은 토큰 · 시세 없음','환산 불가',ea(KW)],
+   ['own','MPC','총발행 100억의 '+nf(MP/1e10*100,1)+'%','환산 불가',ea(MP)],
+  ].map(([c,t,sb,w,q])=>`<div class="rw ${c}"><div class="n">${t}<em>${sb}</em></div>
+    <div class="r"><b class="w">${w}</b><span class="q">${q}</span></div></div>`).join('');
   /* 감시 */
   $('wl').innerHTML=WATCH.map(w=>{
-    const v=(bal[w.k]||{})[w.t]??0, d=v-w.base;
-    const moved=Math.abs(d)>Math.max(1e-9,Math.abs(w.base)*1e-9);
-    const hit=moved&&((w.al==='up'&&d>0)||(w.al==='dn'&&d<0));
-    return `<div class="wr"><div class="n">${w.nm}<em>${w.sub}</em></div>`
-      +`<div class="v">${nf(v,w.dec||0)}</div>`
-      +`<div class="d ${hit?'al':''}">${moved?(d>0?'+':'−')+nf(Math.abs(d),w.dec||0):'변동 없음'}</div></div>`;
-  }).join('');
-  $('dot').className='dot ok'; $('msg').textContent='조회 완료';
-  $('meta').textContent=`${new Date().toLocaleString('ko-KR')} · 블록 ${nf(blk)} · SUT $${px.toFixed(4)} · ${src.replace(/^https:\/\//,'')}`;
+    const v=(bal[w.k]||{})[w.t]??0,d=v-w.base;
+    const mv=Math.abs(d)>Math.max(1e-9,Math.abs(w.base)*1e-9);
+    const hit=mv&&((w.al==='up'&&d>0)||(w.al==='dn'&&d<0));
+    return `<div class="rw"><div class="n">${w.nm}<em>${w.sub}</em></div>
+      <div class="r"><b class="w" style="color:var(--tx)">${nf(v,w.dec||0)}</b>
+      <span class="q ${hit?'al':''}">${mv?(d>0?'+':'−')+nf(Math.abs(d),w.dec||0):'변동 없음'}</span></div></div>`;}).join('');
+  $('dot').className='dot ok';
+  $('stamp').textContent=`${new Date().toLocaleString('ko-KR')} · 블록 ${nf(blk)} · SUT ${nf(px*FX)}원 · ${src.replace(/^https:\/\//,'')}`;
 }
 let busy=false;
 async function poll(){
-  if(busy)return; busy=true; $('ref').disabled=true;
-  $('dot').className='dot'; $('msg').textContent='조회 중…';
+  if(busy)return;busy=true;$('ref').disabled=true;
+  $('dot').className='dot';$('stamp').textContent='체인 조회 중…';
   for(const u of RPCS){
     try{
       const {bal,blk,px}=await getAll(u);
-      let tl=null;
-      for(const u2 of [u,...RPCS]){ try{ tl=await todayLogs(u2,blk); break; }catch(e){} }
-      render(bal,blk,px,tl,u); busy=false; $('ref').disabled=false; return;
+      let tl=null; for(const u2 of [u,...RPCS]){try{tl=await todayLogs(u2,blk);break;}catch(e){}}
+      draw(bal,blk,px,tl,u);busy=false;$('ref').disabled=false;return;
     }catch(e){}
   }
-  $('dot').className='dot err'; $('msg').textContent='조회 실패 — 공개 노드가 응답하지 않습니다';
-  $('meta').textContent='잠시 후 새로고침하거나 아래 폴리곤스캔 링크로 직접 확인하십시오';
-  chart($('bars'),'x1','x2',DASH.daily,s=>s.slice(5),null);
-  chart($('mbars'),'mx1','mx2',DASH.mon,s=>s,null);
-  busy=false; $('ref').disabled=false;
+  $('dot').className='dot err';
+  $('stamp').textContent='조회 실패 — 공개 노드가 응답하지 않습니다. 잠시 후 새로고침해 주십시오.';
+  const rows=DASH.daily.map(r=>[r[0],r[1],r[2],false]);
+  chart($('bars'),$('gls'),'x1','x2',rows,s=>s.slice(5),null);
+  chart($('mbars'),null,'mx1','mx2',DASH.mon.map(r=>[r[0],r[1],r[2],false]),s=>s,null);
+  busy=false;$('ref').disabled=false;
 }
 $('ref').addEventListener('click',poll);
 poll();
