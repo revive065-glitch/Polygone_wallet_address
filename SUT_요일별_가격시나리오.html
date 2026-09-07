@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>요일 쏠림과 SUT 가격</title>
+<meta name="description" content="주정산 요일이 월요일에 몰려 있을 때, 지금의 유입과 매수세가 유지되면 SUT 가격에 무엇이 일어나는가">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ /* 계열색 — 어두운 표면(#1c1e2c)에서 검증 통과: 명도대·채도·색각·대비 전부 PASS */
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+ --up:#3987e5; --dn:#d95926;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.72;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:25px;line-height:1.32;letter-spacing:-.6px;margin:0 0 8px;font-weight:800}
+h2{font-size:18.5px;letter-spacing:-.3px;margin:44px 0 12px;font-weight:700;
+ padding-top:20px;border-top:1px solid var(--line)}
+h2 .no{color:var(--ac);font-weight:800;margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 8px;font-weight:700;color:var(--tx)}
+p{margin:11px 0}
+.lede{color:var(--tx2);font-size:14px;margin:0 0 22px}
+b{font-weight:700}
+em{font-style:normal;color:var(--tx3)}
+a{color:var(--ac)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px 16px;margin:16px 0}
+.card.hi{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(201,162,39,.02))}
+.card.ac{border-color:#463f6b;background:linear-gradient(180deg,rgba(145,132,217,.09),rgba(145,132,217,.02))}
+.kh{font-size:12px;color:var(--tx3);letter-spacing:.2px;margin-bottom:5px}
+.big{font-size:35px;font-weight:800;letter-spacing:-1.3px;line-height:1.12}
+.big .u{font-size:15px;font-weight:600;color:var(--tx2);margin-left:5px;letter-spacing:0}
+.sub{font-size:13.5px;color:var(--tx2);margin-top:5px}
+
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 13px 12px}
+.tile .t{font-size:11.5px;color:var(--tx3);margin-bottom:4px}
+.tile .v{font-size:21px;font-weight:800;letter-spacing:-.6px}
+.tile .s{font-size:11.5px;color:var(--tx2);margin-top:2px}
+@media(min-width:620px){.tiles{grid-template-columns:repeat(4,1fr)}}
+
+/* 세로 막대 — 요일별 */
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 14px 12px;margin:16px 0}
+.figt{font-size:14px;font-weight:700;margin-bottom:2px}
+.figs{font-size:12px;color:var(--tx3);margin-bottom:16px}
+.vb{position:relative;height:186px;display:flex;align-items:flex-end;gap:6px;
+ border-bottom:1px solid var(--line2);padding:0 84px 0 0}
+.vb .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;
+ position:relative;cursor:default}
+.vb .bar{width:100%;background:var(--s1);border-radius:4px 4px 0 0;transition:filter .12s}
+.vb .col.pk .bar{background:var(--hi)}
+.vb .col:hover .bar{filter:brightness(1.22)}
+.vb .lbl{font-size:11px;color:var(--tx2);white-space:nowrap;font-weight:700;margin-bottom:5px}
+.vb .col.pk .lbl{color:var(--hi)}
+.gl{position:absolute;left:0;right:0;border-top:1px dashed #4a4d5e;pointer-events:none}
+.gl span{position:absolute;right:0;top:-9px;font-size:10.5px;color:var(--tx3);
+ background:var(--panel);padding:0 0 0 7px;line-height:1.5}
+.xax{display:flex;gap:6px;margin-top:7px;padding-right:84px}
+.xax div{flex:1;text-align:center;font-size:12px;color:var(--tx2)}
+.xax div.pk{color:var(--hi);font-weight:700}
+
+/* 가로 막대 — 매도 충격 */
+.hb{margin-top:6px}
+.hb .row{display:grid;grid-template-columns:1fr;gap:3px;padding:9px 0;border-top:1px solid var(--line)}
+.hb .row:first-child{border-top:0}
+.hb .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px}
+.hb .q{color:var(--tx);font-weight:700}
+.hb .q em{font-weight:400;margin-left:6px;font-size:11.5px}
+.hb .r{color:var(--dn);font-weight:800;font-size:13px;white-space:nowrap}
+.hb .trk{height:11px;background:#22243a;border-radius:6px;overflow:hidden}
+.hb .fil{height:100%;background:var(--dn);border-radius:6px}
+.hb .row.mk .q{color:var(--hi)}
+.hb .row.mk .trk{outline:1px solid #6b5a22;outline-offset:1px}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;
+ display:block;overflow-x:auto;white-space:nowrap}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left;white-space:nowrap}
+th{color:var(--tx3);font-weight:600;font-size:12px;border-bottom:1px solid var(--line2)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:700}
+td.pk,th.pk{color:var(--hi)}
+
+.sc{border:1px solid var(--line);border-radius:15px;padding:0;margin:16px 0;overflow:hidden;background:var(--panel)}
+.sc .hd{padding:13px 16px;background:var(--panel2);border-bottom:1px solid var(--line);
+ display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sc .tag{font-size:11px;font-weight:800;letter-spacing:.4px;padding:3px 9px;border-radius:20px;
+ background:rgba(145,132,217,.16);color:var(--ac);border:1px solid #463f6b;flex:0 0 auto}
+.sc .nm{font-size:15px;font-weight:700}
+.sc .bd{padding:14px 16px 16px}
+.sc .bd p:first-child{margin-top:0}
+.sc .bd p:last-child{margin-bottom:0}
+.sc.warn .tag{background:rgba(217,89,38,.16);color:#e8763f;border-color:#7a3c1e}
+
+ul{margin:11px 0;padding-left:20px}
+li{margin:6px 0}
+.note{font-size:12.5px;color:var(--tx3);line-height:1.65;margin-top:6px}
+.q{border-left:2px solid var(--line2);padding:2px 0 2px 14px;color:var(--tx2);margin:14px 0;font-size:14px}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+#tip{position:fixed;z-index:50;pointer-events:none;background:#0f1120;border:1px solid var(--line2);
+ border-radius:9px;padding:7px 10px;font-size:12px;color:var(--tx);opacity:0;transition:opacity .1s;
+ box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap;line-height:1.5}
+#tip.on{opacity:1}
+#tip em{color:var(--tx3);display:block;font-size:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>요일 쏠림과 SUT 가격</h1>
+<p class="lede">주정산 요일이 사람마다 다르고 월요일에 가장 몰려 있습니다.
+지금의 유입과 매수세가 그대로 유지된다면 가격에 무엇이 일어나는지, 온체인 실측과 풀 실측으로 따져봤습니다.
+<br>기준 2026-09-07 · 폴리곤 온체인 30일 + 유니스왑 풀 실시간</p>
+
+<div class="card hi">
+  <div class="kh">한 줄로</div>
+  <p style="margin:2px 0 0;font-size:16px;line-height:1.68">
+  <b>요구량은 거대하고 풀은 종잇장입니다.</b>
+  회사 수금지갑은 월요일 하루에 <b>29.7만 개</b>를 빨아들이는데,
+  두 풀에 사고팔 수 있는 SUT는 전부 합쳐 <b>2.4만 개</b>뿐입니다.
+  월요일 요구량의 <b>8%</b>만 시장에서 조달해도 풀의 SUT는 바닥납니다.
+  그런데 지금은 요구량의 대부분이 시장을 거치지 않아 가격이 조용합니다.
+  <b>가격을 정하는 것은 요구량이 아니라, 요구량 중 시장을 거치는 비율입니다.</b></p>
+</div>
+
+<div class="tiles">
+  <div class="tile"><div class="t">월요일 평균 유입</div><div class="v">296,987</div><div class="s">주간의 26.0% · 522명</div></div>
+  <div class="tile"><div class="t">두 풀의 SUT 재고</div><div class="v" style="color:var(--hi)">24,080</div><div class="s">총발행의 0.010%</div></div>
+  <div class="tile"><div class="t">10,000개 매도 실측</div><div class="v" style="color:var(--dn)">−13.9%</div><div class="s">오늘 13:22 · 1분 만에</div></div>
+  <div class="tile"><div class="t">수금지갑 유출</div><div class="v">0</div><div class="s">한 번도 없음</div></div>
+</div>
+
+<h2><span class="no">1</span>요일 쏠림은 실재합니다</h2>
+<p>회사 수금지갑(<code>0xaaa4…cc2c</code>)이 받은 SUT를 최근 30일 요일별로 갈랐습니다.
+각 요일이 4~5번씩 들어간 표본입니다.</p>
+
+<div class="fig">
+  <div class="figt">요일별 하루 평균 SUT 유입</div>
+  <div class="figs">최근 30일 · 막대에 손을 올리면 요일별 상세 · 점선은 두 풀의 SUT 재고 전량</div>
+  <div class="vb" id="vb"></div>
+  <div class="xax" id="xax"></div>
+</div>
+
+<table>
+<thead><tr><th>요일</th><th>평균 유입</th><th>주간 비중</th><th>평균 인원</th><th>풀 재고의</th><th>풀 소진까지</th></tr></thead>
+<tbody>
+<tr><td class="pk">월</td><td class="pk">296,987</td><td class="pk">26.0%</td><td class="pk">522명</td><td class="pk">12.3배</td><td class="pk">1.9시간</td></tr>
+<tr><td>화</td><td>171,608</td><td>15.0%</td><td>219명</td><td>7.1배</td><td>3.4시간</td></tr>
+<tr><td>수</td><td>152,312</td><td>13.4%</td><td>230명</td><td>6.3배</td><td>3.8시간</td></tr>
+<tr><td>목</td><td>135,400</td><td>11.9%</td><td>168명</td><td>5.6배</td><td>4.3시간</td></tr>
+<tr><td>금</td><td>131,148</td><td>11.5%</td><td>157명</td><td>5.4배</td><td>4.4시간</td></tr>
+<tr><td>토</td><td>172,036</td><td>15.1%</td><td>101명</td><td>7.1배</td><td>3.4시간</td></tr>
+<tr><td>일</td><td>81,275</td><td>7.1%</td><td>48명</td><td>3.4배</td><td>7.1시간</td></tr>
+<tr class="tot"><td>한 주</td><td>1,140,766</td><td>100%</td><td>1,444명</td><td>47.4배</td><td>—</td></tr>
+</tbody></table>
+
+<p><b>인원으로 보면 쏠림이 훨씬 큽니다.</b> 월요일 522명 대 일요일 48명 — <b>10.9배</b>입니다.
+다만 금액은 26% 대 7.1%로 3.7배 차이에 그칩니다.
+월요일에 오는 사람은 많은데 <b>1인당 금액은 작다</b>는 뜻입니다
+(월요일 1인 평균 569개, 화요일 784개, 토요일 1,703개).</p>
+
+<div class="card">
+<div class="kh">왜 이 쏠림이 중요한가</div>
+<p style="margin:4px 0 0">듀티(의무참여)는 <b>주정산 × 30%</b>이고, 여기에 딸린 SUT 매수량은
+<b>듀티 × 0.9개</b>입니다. <b>가격과 무관한 "개수" 요구</b>입니다.
+가격이 오르든 내리든 사야 할 개수는 같습니다.
+그 개수가 한 주의 26%만큼 월요일 하루에 몰립니다.</p>
+</div>
+
+<h2><span class="no">2</span>그런데 풀이 이렇게 얇습니다</h2>
+
+<table>
+<thead><tr><th>풀</th><th>수수료</th><th>SUT 재고</th><th>USDT 재고</th><th>합계</th></tr></thead>
+<tbody>
+<tr><td>주풀</td><td>1%</td><td>21,369</td><td>98,762</td><td>$111,437</td></tr>
+<tr><td>보조풀</td><td>0.05%</td><td>2,711</td><td>28,527</td><td>$30,142</td></tr>
+<tr class="tot"><td>합계</td><td>—</td><td>24,080</td><td>127,289</td><td>$141,579</td></tr>
+</tbody></table>
+
+<p>SUT 총발행은 <b>238,403,732개</b>, 시세 기준 시가총액(FDV)은 <b>약 1억 1,200만 달러</b>입니다.
+그 가격을 만드는 유동성이 <b>$141,579</b> — <b>FDV의 0.13%</b>입니다.</p>
+
+<p>더 눈여겨볼 것은 <b>비대칭</b>입니다. 풀 안에 <b>살 수 있는 SUT는 $14,400어치</b>뿐인데,
+<b>살 준비가 된 USDT는 $127,289</b>입니다. <b>8.9배</b> 기울어 있습니다.
+위로 올라가는 길은 얇고, 아래로 내려가는 길은 두껍습니다.</p>
+
+<div class="card ac">
+<div class="kh">감이 오도록 바꿔 말하면</div>
+<p style="margin:4px 0 0">풀에 있는 SUT 전량(24,080개)은
+<b>월요일 유입의 1시간 55분치</b>에 불과합니다.
+한 주 요구량(114만 개)으로 보면 <b>2.1%</b>입니다.</p>
+</div>
+
+<h2><span class="no">3</span>얼마나 밀리는지 — 오늘 실제로 측정됐습니다</h2>
+<p>추정이 아니라 오늘 일어난 일입니다. <b>2026-09-07 13:22 KST</b>,
+누군가 주풀에 <b>10,000 SUT</b>를 매도했습니다.</p>
+
+<div class="card">
+<table style="margin:0">
+<thead><tr><th>시각(KST)</th><th>가격</th><th>변화</th><th>거래대금</th></tr></thead>
+<tbody>
+<tr><td>13:19</td><td>$0.6113</td><td>—</td><td>$50</td></tr>
+<tr><td>13:22 저점</td><td style="color:var(--dn)"><b>$0.5265</b></td><td style="color:var(--dn)"><b>−13.9%</b></td><td>$12,457</td></tr>
+<tr><td>13:22 종가</td><td>$0.5967</td><td>−2.4%</td><td>—</td></tr>
+</tbody></table>
+</div>
+
+<p>2초 뒤 다른 지갑이 <b>8,644개를 되사가며</b> 가격이 $0.5967로 돌아왔습니다.
+차익거래가 붙어 겉으로는 −2.4%로 끝났지만,
+<b>매도 그 자체가 만든 충격은 −13.9%</b>였습니다.</p>
+
+<p>이 한 점으로 풀의 실효 깊이를 역산하면 <b>약 129,000 SUT 상당</b>입니다.
+아래 표는 그 깊이가 유지된다는 가정에서 계산한 것이고,
+<b>10,000개 줄은 계산이 아니라 실측값</b>이라 눈금 역할을 합니다.</p>
+
+<div class="fig">
+  <div class="figt">시장에 내놓는 수량별 가격 하락</div>
+  <div class="figs">현재가 $0.598 기준 · 금색 줄이 오늘 실측된 지점</div>
+  <div class="hb" id="hb"></div>
+</div>
+
+<h3>반대로, 사는 쪽은 벽에 막힙니다</h3>
+<table>
+<thead><tr><th>시장에서 살 수량</th><th>가격 변화</th><th>결과가</th></tr></thead>
+<tbody>
+<tr><td>1,000개</td><td>+1.6%</td><td>$0.608</td></tr>
+<tr><td>2,970개 <em>월요일의 1%</em></td><td>+4.8%</td><td>$0.627</td></tr>
+<tr><td>5,000개</td><td>+8.2%</td><td>$0.647</td></tr>
+<tr><td>10,000개</td><td>+17.5%</td><td>$0.703</td></tr>
+<tr><td class="pk">24,080개 <em>월요일의 8.1%</em></td><td class="pk" colspan="2">풀에 SUT가 남아 있지 않음</td></tr>
+</tbody></table>
+<p class="note">매수는 위 표의 곡선이 아니라 <b>재고라는 절벽</b>에 부딪힙니다.
+풀에 있는 SUT를 다 사면 그 다음은 가격이 얼마든 살 물건이 없습니다.
+월요일 요구량의 <b>8.1%</b>가 그 경계입니다.</p>
+
+<h2><span class="no">4</span>그런데 왜 지금은 조용한가</h2>
+<p>요구량이 풀의 47배인데 가격이 매일 폭등하지 않습니다. 이유는 하나입니다.
+<b>요구량의 대부분이 시장을 거치지 않기 때문</b>입니다.</p>
+
+<table>
+<thead><tr><th>오늘(약 10시간)</th><th>수량</th></tr></thead>
+<tbody>
+<tr><td>수금지갑이 받은 SUT</td><td>40,240개</td></tr>
+<tr><td>주풀 순흐름</td><td style="color:var(--dn)">−3,333개 <em>순매도</em></td></tr>
+<tr><td>보조풀 순흐름</td><td>+135개</td></tr>
+<tr class="tot"><td>시장 순흐름 합계</td><td style="color:var(--dn)">−3,198개</td></tr>
+</tbody></table>
+
+<p>요구량은 4만 개인데 시장은 <b>오히려 3,198개 순매도</b>였습니다.
+사람들은 이미 갖고 있던 SUT를 넣거나, 시장 밖에서 받아서 넣고 있습니다.
+<b>지금의 "고정 매수세"는 시장 매수세가 아닙니다.</b></p>
+
+<h3>물량은 회사 금고에서 나옵니다</h3>
+<table>
+<thead><tr><th>날짜</th><th>MPC 금고 → 어디로</th><th>수량</th></tr></thead>
+<tbody>
+<tr><td>08-27</td><td>CC2C 수금</td><td>18,752</td></tr>
+<tr><td>08-29</td><td>지급지갑 #2</td><td>76,280</td></tr>
+<tr><td>08-31</td><td>CC2C 수금</td><td>103,133</td></tr>
+<tr><td>09-02</td><td>개인지갑</td><td>100,000</td></tr>
+<tr><td>09-03</td><td>개인지갑 3곳</td><td>90,000</td></tr>
+<tr><td class="pk">09-05</td><td class="pk">매도지갑 <code>0x686a…a6a6</code></td><td class="pk">200,000</td></tr>
+<tr class="tot"><td>10일 합계</td><td>—</td><td>588,165</td></tr>
+</tbody></table>
+
+<p>하루 평균 <b>58,800개</b>가 금고에서 나와 순환에 들어갑니다.
+그리고 <b>수금지갑에서 나간 SUT는 30일 내내 0개</b>입니다. 한 방향 저수지입니다.</p>
+
+<div class="card">
+<div class="kh">지금 구조를 한 문장으로</div>
+<p style="margin:4px 0 0">회사 금고가 물량을 풀어 회원이 그것을 다시 회사 수금지갑에 넣습니다.
+풀은 이 순환의 <b>바깥에 있는 얇은 가격표</b>일 뿐입니다.
+그래서 요구량이 아무리 커도 가격에 직접 닿지 않습니다 — <b>회사가 계속 풀어주는 동안은</b>.</p>
+</div>
+
+<h2><span class="no">5</span>시나리오</h2>
+<p>아래는 예측이 아니라 <b>조건별 산수</b>입니다. 각 시나리오의 전제를 먼저 적었습니다.</p>
+
+<div class="sc">
+ <div class="hd"><span class="tag">A</span><span class="nm">지금 그대로 — 회사가 계속 풀어준다</span></div>
+ <div class="bd">
+  <p><em>전제 —</em> 금고가 하루 5.9만 개를 계속 방출하고, 회원 보유분이 나머지를 메운다.</p>
+  <p>시장 순흐름이 0 근처에 머물러 <b>가격은 수급이 아니라 분위기로 움직입니다.</b>
+  월요일에 인원이 몰려도 그 물량이 시장을 거치지 않으므로 요일 패턴이 가격에 뚜렷하게 찍히지 않습니다.
+  실제로 최근 35일 요일별 평균 변동률은 월 +6.7%, 수 +7.6%, 화 +1.2%로 <b>월요일이 특별히 높지 않습니다.</b></p>
+  <p>다만 이 상태는 <b>저절로 유지되지 않습니다.</b> 수금지갑이 하루 16만 개를 흡수하고
+  금고가 5.9만 개만 내보내면, 차액 <b>약 10만 개/일</b>이 회원 보유분에서 빠져나갑니다.
+  그 보유분이 얇아질수록 시장 조달 비율이 올라가고, 그것이 곧 시나리오 B입니다.</p>
+ </div>
+</div>
+
+<div class="sc">
+ <div class="hd"><span class="tag">B</span><span class="nm">회원이 시장에서 사야 할 때</span></div>
+ <div class="bd">
+  <p><em>전제 —</em> 회원 보유분이 마르거나 금고 방출이 줄어, 요구량의 일부를 풀에서 조달한다.</p>
+  <table style="margin:6px 0 10px">
+  <thead><tr><th>월요일 요구량 중 시장 조달</th><th>수량</th><th>가격 영향</th></tr></thead>
+  <tbody>
+  <tr><td>1%</td><td>2,970개</td><td>+4.8%</td></tr>
+  <tr><td>2%</td><td>5,940개</td><td>+9.9%</td></tr>
+  <tr><td>5%</td><td>14,849개</td><td>+27.7%</td></tr>
+  <tr><td class="pk">8.1%</td><td class="pk">24,080개</td><td class="pk">풀의 SUT 소진</td></tr>
+  </tbody></table>
+  <p>조달 비율이 <b>한 자릿수 퍼센트만 올라가도</b> 두 자릿수 상승이 됩니다.
+  그리고 8.1%에서 <b>살 물건이 사라집니다.</b></p>
+  <p>이때 나타날 모양은 <b>월요일 급등 → 주중 되돌림의 톱니</b>입니다.
+  월요일에 인원의 36%(522/1,444)가 한꺼번에 조달에 나서고, 일요일에는 48명뿐이기 때문입니다.
+  <b>다만 이 톱니는 아직 관측되지 않았습니다.</b> 지금은 A 상태입니다.</p>
+ </div>
+</div>
+
+<div class="sc warn">
+ <div class="hd"><span class="tag">C</span><span class="nm">회사가 매도지갑 물량을 시장에 내놓을 때</span></div>
+ <div class="bd">
+  <p><em>전제 —</em> 09-05에 매도지갑으로 옮겨진 200,000개가 풀로 향한다.</p>
+  <p>그 20만 개는 <b>풀 SUT 재고의 8.3배</b>이고, 현재가로 <b>$119,000</b>어치 —
+  <b>풀에 있는 USDT 전액($127,289)에 육박</b>합니다.</p>
+  <table style="margin:6px 0 10px">
+  <thead><tr><th>내놓는 수량</th><th>가격 변화</th><th>결과가</th></tr></thead>
+  <tbody>
+  <tr><td>20,000개 <em>10%</em></td><td>−25.0%</td><td>$0.449</td></tr>
+  <tr><td>50,000개 <em>25%</em></td><td>−48.0%</td><td>$0.311</td></tr>
+  <tr><td>100,000개 <em>50%</em></td><td>−68.3%</td><td>$0.190</td></tr>
+  <tr><td>200,000개 <em>전량</em></td><td>−84.6%</td><td>$0.092</td></tr>
+  </tbody></table>
+  <p><b>이 지갑은 이미 09-07에 첫 매도를 했습니다.</b>
+  자기 평단가 대비 −18.2%에 팔았고, 매수는 05-01에 멈춘 상태입니다.
+  회사가 보유한 SUT 총량은 <b>21,200,766개</b> — 풀 재고의 <b>880배</b>입니다.</p>
+ </div>
+</div>
+
+<div class="sc">
+ <div class="hd"><span class="tag">D</span><span class="nm">회사가 소요량을 또 내릴 때</span></div>
+ <div class="bd">
+  <p><em>전제 —</em> 09-05에 한 일을 한 번 더 한다.</p>
+  <p>회사는 <b>2026-09-05 00:49 KST</b>에 1,000 USDT당 SUT 소요량을
+  <b>1,800개 → 900개</b>로 절반으로 내렸습니다. 그 직전 나흘 동안 가격은 두 배가 됐습니다.</p>
+  <table style="margin:6px 0 10px">
+  <thead><tr><th>날짜</th><th>SUT 시세</th><th>소요량</th><th>1,000 USDT당 SUT 비용</th></tr></thead>
+  <tbody>
+  <tr><td>09-01</td><td>$0.3202</td><td>1,800</td><td>$576</td></tr>
+  <tr><td>09-04</td><td>$0.5735</td><td>1,800</td><td>$1,032</td></tr>
+  <tr><td class="pk">09-05 <em>변경</em></td><td class="pk">$0.6365</td><td class="pk">900</td><td class="pk">$573</td></tr>
+  <tr><td>09-07</td><td>$0.5967</td><td>900</td><td>$537</td></tr>
+  </tbody></table>
+  <p>변경 전후로 <b>참여자가 내는 달러 비용이 $576 → $573으로 거의 그대로</b>입니다.
+  가격 상승분을 소요량으로 상쇄한 것으로 보입니다.</p>
+  <p>이것이 뜻하는 바는 분명합니다. <b>소요량은 회사가 돌리는 손잡이입니다.</b>
+  가격이 다시 두 배가 되면 450개로 내릴 여지가 있고, 그러면
+  <b>개수 기준 수요가 절반</b>이 됩니다. 위로 가는 압력을 스스로 깎는 장치이자,
+  동시에 <b>가격이 올라도 회사가 받는 SUT 개수는 줄어든다</b>는 뜻이기도 합니다.</p>
+ </div>
+</div>
+
+<h2><span class="no">6</span>그래서 무엇을 보면 되는가</h2>
+<p>가격 자체보다 아래 네 가지가 먼저 움직입니다. 전부 실시간 대시보드에서 확인할 수 있습니다.</p>
+<ul>
+<li><b>풀의 SUT 재고</b> — 지금 24,080개. 여기가 1만 개 아래로 내려가면 아주 작은 매수에도 크게 튑니다.</li>
+<li><b>매도지갑 잔고</b> — 20만 개. 줄어들면 시나리오 C가 진행 중이라는 뜻입니다.</li>
+<li><b>MPC 금고의 SUT 방출</b> — 멈추면 회원이 시장으로 밀려나 시나리오 B가 됩니다.</li>
+<li><b>수금지갑 유입량</b> — 지금 하루 16만 개. 급감은 참여 이탈, 급증은 조달 압력 증가입니다.</li>
+</ul>
+
+<div class="card ac">
+<div class="kh">정리</div>
+<p style="margin:4px 0 0">요일 쏠림은 실재하고 월요일이 주간의 26%입니다.
+하지만 <b>지금 가격을 정하는 것은 요일이 아니라 회사의 방출 여부</b>입니다.
+요구량은 풀의 47배지만 시장을 거의 거치지 않기 때문입니다.
+그 우회로가 끊기는 순간 — 금고가 잠기거나 회원 보유분이 마르면 —
+같은 요일 쏠림이 <b>그대로 가격에 찍히게</b> 됩니다.</p>
+</div>
+
+<h2><span class="no">7</span>이 글이 주장하지 않는 것</h2>
+<ul>
+<li><b>가격을 예측하지 않습니다.</b> 위 숫자는 "이만큼 사고팔면 산술적으로 이렇게 된다"이지, 그런 일이 일어난다는 뜻이 아닙니다.</li>
+<li><b>사거나 팔라고 권하지 않습니다.</b> 판단에 쓸 숫자를 드릴 뿐입니다.</li>
+<li><b>깊이 모형은 근사입니다.</b> 오늘 실측된 한 점(10,000개 = −13.9%)으로 보정했습니다.
+유니스왑 V3는 구간마다 깊이가 달라, 큰 수량일수록 표의 값보다 <b>더 나쁘게</b> 나올 가능성이 높습니다.</li>
+<li><b>회사의 의도를 단정하지 않습니다.</b> 09-05 소요량 변경과 가격 급등이 같은 시점이라는 사실까지입니다.</li>
+<li><b>요일별 평균은 4~5회 표본</b>입니다. 08-31 월요일의 51만 개 같은 단발 사건이 평균을 끌어올립니다.</li>
+</ul>
+
+<div class="foot">
+<p><b>검증 방법</b></p>
+<p>· 수금지갑 <a href="https://polygonscan.com/address/0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">0xaaa4…cc2c</a>
+ · MPC 금고 <a href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">0xf46e…7bc8</a>
+ · 매도지갑 <a href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">0x686a…a6a6</a></p>
+<p>· 주풀 <a href="https://dexscreener.com/polygon/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">0x0922…e165</a>
+ · 보조풀 <a href="https://dexscreener.com/polygon/0xb700d11b26707015c04c0e03edbe905e08056878" target="_blank" rel="noopener">0xb700…6878</a></p>
+<p>모든 숫자는 폴리곤 체인과 풀에서 직접 뽑았습니다. 다른 값이 나오면 알려주십시오.</p>
+</div>
+
+</div>
+<div id="tip"></div>
+
+<script>
+const DOW=[['월',296987,26.0,522],['화',171608,15.0,219],['수',152312,13.4,230],
+           ['목',135400,11.9,168],['금',131148,11.5,157],['토',172036,15.1,101],['일',81275,7.1,48]];
+const POOLS=24080, MX=320000;
+const nf=v=>v.toLocaleString('ko-KR');
+/* 요일 막대 */
+const vb=document.getElementById('vb'), xax=document.getElementById('xax');
+vb.innerHTML=DOW.map(([d,v,p,n])=>{
+  const h=Math.max(2,v/MX*100), pk=d==='월'?' pk':'';
+  return `<div class="col${pk}" data-d="${d}" data-v="${nf(v)}" data-p="${p}" data-n="${n}">
+    ${d==='월'||d==='일'?`<span class="lbl">${Math.round(v/1000)}천</span>`:''}
+    <div class="bar" style="height:${h}%"></div></div>`;}).join('')
+  +`<div class="gl" style="bottom:${POOLS/MX*100}%"><span>풀 재고<br>24,080개</span></div>`;
+xax.innerHTML=DOW.map(([d])=>`<div class="${d==='월'?'pk':''}">${d}</div>`).join('');
+/* 매도 충격 막대 */
+const SELL=[[1000,'',1.5,0.589],[2970,'월요일의 1%',4.4,0.572],[5000,'',7.3,0.555],
+ [10000,'오늘 실측된 매도',13.9,0.515],[24080,'풀 SUT 전량',29.0,0.425],
+ [29699,'월요일의 10%',33.9,0.395],[50000,'',48.0,0.311],[100000,'',68.3,0.190],
+ [200000,'매도지갑 보유분',84.6,0.092],[296987,'월요일 전량',90.8,0.055]];
+document.getElementById('hb').innerHTML=SELL.map(([q,lab,d,px])=>
+ `<div class="row${q===10000?' mk':''}">
+   <div class="top"><span class="q">${nf(q)}개${lab?`<em>${lab}</em>`:''}</span>
+   <span class="r">−${d.toFixed(1)}% → $${px.toFixed(3)}</span></div>
+   <div class="trk"><div class="fil" style="width:${d}%"></div></div></div>`).join('');
+/* 툴팁 */
+const tip=document.getElementById('tip');
+document.addEventListener('pointermove',e=>{
+  const c=e.target.closest('.vb .col');
+  if(!c){tip.classList.remove('on');return;}
+  tip.innerHTML=`<b>${c.dataset.d}요일</b> 평균 ${c.dataset.v}개`
+    +`<em>주간의 ${c.dataset.p}% · 평균 ${c.dataset.n}명</em>`
+    +`<em>1인 평균 ${nf(Math.round(c.dataset.v.replace(/,/g,'')/c.dataset.n))}개</em>`;
+  tip.classList.add('on');
+  tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,Math.max(8,e.clientX-tip.offsetWidth/2))+'px';
+  tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-14)+'px';
+},{passive:true});
+</script>
+</body>
+</html>
