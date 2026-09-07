@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>회사 잔고 · 유입 감시</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--red:#e0857f;--gold:#c9a227;--green:#5fd6a6;--usd:#3987e5;--kw:#c98500}
+*{box-sizing:border-box}::selection{background:rgba(145,132,217,.32)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:14.5px;line-height:1.65;
+font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 70px}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:-.6px}
+.tag{color:var(--tx3);font-size:12.4px;margin-bottom:14px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+h2{font-size:17px;margin:30px 0 6px;letter-spacing:-.3px}
+h2 i{font-style:normal;display:inline-flex;width:21px;height:21px;border-radius:6px;background:var(--ac);
+color:#14121f;font-size:12px;font-weight:800;align-items:center;justify-content:center;margin-right:8px;vertical-align:2px}
+h2+.sub{color:var(--tx3);font-size:12.6px;margin:0 0 12px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+/* 상태바 */
+.bar{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line2);
+border-radius:13px;padding:11px 14px;margin-bottom:13px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--tx3);flex:0 0 auto}
+.dot.ok{background:var(--green);box-shadow:0 0 0 3px rgba(95,214,166,.16)}
+.dot.err{background:var(--red);box-shadow:0 0 0 3px rgba(224,133,127,.16)}
+.bar b{font-size:13px;flex:1;min-width:120px}
+.bar .meta{font-size:11.3px;color:var(--tx3);font-variant-numeric:tabular-nums;width:100%}
+.bar button{background:var(--panel2);border:1px solid var(--line2);color:var(--tx2);border-radius:18px;
+padding:5px 14px;font:inherit;font-size:11.8px;font-weight:600;cursor:pointer}
+.bar button:hover{border-color:var(--ac);color:var(--tx)}
+.bar button:disabled{opacity:.45;cursor:default}
+/* 히어로 */
+.hero{background:linear-gradient(180deg,#1f2333,#191b27);border:1px solid var(--line2);border-radius:16px;padding:17px;margin-bottom:11px}
+.hero .k{font-size:11.6px;color:var(--tx3);margin-bottom:4px}
+.hero .v{font-size:40px;font-weight:800;letter-spacing:-1.7px;font-variant-numeric:tabular-nums;line-height:1.05;color:var(--gold)}
+.hero .u{font-size:13px;color:var(--tx2);margin-top:5px}
+.hg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}
+.hg div{background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.hg span{display:block;font-size:10.8px;color:var(--tx3);margin-bottom:2px}
+.hg b{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+/* 지갑 카드 */
+.wc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:9px}
+.wc.hot{border-left:3px solid var(--red)}
+.wc.watch{border-left:3px solid var(--gold)}
+.wc.co{border-left:3px solid var(--usd)}
+.wc .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+.wc .h b{font-size:14.4px;font-weight:800;letter-spacing:-.3px}
+.wc .h .flag{font-size:10.6px;font-weight:700;border-radius:5px;padding:2px 7px}
+.f-w{background:rgba(201,162,39,.16);color:#e5cd6b}
+.f-h{background:rgba(224,133,127,.16);color:var(--red)}
+.wc .ad{font-family:ui-monospace,Menlo,monospace;font-size:10.4px;color:var(--tx3);overflow-wrap:anywhere;margin-bottom:8px}
+.wc .rows{display:grid;gap:0}
+.wc .r{display:grid;grid-template-columns:64px 1fr auto;align-items:baseline;gap:9px;padding:6px 0;border-bottom:1px solid var(--line)}
+.wc .r:last-child{border:0}
+.wc .r .t{font-size:11.6px;color:var(--tx3);font-weight:700}
+.wc .r .v{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.wc .r .d{font-size:11.4px;font-variant-numeric:tabular-nums;text-align:right;color:var(--tx3);white-space:nowrap}
+.wc .r .d.up{color:var(--green)}.wc .r .d.dn{color:var(--tx2)}
+.wc .r .d.al{color:var(--gold);font-weight:800;background:rgba(201,162,39,.14);border-radius:5px;padding:1px 6px}
+/* 최근 입금 */
+.dep{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 15px}
+.dep .l{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;
+padding:8px 0;border-bottom:1px solid var(--line);font-size:12.6px}
+.dep .l:last-child{border:0}
+.dep .l .t{color:var(--tx3);font-size:11.4px;font-variant-numeric:tabular-nums}
+.dep .l .a{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--tx3);overflow:hidden;text-overflow:ellipsis}
+.dep .l .v{font-weight:800;font-variant-numeric:tabular-nums;color:var(--gold)}
+.note{background:rgba(201,162,39,.07);border:1px solid #5c4f1e;border-radius:13px;padding:14px 16px;margin-top:11px}
+.note h3{margin:0 0 8px;font-size:13.6px;color:#e5cd6b}
+.note p{margin:0 0 8px;font-size:12.8px;color:var(--tx2)}.note p:last-child{margin:0}
+.note b{color:var(--tx)}
+.warn{background:rgba(208,90,90,.08);border-color:#6e3535}.warn h3{color:var(--red)}
+.lnk{display:block;background:var(--panel2);border:1px solid var(--line);border-radius:11px;
+padding:10px 13px;text-decoration:none;margin-bottom:7px}
+.lnk:hover{border-color:var(--ac)}
+.lnk b{display:block;font-size:12.9px;color:var(--tx);margin-bottom:2px}
+.lnk code{font-size:10.7px;color:var(--tx3);overflow-wrap:anywhere}
+@media(max-width:600px){.hg{grid-template-columns:1fr}.hero .v{font-size:32px}
+.wc .r{grid-template-columns:56px 1fr auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>회사 잔고 · 유입 감시</h1>
+<div class="tag">새로고침할 때마다 폴리곤 체인을 직접 읽습니다 · 저장된 숫자가 아닙니다</div>
+
+<div class="bar">
+  <span class="dot" id="dot"></span>
+  <b id="msg">체인 조회 중…</b>
+  <button id="ref" type="button">새로고침</button>
+  <div class="meta" id="meta">—</div>
+</div>
+
+<h2><i>1</i>CC2C 수금지갑 SUT 입금</h2>
+<p class="sub">참여자가 회사로 보낸 SUT입니다. 참여 규모를 보는 가장 빠른 지표입니다.</p>
+<div class="hero">
+  <div class="k" id="wk">최근 구간</div>
+  <div class="v" id="wv">—</div>
+  <div class="u" id="wu">SUT</div>
+  <div class="hg">
+    <div><span>입금 건수</span><b id="wn">—</b></div>
+    <div><span>건당 평균</span><b id="wa">—</b></div>
+    <div><span>24시간 환산</span><b id="w24">—</b></div>
+  </div>
+</div>
+<div class="note">
+<h3>기준선 — 2026년 9월 7일 실측</h3>
+<p>같은 방식으로 잰 <b>24시간 유입이 106,239 SUT · 405건</b>이었습니다. 위 "24시간 환산"이 이보다
+크게 낮으면 참여가 줄고 있는 것이고, 높으면 늘고 있는 것입니다.</p>
+<p><b>다만 9월 5일부터 참여 1,000 USDT당 필요한 SUT가 1,800 → 900개로 절반이 됐습니다.</b>
+같은 인원이 참여해도 SUT 유입은 절반으로 보입니다. 유입이 줄었다고 곧바로 참여가 줄었다고 읽으면 안 됩니다.</p>
+</div>
+
+<h2><i>2</i>최근 입금 내역</h2>
+<p class="sub">조회 구간 안에서 가장 최근 12건입니다.</p>
+<div class="dep" id="dep"><div class="l"><span class="t">—</span><span class="a">불러오는 중</span><span class="v">—</span></div></div>
+
+<h2><i>3</i>회사 지갑 잔고</h2>
+<p class="sub">오른쪽은 2026년 9월 7일 기록값 대비 증감입니다.
+<b style="color:var(--gold);background:rgba(201,162,39,.14);border-radius:5px;padding:1px 6px">노란색</b>이면
+<b style="color:var(--tx2)">눈여겨봐야 할 방향으로 움직인 것</b>입니다.</p>
+<div id="wal"></div>
+
+<h2><i>4</i>무엇을 보고 있는가</h2>
+<div class="note warn">
+<h3>매도 지갑 SUT 잔고 — 가장 중요합니다</h3>
+<p><code>0x686a2630…a6a6</code>은 2025년 12월부터 <b>586번에 걸쳐 SUT 205만 개를 시장에서 사들여</b>
+중앙금고로 올려보내던 <b>바이백 지갑</b>이었습니다. 투입 자금 1,507,460 USDT.</p>
+<p>그런데 <b>2026년 5월 1일 매수를 멈췄고</b>, 9월 5일 MPC 금고로부터 <b>SUT 200,000개를 받아</b>
+9월 7일 <b>처음으로 10,000개를 시장에 팔았습니다</b> (거래 <code>0x4a4952c2…46575a</code>).</p>
+<p><b>이 잔고가 190,001에서 줄면 계속 팔고 있는 것</b>이고, <b>늘면 회사가 또 내려보낸 것</b>입니다.
+매도 압력을 보는 유일한 실시간 지표입니다.</p>
+</div>
+<div class="note">
+<h3>수신 A · B의 MPC — 총발행 10%가 잠들어 있습니다</h3>
+<p>9월 4일 MPC 금고에서 나간 10억 개 중 6억이 이 두 지갑에 있습니다.
+<b>둘 다 가스(POL)가 0이라 지금은 한 개도 못 움직입니다.</b>
+POL이 들어오는 순간이 "움직일 준비가 끝났다"는 신호입니다.</p>
+</div>
+<div class="note">
+<h3>CC2C의 MPC 잔고 — 이관 신청의 대리지표</h3>
+<p>9월 1일부터 회원 지갑에서 CC2C로 MPC가 돌아오기 시작했습니다. 그전에는 한 건도 없었습니다.
+<b>이 잔고가 늘면 반환이 계속되는 것</b>입니다. 다만 반환 이유가 이관인지는
+체인에 안 적히므로, <b>추세만 보는 지표</b >로 쓰십시오.</p>
+</div>
+
+<h2><i>5</i>직접 확인하는 법</h2>
+<div>
+  <a class="lnk" href="https://polygonscan.com/token/0x98965474ecbec2f532f1f780ee37b0b05f77ca55?a=0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">
+    <b>CC2C 수금지갑의 SUT 내역 ↗</b><code>token/0x98965474…5f77ca55?a=0xaaa4d5dd…89cc2c</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0x686a2630ab724f07a1a1de7e2590efb621c5a6a6" target="_blank" rel="noopener">
+    <b>매도 지갑 ↗</b><code>0x686a2630ab724f07a1a1de7e2590efb621c5a6a6</code></a>
+  <a class="lnk" href="https://polygonscan.com/tx/0x4a4952c23fc7c3a16f360654375af8b853d983337b644ca7f759e3634e46575a" target="_blank" rel="noopener">
+    <b>9월 7일 첫 매도 거래 (Logs 탭에 Swap 이벤트) ↗</b><code>0x4a4952c23fc7c3a16f360654375af8b853d983337b644ca7f759e3634e46575a</code></a>
+  <a class="lnk" href="https://polygonscan.com/address/0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8" target="_blank" rel="noopener">
+    <b>MPC 금고 ↗</b><code>0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8</code></a>
+</div>
+<div class="note">
+<p style="color:var(--tx3)">모든 숫자는 공개 노드에서 직접 읽습니다. 노드가 응답하지 않으면 실패로 표시되고
+기록값을 보여주지 않습니다 — <b style="color:var(--tx2)">화면에 뜬 값은 항상 지금 체인의 값</b>입니다.</p>
+</div>
+</div>
+
+<script>
+const RPCS=['https://polygon-rpc.com','https://rpc.ankr.com/polygon','https://polygon.llamarpc.com',
+            'https://polygon-bor-rpc.publicnode.com','https://1rpc.io/matic','https://polygon.drpc.org'];
+const TOK={KWT:['0x435001af7fc65b621b0043df99810b2f30860c5d',6],
+           USDT:['0xc2132d05d31c914a87c6611c10748aeb04b58e8f',6],
+           SUT:['0x98965474ecbec2f532f1f780ee37b0b05f77ca55',18],
+           MPC:['0x2d854416d2749b1f0eb8a4b2ab9027989f2ba262',18]};
+const CC='0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c';
+const TRANSFER='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const BLKSEC=1.50;
+/* 2026-09-07 기록값 */
+const W=[
+ {k:'cc2c',nm:'CC2C 수금지갑',ad:CC,cls:'co',toks:['KWT','USDT','SUT','MPC'],
+  base:{KWT:12391934811,USDT:2383035.25,SUT:10783003.34,MPC:6055450.60},
+  alert:{MPC:'up'},note:'MPC 칸이 늘면 반환이 계속되는 것'},
+ {k:'sell',nm:'매도 지갑',ad:'0x686a2630ab724f07a1a1de7e2590efb621c5a6a6',cls:'hot',flag:'매도 감시',toks:['SUT','USDT'],
+  base:{SUT:190001,USDT:6012.96},alert:{SUT:'dn'},note:'줄면 매도 중 · 늘면 회사가 또 내려보냄'},
+ {k:'mpcg',nm:'MPC 금고',ad:'0xf46e16da9cf96c19bfc5c5d550857c7a53ea7bc8',cls:'watch',flag:'감시',toks:['SUT','MPC'],
+  base:{SUT:10412783.01,MPC:1990250000},alert:{MPC:'dn',SUT:'dn'}},
+ {k:'rA',nm:'수신 A',ad:'0x557b6c6c8691bdf94a7496e9edf62a92a8b8dbae',cls:'watch',flag:'가스 감시',toks:['MPC','POL'],
+  base:{MPC:300000000,POL:0},alert:{POL:'up',MPC:'dn'}},
+ {k:'rB',nm:'수신 B',ad:'0x58843bf0a7653b7ea7cac8bfea16c35c3a3c2c6f',cls:'watch',flag:'가스 감시',toks:['MPC','POL'],
+  base:{MPC:300000000,POL:0},alert:{POL:'up',MPC:'dn'}},
+ {k:'pay2',nm:'지급지갑 #2',ad:'0xe6e7ec8dfbacc0dbfc8e838ff2a49a252ab4ff85',toks:['USDT','SUT','MPC'],
+  base:{USDT:57625.27,SUT:99994.78,MPC:780828308.46}},
+ {k:'vault',nm:'중앙금고',ad:'0x7cc2f8914b4d77b68355757286f146373f4bf7ad',toks:['KWT','SUT','MPC'],
+  base:{KWT:100726099439.7,SUT:12988.23,MPC:1370951.71}},
+];
+const $=i=>document.getElementById(i);
+const pad=a=>'0x'+'0'.repeat(24)+a.slice(2);
+const nf=(v,d)=>v.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0});
+function fmt(v,sym){
+  if(sym==='POL') return nf(v,4);
+  if(v>=1e8) return nf(v/1e8,2)+'억';
+  if(v>=1e4) return nf(v,0);
+  return nf(v,2);
+}
+async function post(url,body,ms){
+  const c=new AbortController(), t=setTimeout(()=>c.abort(),ms||9000);
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+                            signal:c.signal,body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+function balBatch(){
+  let id=0; const p=[], map=[];
+  for(const w of W) for(const s of w.toks){
+    id++;
+    if(s==='POL') p.push({jsonrpc:'2.0',id,method:'eth_getBalance',params:[w.ad,'latest']});
+    else p.push({jsonrpc:'2.0',id,method:'eth_call',
+                 params:[{to:TOK[s][0],data:'0x70a08231'+'0'.repeat(24)+w.ad.slice(2)},'latest']});
+    map.push([w.k,s,s==='POL'?18:TOK[s][1]]);
+  }
+  p.push({jsonrpc:'2.0',id:++id,method:'eth_blockNumber',params:[]});
+  return [p,map,id];
+}
+async function getBal(url){
+  const [p,map,bid]=balBatch();
+  const j=await post(url,p,10000);
+  if(!Array.isArray(j)||j.some(x=>!x||x.error||x.result==null)) throw 0;
+  const m={}; j.forEach(x=>m[x.id]=x.result);
+  const out={}, blk=Number(BigInt(m[bid]));
+  map.forEach(([k,s,d],i)=>{ (out[k]=out[k]||{})[s]=Number(BigInt(m[i+1]))/Math.pow(10,d); });
+  return {bal:out,blk};
+}
+async function getLogs(url,blk){
+  const CH=5000, N=4;           /* 20,000블록 ≈ 8.3시간 */
+  let logs=[], from=blk-CH*N+1, got=0;
+  for(let i=0;i<N;i++){
+    const lo=blk-CH*(N-i)+1, hi=blk-CH*(N-i-1);
+    try{
+      const j=await post(url,{jsonrpc:'2.0',id:1,method:'eth_getLogs',params:[{
+        address:TOK.SUT[0],fromBlock:'0x'+lo.toString(16),toBlock:'0x'+hi.toString(16),
+        topics:[TRANSFER,null,pad(CC)]}]},12000);
+      if(j.error||!Array.isArray(j.result)) throw 0;
+      logs=logs.concat(j.result); got+=CH;
+    }catch(e){ if(i===0) throw 0; }   /* 첫 청크 실패 = 이 노드는 로그 조회 불가 */
+  }
+  if(got===0) throw 0;
+  return {logs,blocks:got};
+}
+function render(bal,blk,logs,blocks,src){
+  /* 잔고 */
+  $('wal').innerHTML=W.map(w=>{
+    const b=bal[w.k]||{};
+    return `<div class="wc ${w.cls||''}"><div class="h"><b>${w.nm}</b>`
+      +(w.flag?`<span class="flag ${w.cls==='hot'?'f-h':'f-w'}">${w.flag}</span>`:'')
+      +`</div><div class="ad">${w.ad}</div><div class="rows">`
+      +w.toks.map(s=>{
+         const v=b[s]??0, base=w.base[s]??0, d=v-base;
+         const moved=Math.abs(d)>Math.max(1e-9,Math.abs(base)*1e-9);
+         const al=(w.alert||{})[s];                       /* 'up'|'dn' = 경고 방향 */
+         let cls='';
+         if(moved) cls = (al && ((al==='up'&&d>0)||(al==='dn'&&d<0))) ? 'al' : (d>0?'up':'dn');
+         const dt=moved?`${d>0?'+':'−'}${fmt(Math.abs(d),s)}`:'변동 없음';
+         return `<div class="r"><span class="t">${s}</span>`
+              + `<span class="v">${fmt(v,s)}</span>`
+              + `<span class="d ${cls}">${dt}</span></div>`;}).join('')
+      +'</div>'+(w.note?`<p style="margin:8px 0 0;font-size:11.6px;color:var(--tx3)">${w.note}</p>`:'')+'</div>';
+  }).join('');
+  /* 유입 */
+  const hrs=blocks*BLKSEC/3600;
+  const tot=logs.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0);
+  $('wk').textContent=`최근 ${blocks.toLocaleString()}블록 · 약 ${hrs.toFixed(1)}시간`;
+  $('wv').textContent=nf(tot,0);
+  $('wu').textContent='SUT — 참여자 → CC2C 수금지갑';
+  $('wn').textContent=logs.length.toLocaleString()+'건';
+  $('wa').textContent=logs.length?nf(tot/logs.length,0):'—';
+  const d24=tot/hrs*24;
+  $('w24').innerHTML=nf(d24,0)+` <span style="font-size:.62em;font-weight:600;color:${d24>=106239?'var(--green)':'var(--red)'}">`
+    +`${d24>=106239?'+':'−'}${nf(Math.abs(d24/106239-1)*100,0)}%</span>`;
+  /* 최근 입금 */
+  const rec=logs.slice(-12).reverse();
+  $('dep').innerHTML=rec.length?rec.map(x=>{
+    const from='0x'+x.topics[1].slice(26);
+    const v=Number(BigInt(x.data))/1e18;
+    return `<div class="l"><span class="t">#${Number(BigInt(x.blockNumber)).toLocaleString()}</span>`
+      +`<span class="a">${from}</span><span class="v">${nf(v,2)} SUT</span></div>`;
+  }).join('') : '<div class="l"><span class="t">—</span><span class="a">이 구간에 입금이 없습니다</span><span class="v">0</span></div>';
+  $('dot').className='dot ok';
+  $('msg').textContent='조회 완료';
+  $('meta').textContent=`${new Date().toLocaleString('ko-KR')} · 블록 ${blk.toLocaleString()} · 노드 ${src.replace(/^https:\/\//,'')}`;
+}
+function fail(why){
+  $('dot').className='dot err';
+  $('msg').textContent='조회 실패 — 공개 노드가 응답하지 않습니다';
+  $('meta').textContent=why+' · 잠시 후 새로고침하거나 아래 폴리곤스캔 링크로 직접 확인하십시오';
+}
+let busy=false;
+async function poll(){
+  if(busy) return; busy=true; $('ref').disabled=true;
+  $('dot').className='dot'; $('msg').textContent='체인 조회 중…';
+  for(const u of RPCS){
+    try{
+      const {bal,blk}=await getBal(u);
+      let lg={logs:[],blocks:0};
+      try{ lg=await getLogs(u,blk); }catch(e){}
+      if(lg.blocks===0){
+        for(const u2 of RPCS){ try{ lg=await getLogs(u2,blk); break; }catch(e){} }
+      }
+      if(lg.blocks===0){ render(bal,blk,[],1,u); $('wk').textContent='입금 조회 실패 — 잔고만 표시';
+        $('wv').textContent='—'; $('wu').textContent='노드가 로그 조회를 지원하지 않습니다';
+        $('wn').textContent='—';$('wa').textContent='—';$('w24').textContent='—'; }
+      else render(bal,blk,lg.logs,lg.blocks,u);
+      busy=false; $('ref').disabled=false; return;
+    }catch(e){}
+  }
+  fail('노드 '+RPCS.length+'곳 모두 실패');
+  busy=false; $('ref').disabled=false;
+}
+$('ref').addEventListener('click',poll);
+poll();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) poll();});
+</script>
+</body>
+</html>
