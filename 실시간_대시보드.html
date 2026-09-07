@@ -59,6 +59,8 @@ font-size:10px;color:var(--tx3);font-weight:500;font-variant-numeric:tabular-num
 .bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:2px}
 .bars i{flex:1;max-width:24px;background:var(--bar);border-radius:4px 4px 0 0;min-height:2px;cursor:default}
 .bars i.today{background:var(--hi)}
+.bars i.gap{background:repeating-linear-gradient(45deg,#2a2d3d 0 4px,transparent 4px 8px);
+border-radius:3px;opacity:.75}
 .bars i:hover{filter:brightness(1.25)}
 .xl{display:flex;justify-content:space-between;font-size:10.4px;color:var(--tx3);font-variant-numeric:tabular-nums}
 /* 양방향(유입/유출) 차트 */
@@ -178,14 +180,16 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
 </div>
 
 <div class="kpi">
-  <div><span>어제 (SUT)</span><b id="k1">—</b><em id="k1s">—</em></div>
-  <div><span>7일 평균</span><b id="k2">—</b><em id="k2s">—</em></div>
-  <div><span>30일 평균</span><b id="k3">—</b><em id="k3s">—</em></div>
+  <div><span id="k1t">어제 (SUT)</span><b id="k1">—</b><em id="k1s">—</em></div>
+  <div><span id="k2t">7일 평균</span><b id="k2">—</b><em id="k2s">—</em></div>
+  <div><span id="k3t">30일 평균</span><b id="k3">—</b><em id="k3s">—</em></div>
   <div><span>매도 대기</span><b id="k4">—</b><em id="k4s">—</em></div>
 </div>
 
 <h2>일별 유입 — 최근 30일</h2>
-<p class="cap">한국시간 기준 하루 단위입니다. 막대에 손을 올리면 날짜와 금액이 나옵니다. 노란 막대가 오늘입니다.</p>
+<p class="cap">한국시간 기준입니다. <b style="color:var(--hi)">노란 막대가 오늘</b>, 그 앞이 어제이고
+둘 다 지금 체인에서 읽습니다. 그 이전 <span id="snapd">30일</span>은 페이지에 저장해 둔 값이라
+빗금 막대는 아직 집계하지 않은 날입니다.</p>
 <div class="ch">
   <div class="plot"><div id="gls"></div><div class="bars" id="bars"></div></div>
   <div class="xl"><span id="x1">—</span><span id="x2">—</span></div>
@@ -244,21 +248,30 @@ details[open] summary{border-radius:12px 12px 0 0;border-bottom:0}
   <div class="sheet">
     <div class="sh"><b>오늘 입금 내역 · 한국시간 0시부터</b><button id="cls" type="button">닫기</button></div>
     <div class="ssum">
-      <div class="p"><span>참여</span><b id="sp">—</b><em id="spn">—</em></div>
-      <div class="d"><span>DeCT (외매권)</span><b id="sd">—</b><em id="sdn">—</em></div>
+      <div class="p"><span>테더 동반 참여</span><b id="sp">—</b><em id="spn">—</em></div>
+      <div class="d"><span>SUT만 납입</span><b id="sd">—</b><em id="sdn">—</em></div>
     </div>
     <div class="fil" id="fil">
       <button data-f="all" class="on">전체</button>
-      <button data-f="p">참여만</button>
-      <button data-f="d">DeCT만</button>
+      <button data-f="p">테더 동반</button>
+      <button data-f="d">SUT만</button>
     </div>
     <div class="list" id="list"><div class="lmsg">불러오는 중…</div></div>
     <div class="lnote">
-      <b>참여 / DeCT를 어떻게 나눴나</b>
-      같은 지갑이 오늘 <b>테더나 KWT도 함께 냈으면 참여</b>, <b>SUT만 냈으면 DeCT(외매권)</b>로 봤습니다.
-      참여는 현금과 SUT를 같이 내야 하고, 외매권 행사는 SUT만 내기 때문입니다.
-      체인에 "이건 외매권"이라고 적혀 있는 게 아니라 <b>입금 방식으로 추정한 것</b>이니 참고로만 보십시오.
+      <b>이 구분이 뜻하는 것</b>
+      같은 지갑이 오늘 <b>테더도 함께 냈으면 "테더 동반"</b>, <b>SUT만 냈으면 "SUT만"</b>입니다.
       지갑 주소를 누르면 폴리곤스캔에서 그 거래를 직접 볼 수 있습니다.
+      <br><br>
+      <b style="color:var(--red);display:block;font-size:12.2px;margin-bottom:4px">외매권 구분은 아닙니다</b>
+      회사의 실제 DeCT 발급 기록(9/3~9/7, 1,180건)과 대조해 봤더니
+      <b>SUT를 낸 지갑은 테더를 함께 냈든 안 냈든 99~100%가 그날 DeCT를 받습니다.</b>
+      그래서 <b>입금 방식만으로는 외매권을 가려낼 수 없습니다.</b>
+      "SUT만" 칸에는 <b>재참여(듀티)와 외매권 행사가 섞여</b> 있습니다.
+      <br><br>
+      참고로 확인된 것들 — DeCT 원문에 적힌 SUT는 실제 낸 SUT의 <b>정확히 2배</b>가 가장 흔하고(9/7 377곳 중 286곳),
+      <b>KWT 결제자는 SUT를 거의 내지 않습니다</b>(0~9%). 반대로 <b>테더 결제자는 93~100%가 SUT를 함께</b> 냅니다.
+      주정산일인 월요일에는 "SUT만"이 급증하는데(9/7 295곳) 금액 중앙값이 36 SUT로 아주 작아
+      <b>재참여(듀티) 물량</b>으로 보입니다. 평일에는 중앙값이 1,125 SUT입니다.
     </div>
   </div>
 </div>
@@ -339,17 +352,13 @@ async function blockTs(nodes,b){
   }
   throw 0;
 }
-async function midnightBlk(u,blk){
-  const T0=await blockTs(u,blk);
-  const T1=await blockTs(u,blk-50000);
-  const rate=Math.max(0.5,(T0-T1)/50000);                 /* 실측 초/블록 */
-  const mid=Math.floor((Date.now()/1000+32400)/86400)*86400-32400;   /* KST 0시 */
-  let g=Math.max(1,blk-Math.round((T0-mid)/rate));
-  const Tg=await blockTs(u,g);
-  g=Math.max(1,g-Math.round((Tg-mid)/rate));              /* 1회 보정 */
-  RATE_SEEN=rate;
-  return {from:Math.min(g,blk),secs:T0-mid,rate};
+async function blkAt(nodes,blk,T0,rate,target){       /* 특정 시각의 블록 번호 */
+  let g=Math.max(1,blk-Math.round((T0-target)/rate));
+  const Tg=await blockTs(nodes,g);
+  return Math.max(1,Math.min(blk,g-Math.round((Tg-target)/rate)));
 }
+const KSTMID=d=>Math.floor((Date.now()/1000+32400)/86400)*86400-32400-d*86400;
+const kstDate=t=>new Date(t*1000).toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'});
 /* 조각 하나를 여러 노드로 재시도 — 실패하면 전체 실패(부분 합계는 절대 표시하지 않는다) */
 let DEADLINE=0, RATE_SEEN=1.6;
 async function chunk(nodes,lo,hi){
@@ -365,25 +374,34 @@ async function chunk(nodes,lo,hi){
   }
   throw 0;
 }
+async function range(nodes,lo,hi){                     /* 구간 로그를 병렬로 긁는다 */
+  const CH=10000, jobs=[];
+  for(let x=lo;x<=hi;x+=CH) jobs.push([x,Math.min(x+CH-1,hi)]);
+  const out=new Array(jobs.length); let i=0;
+  async function w(){ while(i<jobs.length){const k=i++; out[k]=await chunk(nodes,...jobs[k]);} }
+  await Promise.all([w(),w(),w()]);
+  const seen=new Set(), uniq=[];
+  for(const x of out.flat()){ const k=x.transactionHash+'|'+x.logIndex;
+    if(!seen.has(k)){seen.add(k);uniq.push(x);} }
+  return uniq;
+}
 async function todayLogs(u,blk){
   const nodes=Array.isArray(u)?u:[u,...RPCS.filter(x=>x!==u)];
-  const {from,secs}=await midnightBlk(nodes,blk);
-  const CH=10000, jobs=[];
-  for(let lo=from;lo<=blk;lo+=CH) jobs.push([lo,Math.min(lo+CH-1,blk)]);
-  /* 동시 3개씩 — 순차보다 훨씬 빠르고 노드에 몰리지도 않는다 */
-  const out=new Array(jobs.length); let idx=0;
-  async function worker(){ while(idx<jobs.length){const i=idx++; out[i]=await chunk(nodes,...jobs[i]);} }
-  await Promise.all([worker(),worker(),worker()]);
-  const logs=out.flat();
-  /* 같은 로그가 두 번 들어가지 않게 (tx해시+logIndex로 중복 제거) */
-  const seen=new Set(), uniq=[];
-  for(const x of logs){ const k=x.transactionHash+'|'+x.logIndex;
-    if(!seen.has(k)){seen.add(k);uniq.push(x);} }
-  return {sum:uniq.reduce((a,x)=>a+Number(BigInt(x.data))/1e18,0),n:uniq.length,
-          part:false,hrs:secs/3600,blocks:blk-from+1,
-          rows:uniq.map(x=>({b:Number(BigInt(x.blockNumber)),h:x.transactionHash,
-                             f:'0x'+x.topics[1].slice(26),v:Number(BigInt(x.data))/1e18})),
-          from,blk,nodes,rate:RATE_SEEN,mid:Math.floor((Date.now()/1000+32400)/86400)*86400-32400};
+  const T0=await blockTs(nodes,blk);
+  const T1=await blockTs(nodes,blk-50000);
+  const rate=Math.max(0.5,(T0-T1)/50000);              /* 실측 초/블록 */
+  RATE_SEEN=rate;
+  const m0=KSTMID(0), m1=KSTMID(1);                    /* 오늘 0시 · 어제 0시 */
+  const b0=await blkAt(nodes,blk,T0,rate,m0);
+  const b1=await blkAt(nodes,blk,T0,rate,m1);
+  /* 오늘과 어제를 함께 읽는다 — 날짜가 바뀌어도 "어제"가 항상 맞도록 */
+  const [tod,yst]=await Promise.all([range(nodes,b0,blk), range(nodes,b1,Math.max(b1,b0-1))]);
+  const S=a=>a.reduce((x,y)=>x+Number(BigInt(y.data))/1e18,0);
+  return {sum:S(tod),n:tod.length,part:false,hrs:(T0-m0)/3600,
+          ySum:S(yst),yN:yst.length,yDate:kstDate(m1),tDate:kstDate(m0),
+          rows:tod.map(x=>({b:Number(BigInt(x.blockNumber)),h:x.transactionHash,
+                            f:'0x'+x.topics[1].slice(26),v:Number(BigInt(x.data))/1e18})),
+          from:b0,blk,nodes,rate,mid:m0};
 }
 function nice(mx){const p=Math.pow(10,Math.floor(Math.log10(mx)));
   for(const s of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(mx<=p*s) return p*s; return p*10;}
@@ -392,9 +410,11 @@ function chart(barsEl,glsEl,x1,x2,rows,fmtL,px){
   if(glsEl){glsEl.innerHTML=[1,.5,0].map(f=>
     `<div class="gl" style="top:${(1-f)*100}%"><b>${f?nf(mx*f):'0'}</b></div>`).join('');}
   barsEl.innerHTML=rows.map(r=>{
+    if(r[3]==='gap') return `<i class="gap" style="height:100%" data-t="${r[0]}"
+      data-v="집계하지 않은 날" data-n=""></i>`;
     const w=px?` · ${won(r[2]*px*FX)}`:'';
-    return `<i class="${r[3]?'today':''}" style="height:${Math.max(1.5,r[2]/mx*100)}%"
-      data-t="${r[0]}${r[3]?' (오늘)':''}" data-v="${nf(r[2])} SUT${w}"
+    return `<i class="${r[3]}" style="height:${Math.max(1.5,r[2]/mx*100)}%"
+      data-t="${r[0]}${r[3]==='today'?' (오늘)':''}" data-v="${nf(r[2])} SUT${w}"
       data-n="${r[1]?nf(r[1])+'건':''}"></i>`;}).join('');
   $(x1).textContent=fmtL(rows[0][0]); $(x2).textContent=fmtL(rows[rows.length-1][0]);
 }
@@ -407,6 +427,7 @@ function divChart(px){
       <div class="up"><b style="height:${(i/mx*100).toFixed(2)}%"></b></div>
       <div class="dn"><b style="height:${(o/mx*100).toFixed(2)}%"></b></div></div>`;}).join('');
   $('mx1').textContent=M[0][0]; $('mx2').textContent=M[M.length-1][0];
+  $('snapd').textContent=DASH.daily[0][0]+' ~ '+DASH.daily[DASH.daily.length-1][0];
   $('mxm').textContent=`위아래 최대 ${nf(mx)} SUT`;
   const ti=M.reduce((a,r)=>a+r[2],0), to=M.reduce((a,r)=>a+r[3],0);
   $('msum').innerHTML=[
@@ -465,7 +486,7 @@ async function loadDetail(){
     $('list').innerHTML=show.length?show.map(x=>{
       const t=new Date((TL.mid+(x.b-TL.from)*TL.rate)*1000)
         .toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false});
-      const tg=x.t==='p'?'<span class="tag p">참여</span>':x.t==='d'?'<span class="tag d">DeCT</span>':'';
+      const tg=x.t==='p'?'<span class="tag p">테더 동반</span>':x.t==='d'?'<span class="tag d">SUT만</span>':'';
       return `<div class="li"><span class="tm">${t}</span>
         <div><a href="https://polygonscan.com/tx/${x.h}" target="_blank" rel="noopener"
           >${x.f.slice(0,8)}…${x.f.slice(-6)}</a>${tg}</div>
@@ -514,8 +535,9 @@ function draw(bal,blk,px,tl,src){
     $('l1').textContent=`오늘 들어온 SUT · 한국시간 0시부터 ${tl.hrs.toFixed(1)}시간`;
     $('v1').innerHTML=`${nf(today)}<span class="unit">개</span>`;
     $('s1').textContent=`${won(today*px*FX)} · ${nf(n)}건`;
-    const r=today/B.yday-1;
-    $('f1').innerHTML=`어제 ${nf(B.yday)}개 대비 <span class="${r>=0?'up':'dn'}">${r>=0?'▲':'▼'} ${nf(Math.abs(r*100))}%</span>`;
+    const yv=tl.ySum, r=yv>0?today/yv-1:0;
+    $('f1').innerHTML=`어제(${tl.yDate.slice(5)}) ${nf(yv)}개 대비 `
+      +(yv>0?`<span class="${r>=0?'up':'dn'}">${r>=0?'▲':'▼'} ${nf(Math.abs(r*100))}%</span>`:'—');
   }else if(tl!=='pending'){ $('v1').textContent='—'; $('s1').textContent='유입 조회 실패';
     $('f1').textContent='공개 노드가 로그 조회를 지원하지 않습니다';
     $('det').disabled=true; $('det').textContent='상세보기 — 오늘 입금 내역'; }
@@ -527,14 +549,29 @@ function draw(bal,blk,px,tl,src){
   $('f2').innerHTML=`현금 ${won(U*FX)} &nbsp;+&nbsp; SUT ${won(S*px*FX)}<br>`
     +`<span style="color:var(--tx3)">USDT ${nf(U)} · SUT ${nf(S)}개 × ${nf(px*FX)}원</span>`;
   /* KPI */
-  $('k1').textContent=nf(B.yday); $('k1s').textContent=won(B.yday*px*FX);
+  const yv=tl&&tl!=='pending'?tl.ySum:null;
+  if(yv!=null) $('k1t').textContent=`어제 ${tl.yDate.slice(5)} (SUT)`;
+  $('k1').textContent=yv==null?nf(B.yday):nf(yv);
+  $('k1s').textContent=won((yv==null?B.yday:yv)*px*FX);
+  const SNAP=DASH.daily[DASH.daily.length-1][0].slice(5);
+  $('k2t').textContent=`7일 평균 (~${SNAP})`; $('k3t').textContent=`30일 평균 (~${SNAP})`;
   $('k2').textContent=nf(B.d7);   $('k2s').textContent=won(B.d7*px*FX);
   $('k3').textContent=nf(B.d30);  $('k3s').textContent=won(B.d30*px*FX);
   const sw=(bal.sell||{}).SUT||0;
   $('k4').textContent=nf(sw);     $('k4s').textContent=won(sw*px*FX);
   /* 차트 */
-  const rows=DASH.daily.map(r=>[r[0],r[1],r[2],false]);
-  if(today!=null) rows.push(['오늘',n,today,true]);
+  const rows=DASH.daily.map(r=>[r[0],r[1],r[2],'']);
+  if(tl&&tl!=='pending'){
+    const last=DASH.daily[DASH.daily.length-1][0];
+    const d=new Date(last+'T00:00:00Z');
+    while(true){ d.setUTCDate(d.getUTCDate()+1);
+      const k=d.toISOString().slice(0,10);
+      if(k>=tl.yDate) break;
+      rows.push([k,0,0,'gap']);                    /* 스냅샷과 어제 사이 — 집계 안 된 날 */
+    }
+    if(tl.yDate>last) rows.push([tl.yDate,tl.yN,tl.ySum,'']);
+  }
+  if(today!=null) rows.push(['오늘',n,today,'today']);
   chart($('bars'),$('gls'),'x1','x2',rows,s=>s==='오늘'?'오늘':s.slice(5),px);
   divChart(px);
   /* 보유 표 */
