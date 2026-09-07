@@ -58,6 +58,19 @@ code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border
 .step h4{margin:0 0 5px;font-size:15px;font-weight:700}
 .step p{margin:5px 0}
 
+/* 2단 비교 다이어그램 */
+.duo{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0}
+@media(min-width:660px){.duo{grid-template-columns:1fr 1fr}}
+.duo .p{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 14px 12px}
+.duo .p.b{border-color:#2b5a8f}
+.duo .pt{font-size:13.5px;font-weight:700;margin-bottom:2px}
+.duo .p.a .pt{color:var(--s2)} .duo .p.b .pt{color:var(--s1)}
+.duo .ps{font-size:11.5px;color:var(--tx3);margin-bottom:12px}
+.duo svg{width:100%;height:auto;display:block}
+.duo .fl{margin-top:12px;font-size:12.5px;color:var(--tx2);line-height:1.9}
+.duo .fl div{display:grid;grid-template-columns:62px 1fr;gap:8px}
+.duo .fl span{color:var(--tx3);font-size:11.5px}
+
 /* 구간 다이어그램 */
 .fig{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 14px 12px;margin:18px 0}
 .figt{font-size:14px;font-weight:700}
@@ -130,7 +143,89 @@ pre b{color:var(--tx);font-weight:700}
 <p><b>자전거래와도 다릅니다.</b> 자전거래는 자기가 사고 자기가 파는 <b>가짜 거래</b>이고,
 예치는 <b>남이 거래할 물건을 놓아두는 것</b>입니다. 거래 상대는 전부 제3자입니다.</p>
 
-<h2><span class="no">3</span>어디에 넣나 — 이미 있는 그 풀</h2>
+<h2><span class="no">3</span>회사 창구와 공개 풀은 뭐가 다른가</h2>
+<p>지금까지 SUT가 손을 바꾼 방식은 <b>회사가 만든 창구</b>였습니다.
+앱에서 KWT를 SUT로 바꿔주던 것도, 정해진 단가로 오가는 P2P도 구조가 같습니다.
+유니스왑 풀은 그것과 근본적으로 다릅니다.</p>
+
+<div class="duo">
+  <div class="p a">
+    <div class="pt">회사가 만든 창구</div>
+    <div class="ps">앱 전환 · 고정단가 · 금고 순환</div>
+    <svg viewBox="0 0 380 220" role="img" aria-label="회원이 회사 금고에 내고 회사 금고가 회원에게 주는 닫힌 원. 시장을 거치지 않음">
+      <rect x="8" y="14" width="364" height="150" rx="12" fill="none" stroke="#7a3c1e" stroke-width="2" stroke-dasharray="7 5"/>
+      <text x="190" y="36" fill="#d95926" font-size="15" font-weight="700" text-anchor="middle">닫힌 원</text>
+      <rect x="30" y="66" width="120" height="52" rx="10" fill="#22243a" stroke="#3f424d"/>
+      <text x="90" y="98" fill="#e9e9ed" font-size="17" font-weight="700" text-anchor="middle">회원</text>
+      <rect x="230" y="66" width="120" height="52" rx="10" fill="#22243a" stroke="#3f424d"/>
+      <text x="290" y="90" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">회사</text>
+      <text x="290" y="108" fill="#b2b6ca" font-size="13" text-anchor="middle">금고</text>
+      <path d="M152 82 L226 82" stroke="#d95926" stroke-width="2.5"/>
+      <path d="M218 76 L228 82 L218 88" fill="none" stroke="#d95926" stroke-width="2.5"/>
+      <text x="189" y="70" fill="#b2b6ca" font-size="13" text-anchor="middle">낸다</text>
+      <path d="M228 104 L154 104" stroke="#199e70" stroke-width="2.5"/>
+      <path d="M162 98 L152 104 L162 110" fill="none" stroke="#199e70" stroke-width="2.5"/>
+      <text x="189" y="126" fill="#b2b6ca" font-size="13" text-anchor="middle">준다</text>
+      <text x="190" y="150" fill="#75798c" font-size="13" text-anchor="middle">시장을 한 번도 거치지 않음</text>
+      <rect x="8" y="178" width="364" height="34" rx="8" fill="rgba(217,89,38,.12)" stroke="#7a3c1e"/>
+      <text x="190" y="200" fill="#e8763f" font-size="15" font-weight="700" text-anchor="middle">금고가 비면 멈춤 · 지금 11만 개</text>
+    </svg>
+    <div class="fl">
+      <div><span>단가</span>회사가 정함</div>
+      <div><span>시세</span>안 생김</div>
+      <div><span>검증</span>밖에서 불가</div>
+      <div><span>한계</span>재고가 마르면 끝</div>
+    </div>
+  </div>
+
+  <div class="p b">
+    <div class="pt">유니스왑 공개 풀</div>
+    <div class="ps">Uniswap V3 · 온체인 · 누구나</div>
+    <svg viewBox="0 0 380 220" role="img" aria-label="회원과 아무나가 풀을 사이에 두고 양방향 거래. 회사는 위에서 예치로 물량을 보탬">
+      <rect x="140" y="86" width="100" height="58" rx="10" fill="#1c3050" stroke="#3987e5" stroke-width="2"/>
+      <text x="190" y="112" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">풀</text>
+      <text x="190" y="132" fill="#86b6ef" font-size="12" text-anchor="middle">자판기</text>
+      <rect x="12" y="92" width="104" height="46" rx="10" fill="#22243a" stroke="#3f424d"/>
+      <text x="64" y="121" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">회원</text>
+      <rect x="264" y="92" width="104" height="46" rx="10" fill="#22243a" stroke="#3f424d"/>
+      <text x="316" y="121" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">누구나</text>
+      <path d="M120 115 L136 115" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M128 109 L138 115 L128 121" fill="none" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M136 115 L120 115" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M128 109 L118 115 L128 121" fill="none" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M244 115 L260 115" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M252 109 L262 115 L252 121" fill="none" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M260 115 L244 115" stroke="#3987e5" stroke-width="2.5"/>
+      <path d="M252 109 L242 115 L252 121" fill="none" stroke="#3987e5" stroke-width="2.5"/>
+      <rect x="128" y="18" width="124" height="40" rx="10" fill="rgba(25,158,112,.16)" stroke="#199e70" stroke-width="2"/>
+      <text x="190" y="43" fill="#2bb984" font-size="15" font-weight="700" text-anchor="middle">회사가 예치</text>
+      <path d="M190 60 L190 82" stroke="#199e70" stroke-width="2.5"/>
+      <path d="M184 74 L190 84 L196 74" fill="none" stroke="#199e70" stroke-width="2.5"/>
+      <text x="190" y="166" fill="#75798c" font-size="13" text-anchor="middle">거래마다 수수료 1%가 예치자에게</text>
+      <rect x="8" y="178" width="364" height="34" rx="8" fill="rgba(57,135,229,.12)" stroke="#2b5a8f"/>
+      <text x="190" y="200" fill="#5598e7" font-size="15" font-weight="700" text-anchor="middle">비면 누구든 다시 채울 수 있음</text>
+    </svg>
+    <div class="fl">
+      <div><span>단가</span>수급이 정함</div>
+      <div><span>시세</span>즉시 생김</div>
+      <div><span>검증</span>온체인 공개</div>
+      <div><span>한계</span>깊이가 얕으면 흔들림</div>
+    </div>
+  </div>
+</div>
+
+<p><b>핵심 차이는 "회사가 빠져도 굴러가느냐"입니다.</b>
+회사 창구는 회사가 물량을 안 내주면 그 자리에서 멈춥니다. 실제로 <b>2026년 3~4월에 멈췄고 금고는 11만 개만 남았습니다.</b>
+공개 풀은 회사가 빠져도 남은 사람들끼리 계속 거래됩니다. 다만 <b>지금은 그 깊이가 너무 얕아서</b> 회사가 채워줘야 합니다.</p>
+
+<div class="card">
+<div class="kh">그래서 예치가 회사에 유리한 이유</div>
+<p style="margin:4px 0 0">회사 창구는 <b>회사가 계속 일해야</b> 굴러갑니다. 물량을 내주고, 단가를 정하고, 사람을 붙여야 합니다.
+공개 풀에 넣어두면 <b>코드가 그 일을 대신합니다.</b>
+게다가 회사 창구는 수수료가 0인데, 풀은 <b>거래될 때마다 1%가 예치자 몫</b>으로 쌓입니다.</p>
+</div>
+
+<h2><span class="no">4</span>어디에 넣나 — 이미 있는 그 풀</h2>
 <p>새로 만들 것 없습니다. 지금 가격이 찍히고 있는 풀에 물량만 보태면 됩니다.</p>
 
 <div class="spec">
@@ -144,6 +239,27 @@ pre b{color:var(--tx);font-weight:700}
   <div class="r"><div class="k">tickSpacing</div><div class="v">200</div></div>
 </div>
 
+<h3>SUT 풀은 20개나 있고, 대부분 함정입니다</h3>
+<p>체인을 뒤져보니 SUT 풀이 <b>20개</b> 있는데, 쓸 만한 건 둘뿐입니다.
+나머지는 유니스왑 V4에 누군가 만들어둔 것들인데 <b>수수료가 말이 안 됩니다.</b></p>
+<table>
+<thead><tr><th>풀</th><th>수수료</th><th>유동성</th><th>24h 거래</th></tr></thead>
+<tbody>
+<tr><td>SUT/USDT <em>주풀</em></td><td class="up">1%</td><td>$110,877</td><td>$104,353</td></tr>
+<tr><td>SUT/USDT <em>보조풀</em></td><td class="up">0.05%</td><td>$30,300</td><td>$116,325</td></tr>
+<tr><td>SUT/USDT</td><td class="dn">10%</td><td>$6,467</td><td>$0</td></tr>
+<tr><td>SUT/USDT</td><td class="dn">29.999%</td><td>$8,090</td><td>$0</td></tr>
+<tr><td>SUT/USDT</td><td class="dn">49.9%</td><td>$2,942</td><td>$0</td></tr>
+<tr><td>POL/SUT</td><td class="dn">80%</td><td>$648</td><td>$0</td></tr>
+<tr><td class="dn">SUT/USDT</td><td class="dn">88%</td><td>$1,354</td><td>$0</td></tr>
+</tbody></table>
+<p><b>수수료 88%짜리 풀에서 100만 원어치를 바꾸면 12만 원만 받습니다.</b>
+24시간 거래량이 전부 $0인 걸 보면 아직 아무도 안 걸린 것 같지만, 누가 왜 만들었는지는 확인이 안 됩니다.
+V4는 풀이 하나의 컨트랙트 안에 들어가 있어 생성자 추적이 어렵습니다.</p>
+<p class="note"><b>교환 전에 받을 개수를 꼭 확인하십시오.</b>
+시세보다 눈에 띄게 적으면 그런 풀로 가고 있는 것입니다. 정상이라면 1% 안팎만 빠져야 합니다.
+Trust Wallet 같은 지갑의 스왑 버튼도 결국 이 풀들 중 하나로 주문을 넘깁니다.</p>
+
 <div class="card warn">
 <div class="kh">가장 흔한 실수</div>
 <p style="margin:4px 0 0"><b>수수료 구간을 1%로 맞추지 않는 것.</b>
@@ -154,7 +270,7 @@ pre b{color:var(--tx);font-weight:700}
 <b>300만 개짜리 하나</b>만 못합니다.</p>
 </div>
 
-<h2><span class="no">4</span>편면 예치 — 테더 0원으로 하는 방법</h2>
+<h2><span class="no">5</span>편면 예치 — 테더 0원으로 하는 방법</h2>
 <p>유니스왑 V3는 <b>가격 구간을 지정</b>할 수 있습니다.
 SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 들어가고 테더 칸은 아예 비활성화됩니다.</p>
 
@@ -208,7 +324,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 <b>한꺼번에 던져서 −84.6%를 만드는 일이 구조적으로 불가능해집니다.</b></p>
 </div>
 
-<h2><span class="no">5</span>실제 절차</h2>
+<h2><span class="no">6</span>실제 절차</h2>
 <div class="step">
   <div class="s" data-n="1">
     <h4>준비</h4>
@@ -237,7 +353,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
   </div>
 </div>
 
-<h2><span class="no">6</span>양면으로 넣으면 뭐가 다른가</h2>
+<h2><span class="no">7</span>양면으로 넣으면 뭐가 다른가</h2>
 <p>현재가를 <b>가운데 끼고</b> 범위를 잡으면(예: $0.40 ~ $0.90) 양쪽 다 필요합니다.</p>
 <table>
 <thead><tr><th>예치 SUT</th><th>함께 필요한 테더</th></tr></thead>
@@ -249,7 +365,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 <p><b>권장 순서</b> — 부담 0원인 <b>편면부터 시작</b>해서 효과를 보고,
 필요하면 양면으로 넓히는 것이 문턱이 없습니다.</p>
 
-<h2><span class="no">7</span>넣으면 얼마나 달라지나</h2>
+<h2><span class="no">8</span>넣으면 얼마나 달라지나</h2>
 <div class="fig">
   <div class="figt">10,000개 매도가 만드는 가격 충격</div>
   <div class="figs">지금 −13.9%가 실측 기준점 · 막대가 짧을수록 좋습니다</div>
@@ -265,7 +381,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 <p><b>300만 개는 회사 보유 2,152만 개의 14%</b>입니다.
 그것만으로 9월 28일 조달 문제가 사라지고, <b>−13.9%를 만들던 매도가 −0.6%로 죽습니다.</b></p>
 
-<h2><span class="no">8</span>공개는 이렇게</h2>
+<h2><span class="no">9</span>공개는 이렇게</h2>
 <p>포지션을 만들면 풀 컨트랙트에 <code>Mint</code> 이벤트가 남습니다. <b>어차피 누구나 봅니다.</b>
 그러니 만든 직후에 네 가지를 함께 공지하면 됩니다.</p>
 <pre><b>예치 지갑</b>   0x……
@@ -277,7 +393,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 <p class="note">먼저 밝히면 "유동성을 공급했다"는 실적이 되고,
 숨기다 발견되면 "몰래 팔았다"가 됩니다. <b>같은 거래인데 순서에 따라 정반대로 읽힙니다.</b></p>
 
-<h2><span class="no">9</span>주의할 점 셋</h2>
+<h2><span class="no">10</span>주의할 점 셋</h2>
 <ul>
 <li><b>구간을 너무 좁게 잡지 말 것.</b> $0.60~$0.65처럼 좁으면 그 안에서는 방어력이 세지만,
 가격이 벗어나면 포지션이 한쪽으로 쏠려 멈춥니다. $0.60~$1.20 정도가 무난합니다.</li>
@@ -301,7 +417,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 LP가 자동으로 하는 동작이 정확히 그것이라, <b>일반 투자자에겐 비용인 것이 회사에겐 원하는 결과</b>입니다.</p>
 </div>
 
-<h2><span class="no">10</span>이 글이 주장하지 않는 것</h2>
+<h2><span class="no">11</span>이 글이 주장하지 않는 것</h2>
 <ul>
 <li><b>가격을 예측하지 않습니다.</b> 예치하면 충격이 얼마나 줄어드는지까지가 계산의 범위입니다.</li>
 <li><b>사거나 팔라고 권하지 않습니다.</b> 이 글은 회사의 선택지를 설명한 것입니다.</li>
