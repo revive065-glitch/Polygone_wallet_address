@@ -39,6 +39,19 @@ code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border
 .card.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.10),rgba(217,89,38,.02))}
 .kh{font-size:12px;color:var(--tx3);margin-bottom:5px}
 
+/* 쉬운 설명 3단 */
+.easy{display:grid;grid-template-columns:1fr;gap:11px;margin:18px 0}
+@media(min-width:640px){.easy{grid-template-columns:repeat(3,1fr)}}
+.easy .e{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px 14px}
+.easy .e .t{font-size:12px;color:var(--tx3);margin-bottom:7px}
+.easy .e h4{margin:0 0 6px;font-size:16px;font-weight:800}
+.easy .e p{margin:0;font-size:13.5px;color:var(--tx2);line-height:1.7}
+.easy .e.a{border-color:#7a3c1e} .easy .e.a h4{color:var(--s2)}
+.easy .e.b{border-color:#1d6b50} .easy .e.b h4{color:#2bb984}
+.easy .e.c{border-color:#5c5030} .easy .e.c h4{color:var(--hi)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+ background:#2b2e42;color:var(--tx3);border:1px solid var(--line2);margin-left:8px;vertical-align:3px}
+
 /* 사양 카드 */
 .spec{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;margin:16px 0}
 .spec .r{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px 15px;
@@ -121,10 +134,70 @@ pre b{color:var(--tx);font-weight:700}
   현재가보다 위쪽 구간만 잡으면 <b>테더는 한 푼도 안 듭니다.</b></p>
 </div>
 
+<h2><span class="no">0</span>먼저, 한 장으로</h2>
+<p>어렵게 들리지만 하는 일은 단순합니다. <b>자판기에 물건을 채워 넣는 것</b>입니다.</p>
+
+<div class="fig">
+  <div class="figt">파는 것과 넣는 것</div>
+  <div class="figs">같은 SUT 300만 개를 어떻게 쓰느냐의 차이입니다</div>
+  <svg viewBox="0 0 620 210" role="img"
+       aria-label="파는 것은 물건이 손을 떠나고, 넣는 것은 자판기에 놓여 여전히 내 것">
+    <rect x="18" y="26" width="272" height="150" rx="14" fill="#22243a" stroke="#7a3c1e" stroke-width="2"/>
+    <text x="154" y="56" fill="#e8763f" font-size="20" font-weight="800" text-anchor="middle">판다</text>
+    <circle cx="80" cy="100" r="16" fill="#d95926"/>
+    <path d="M110 100 L190 100" stroke="#d95926" stroke-width="3"/>
+    <path d="M180 92 L192 100 L180 108" fill="none" stroke="#d95926" stroke-width="3"/>
+    <text x="240" y="107" fill="#b2b6ca" font-size="17" text-anchor="middle">남의 것</text>
+    <text x="154" y="148" fill="#b2b6ca" font-size="15" text-anchor="middle">한 번 나가면 끝</text>
+    <text x="154" y="168" fill="#e8763f" font-size="15" font-weight="700" text-anchor="middle">값도 그 자리에서 하락</text>
+
+    <rect x="330" y="26" width="272" height="150" rx="14" fill="#22243a" stroke="#1d6b50" stroke-width="2"/>
+    <text x="466" y="56" fill="#2bb984" font-size="20" font-weight="800" text-anchor="middle">넣어둔다</text>
+    <rect x="420" y="78" width="92" height="46" rx="9" fill="#1c3050" stroke="#3987e5" stroke-width="2"/>
+    <text x="466" y="107" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">자판기</text>
+    <circle cx="392" cy="101" r="12" fill="#199e70"/>
+    <path d="M406 101 L414 101" stroke="#199e70" stroke-width="3"/>
+    <text x="466" y="148" fill="#b2b6ca" font-size="15" text-anchor="middle">여전히 내 것 · 언제든 회수</text>
+    <text x="466" y="168" fill="#2bb984" font-size="15" font-weight="700" text-anchor="middle">팔릴 때마다 수수료까지</text>
+  </svg>
+</div>
+
+<div class="easy">
+  <div class="e a"><div class="t">지금</div>
+    <h4>진열대가 비었다</h4>
+    <p>시장에서 살 수 있는 SUT가 <b>24,080개</b>뿐입니다.
+    월요일 하루 필요량의 <b>8%</b>입니다.</p></div>
+  <div class="e b"><div class="t">하는 일</div>
+    <h4>물건을 채워둔다</h4>
+    <p>회사가 가진 <b>2,152만 개 중 300만 개</b>를 자판기에 넣어둡니다.
+    파는 게 아니라 <b>놓아두는 것</b>입니다.</p></div>
+  <div class="e c"><div class="t">결과</div>
+    <h4>흔들리지 않는다</h4>
+    <p>1만 개 매도가 만들던 충격이
+    <b>−13.9%에서 −0.6%</b>로 줄어듭니다.</p></div>
+</div>
+
+<div class="card ac">
+<div class="kh">가장 자주 나오는 오해 셋</div>
+<p style="margin:6px 0"><b>"결국 파는 거 아닌가요?"</b><br>
+아닙니다. 넣어둔 SUT는 <b>회사 지갑에 그대로 잡혀 있고</b> 언제든 도로 가져올 수 있습니다.
+누가 사갈 때만 그만큼 나가고, 대신 테더가 들어옵니다.</p>
+<p style="margin:6px 0"><b>"돈이 많이 들지 않나요?"</b><br>
+<b>테더는 한 푼도 안 들어갑니다.</b> 방법이 있습니다(5장).
+가스비로 몇백 원어치 POL만 있으면 됩니다.</p>
+<p style="margin:6px 0"><b>"자전거래 아닌가요?"</b><br>
+자전거래는 <b>자기가 사고 자기가 파는 가짜 거래</b>입니다.
+예치는 <b>남이 사갈 물건을 놓아두는 것</b>이라 거래 상대가 전부 제3자입니다.</p>
+</div>
+
+<p class="note">아래는 그 근거와 실제 절차입니다.
+숫자가 필요 없으시면 <b>5장(테더 0원으로 하는 법)</b>과 <b>6장(실제 절차)</b>만 보셔도 됩니다.</p>
+
 <h2><span class="no">1</span>왜 지금 필요한가</h2>
 <p>두 풀에 <b>사고팔 수 있는 SUT가 24,080개</b>뿐입니다. 월요일 유입의 <b>1시간 55분치</b>이고,
-시가총액 1억 1,200만 달러짜리 토큰의 유동성이 <b>$141,579 — 0.13%</b>입니다.</p>
-<p>그래서 <b>오늘 13:22에 누가 10,000개를 팔자 1분 만에 −13.9%</b>가 났습니다.
+장부상 몸값은 1억 1,200만 달러인데 <b>진열대에 올라와 있는 건 $141,579 — 0.13%</b>입니다.
+<b>10억짜리 가게에 130만 원어치만 진열해 둔 셈</b>입니다.</p>
+<p>그래서 <b>오늘 13:22에 회사 매도지갑(<code>0x686a…a6a6</code>)이 10,000개를 팔자 1분 만에 −13.9%</b>가 났습니다.
 그리고 <b>9월 28일 주부터</b> 개인 재고가 마르면서 회원들이 시장에서 사야 하는데,
 <b>월요일 요구량의 8%만 사도 풀의 SUT가 사라집니다.</b></p>
 <p class="note">배경은 <a href="SUT_공급과_가격.html">SUT 공급과 가격</a>에 정리돼 있습니다.</p>
@@ -225,7 +298,7 @@ pre b{color:var(--tx);font-weight:700}
 게다가 회사 창구는 수수료가 0인데, 풀은 <b>거래될 때마다 1%가 예치자 몫</b>으로 쌓입니다.</p>
 </div>
 
-<h2><span class="no">4</span>어디에 넣나 — 이미 있는 그 풀</h2>
+<h2><span class="no">4</span>어디에 넣나 — 이미 있는 그 풀<span class="badge">실무자용</span></h2>
 <p>새로 만들 것 없습니다. 지금 가격이 찍히고 있는 풀에 물량만 보태면 됩니다.</p>
 
 <div class="spec">
@@ -270,8 +343,12 @@ Trust Wallet 같은 지갑의 스왑 버튼도 결국 이 풀들 중 하나로 �
 <b>300만 개짜리 하나</b>만 못합니다.</p>
 </div>
 
-<h2><span class="no">5</span>편면 예치 — 테더 0원으로 하는 방법</h2>
-<p>유니스왑 V3는 <b>가격 구간을 지정</b>할 수 있습니다.
+<h2><span class="no">5</span>테더 0원으로 하는 방법<span class="badge">핵심</span></h2>
+<p>이걸 <b>편면 예치</b>라고 합니다. 말은 어려운데 뜻은 하나입니다 —
+<b>지금 값보다 비싼 값에만 물건을 내놓는 것</b>입니다.</p>
+<p>중고 거래에 비유하면 <b>"5만 원 이하로는 안 팝니다"라고 써 붙여두는 것</b>과 같습니다.
+그 값이 안 되면 물건은 그대로 내 것이고, 그 값을 넘겨 사겠다는 사람이 나타날 때만 하나씩 나갑니다.
+<b>테더를 미리 넣을 필요가 없는 이유</b>가 이것입니다 — 파는 쪽만 하니까요.</p><p>유니스왑은 <b>가격 구간을 지정</b>할 수 있습니다.
 SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 들어가고 테더 칸은 아예 비활성화됩니다.</p>
 
 <div class="fig">
@@ -324,7 +401,7 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 <b>한꺼번에 던져서 −84.6%를 만드는 일이 구조적으로 불가능해집니다.</b></p>
 </div>
 
-<h2><span class="no">6</span>실제 절차</h2>
+<h2><span class="no">6</span>실제 절차<span class="badge">5단계 · 10분</span></h2>
 <div class="step">
   <div class="s" data-n="1">
     <h4>준비</h4>
@@ -353,8 +430,9 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
   </div>
 </div>
 
-<h2><span class="no">7</span>양면으로 넣으면 뭐가 다른가</h2>
-<p>현재가를 <b>가운데 끼고</b> 범위를 잡으면(예: $0.40 ~ $0.90) 양쪽 다 필요합니다.</p>
+<h2><span class="no">7</span>사는 쪽까지 같이 깔면<span class="badge">테더 필요</span></h2>
+<p>위(5장)가 <b>파는 쪽만</b> 까는 방법이라면, 지금 값을 <b>가운데 끼고</b> 범위를 잡으면
+(예: $0.40 ~ $0.90) <b>사는 쪽도 같이</b> 깔립니다. 대신 테더가 함께 들어가야 합니다.</p>
 <table>
 <thead><tr><th>예치 SUT</th><th>함께 필요한 테더</th></tr></thead>
 <tbody>
@@ -404,9 +482,10 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 </ul>
 
 <div class="card">
-<div class="kh">비영구적 손실(IL)은 어떻게 되나</div>
-<p style="margin:4px 0 0">일반 투자자에게는 LP의 단점으로 꼽힙니다.
-가격이 크게 오르면 SUT가 팔려나가 그냥 들고 있는 것보다 덜 벌고, 내리면 SUT를 더 사들이게 되니까요.</p>
+<div class="kh">"비영구적 손실(IL)"이 걱정된다는 말이 있는데</div>
+<p style="margin:4px 0 0"><b>쉽게 말하면 "그냥 들고 있었을 때보다 덜 번다"</b>는 뜻입니다.
+값이 크게 오르면 예치해둔 SUT가 팔려나가 끝까지 못 들고 가고,
+값이 내리면 반대로 SUT를 더 사들이게 되니까요. 그래서 일반 투자자에겐 단점으로 꼽힙니다.</p>
 <table style="margin:10px 0 0">
 <thead><tr><th>상황</th><th>LP가 하는 일</th><th>회사가 원하는 것</th></tr></thead>
 <tbody>
@@ -415,6 +494,18 @@ SUT가 token0이라, <b>현재가보다 위쪽 구간만</b> 잡으면 SUT만 �
 </tbody></table>
 <p class="note" style="margin-top:9px">회사의 목적이 <b>SUT 회수와 테더 확보</b>입니다.
 LP가 자동으로 하는 동작이 정확히 그것이라, <b>일반 투자자에겐 비용인 것이 회사에겐 원하는 결과</b>입니다.</p>
+</div>
+
+<div class="card">
+<div class="kh">나온 단어 다섯 개만 정리하면</div>
+<table style="margin:6px 0 0">
+<tbody>
+<tr><td style="width:118px"><b>유동성</b></td><td>진열대에 올라와 있어서 <b>지금 당장 사고팔 수 있는 물량</b></td></tr>
+<tr><td><b>풀</b></td><td>사람이 아니라 코드가 지키는 <b>무인 자판기</b>. 넣어두면 알아서 거래됨</td></tr>
+<tr><td><b>예치(LP)</b></td><td>파는 게 아니라 <b>자판기에 채워두는 것</b>. 여전히 내 것이고 회수 가능</td></tr>
+<tr><td><b>편면 예치</b></td><td><b>"이 값 이상만 팝니다"</b>라고 써 붙여두는 것. 테더 0원</td></tr>
+<tr><td><b>슬리피지</b></td><td>물건이 적어서 <b>조금만 사도 값이 확 뛰는 정도</b>. 지금 1만 개에 −13.9%</td></tr>
+</tbody></table>
 </div>
 
 <h2><span class="no">11</span>이 글이 주장하지 않는 것</h2>
