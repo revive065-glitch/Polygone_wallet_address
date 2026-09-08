@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#161826">
 <title>회사 돈은 어디서 왔나 — 자금 흐름 추적</title>
-<meta name="description" content="회사 지갑 USDT 2억 5,960만 달러의 출처와 행선지. 바이낸스 왕복 구조, 2~3월 8,078만 달러 추적, 5월 18일 지급정지 당시 잔고까지 온체인 실측.">
+<meta name="description" content="회사 지갑 USDT 2억 5,960만 달러의 출처와 행선지. 바이낸스 왕복 구조, 2~3월 8,078만 달러 추적, 5월 18일 지급정지 당시 잔고, 그리고 회사 설명과 온체인 기록의 대조.">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -158,7 +158,8 @@ pre b{color:var(--tx);font-weight:700}
   <p style="margin:2px 0 0;font-size:16px;line-height:1.68">
   회사가 쓴 돈은 <b>처음부터 끝까지 회원 돈</b>이었습니다. 외부 자금원은 거래소 하나뿐이었는데,
   그마저 <b>꺼내 쓴 1,884만을 1,689만 되갚은 왕복</b>이라 순증은 <b>195만</b>입니다.
-  그 완충이 2025년 9월엔 1,124만을 감당했지만, 2026년 5월엔 396만이 한계였습니다.</p>
+  그 완충이 2025년 9월엔 1,124만을 감당했지만, 2026년 5월엔 396만이 한계였습니다.
+  <br><br>그리고 <b>주정산이 멈춘 뒤 3주 동안 회원에게 24.7만이 나가는 사이 거래소로는 260만</b>이 갔습니다(6장).</p>
 </div>
 
 <h2><span class="no">1</span>돈은 어디서 들어왔나</h2>
@@ -307,7 +308,103 @@ Binance 48  <b>0xe780…e245</b>   18건    5,270,519
 <tr class="tot"><td>현재 (9/8)</td><td>2,465,385</td><td></td></tr>
 </tbody></table>
 
-<h2><span class="no">6</span>확인한 주소</h2>
+<h2><span class="no">6</span>회사 설명과 맞는가</h2>
+<p>회사는 지급정지 당시 <b>"회원 재참여가 미진해 테더를 지급할 수 없었다"</b>고 설명했습니다.
+같은 기간의 온체인 기록과 맞춰봤습니다.</p>
+
+<h3>맞는 부분 — 유입은 실제로 꺾였습니다</h3>
+<table class="tight">
+<thead><tr><th>주(월)</th><th>회원 유입</th><th>지급 의무</th><th class="pk">지급/유입</th></tr></thead>
+<tbody>
+<tr><td>04-13</td><td>13,351,750</td><td>10,939,608</td><td class="up">82%</td></tr>
+<tr><td>04-20</td><td>12,811,370</td><td>11,489,620</td><td class="up">90%</td></tr>
+<tr><td>04-27</td><td>15,082,481</td><td>12,104,279</td><td class="up">80%</td></tr>
+<tr><td>05-04</td><td>12,871,729</td><td>12,973,178</td><td>101%</td></tr>
+<tr class="tot"><td>05-11</td><td class="dn">9,082,116</td><td>13,559,497</td><td class="dn">149%</td></tr>
+</tbody></table>
+<p>5월 11일 주에 유입이 <b>−29.5%</b> 꺾이면서 그 주 적자가 <b>448만</b>이 났습니다. 여기까지는 설명과 맞습니다.</p>
+
+<h3>맞지 않는 부분 — 그건 딱 한 주 전 일입니다</h3>
+<p>직전 4주(4/13~5/4)는 유입 <b>5,412만</b> 대 지급 <b>4,751만</b>으로 <b>661만 흑자</b>였습니다.
+한 주 유입이 30% 줄었다고 다음 주에 지급이 완전히 멈춘다는 것은,
+<b>준비금이 애초에 없었다</b>는 뜻입니다. 재참여 문제가 아니라 적립 문제입니다.</p>
+
+<div class="card warn">
+<div class="kh">준비금은 한 번도 1주치를 넘지 않았습니다</div>
+<pre style="margin:8px 0 0;background:transparent;border:0;padding:0">역대 최고 잔고   <b>12,697,859</b>  (2026-03-01)
+당시 주당 지급   <b>13,559,497</b>
+                <b>→ 1주치 미만</b>
+
+2026-05-18 잔고   <b>3,689,359</b>  <b>→ 0.26주치</b></pre>
+<p class="note" style="margin-top:9px">그런데 2025년 12월 ~ 2026년 4월 초 사이
+<b>유입이 지급을 9,025만 달러 앞섰습니다.</b> 흑자기의 돈이 준비금으로 남지 않았습니다.</p>
+</div>
+
+<h3>정지 이후에도 돈은 계속 나갔습니다</h3>
+<p>마지막 정상 지급일(5/15) 다음 날부터의 기록입니다. 왼쪽이 회원에게, 오른쪽이 거래소로 간 돈입니다.</p>
+
+<div class="fig">
+  <div class="figt">2026-05-16 ~ 06-03 · 회원 지급 vs 거래소 송금</div>
+  <div class="figs">같은 기간 · 같은 축척 · 단위 USDT</div>
+  <svg class="rt" id="mir" viewBox="0 0 700 330" role="img"
+    aria-label="지급정지 이후 3주간 회원에게 24만 7천 달러가 나가는 동안 거래소로는 260만 달러가 나갔다는 비교 막대그래프"></svg>
+</div>
+
+<div class="card warn">
+<p style="margin:0;font-size:16px;line-height:1.66">
+5/16 ~ 6/3 사이 <b>회원에게 247,810</b>, <b>거래소로 2,600,021</b>.
+<b style="color:var(--s2)">10.5배</b>입니다.</p>
+<p class="note" style="margin-top:9px">정지 당일인 <b>5월 18일</b>에도 회원 7곳에 2,080달러가 나가는 동안
+바이낸스로 <b>309,600달러</b>가 갔습니다. 경로는
+<code>중앙금고 → 0xb2e2…557c → 0x9290…c04a → Binance 48</code>이고,
+5/16 건은 중간 지갑에 들어온 지 <b>3분 만에</b> 거래소로 넘어갔습니다.</p>
+</div>
+<p><b>"테더가 없어서 못 줬다"와 같은 기간에 260만이 거래소로 갔습니다.</b>
+없었던 것이 아니라 회원에게 가지 않았습니다.</p>
+
+<h3>구조적으로는 재참여로 막을 수 없습니다</h3>
+<pre>현금 <b>1,000</b> 넣으면 → 52주에 걸쳐 <b>2,400</b> 받음
+그중 duty 30%만 재참여로 돌아옴 → <b>720</b>
+                              ─────────
+순유출 = 2,400 − 720 = <b>1,680</b>   (넣은 돈의 1.68배)</pre>
+<p>들어온 1,000이 1,680의 순유출을 만듭니다. 유지하려면 새 돈이 <b>매주 1.68배씩 불어나야</b> 합니다.
+재참여가 100%여도 안 됩니다. <b>"재참여가 미진해서 멈췄다"는 것은 원래 멈추게 되어 있는 구조가 예정대로 멈춘 것</b>에 가깝습니다.</p>
+
+<h3>그 "재참여"의 21.3%는 회사 돈이었습니다</h3>
+<p>수금지갑에 들어온 <b>252,616,367</b>을 보낸 쪽 기준으로 가르면 이렇습니다.</p>
+<table class="tight">
+<thead><tr><th>보낸 쪽</th><th>건수</th><th>금액</th><th class="pk">비중</th></tr></thead>
+<tbody>
+<tr><td>회원 지갑</td><td>166,180</td><td>196,276,789</td><td>77.7%</td></tr>
+<tr><td>중앙금고가 돈을 준 지갑</td><td>10,790</td><td>39,124,933</td><td class="dn">15.5%</td></tr>
+<tr><td>회사 지갑 직접</td><td>7,257</td><td>14,596,420</td><td class="dn">5.8%</td></tr>
+<tr><td>그 외</td><td>4,029</td><td>2,618,225</td><td>1.0%</td></tr>
+</tbody></table>
+<p><b>5,372만(21.3%)이 회사가 내보낸 돈의 재유입</b>입니다.
+신규 자금으로 집계되던 것의 5분의 1이 자기 돈 순환이었고,
+그 사실은 회사가 가장 먼저 알 수 있는 위치에 있습니다.</p>
+
+<h3>완충재는 이미 비어 있었습니다</h3>
+<pre>2025-06~07   <b>3,558,052</b>   메움 성공
+2025-09     <b>11,242,014</b>   메움 성공
+2026-04~05   <b>3,963,521</b>   448만 적자에 168만만 투입 → <b>실패</b></pre>
+<p>2025년 9월엔 1,124만을 꺼내 막았습니다. 2026년 5월엔 396만이 전부였습니다.
+<b>유입이 줄어서 못 준 게 아니라, 모자랄 때 꺼내 쓰던 재원이 먼저 말라 있었습니다.</b></p>
+
+<h3>한 표로</h3>
+<table>
+<thead><tr><th>회사 설명</th><th>온체인 기록</th></tr></thead>
+<tbody>
+<tr><td>재참여가 미진해서</td><td>유입 감소는 정지 <b>직전 한 주</b>의 일 · 그 전 4주는 흑자</td></tr>
+<tr><td>테더가 없어서</td><td>정지 후 3주간 회원 24.7만 vs 거래소 <b>260만</b></td></tr>
+<tr><td>일시적 문제</td><td>흑자기 <b>9,025만</b>이 준비금으로 남지 않음</td></tr>
+<tr><td>회원 탓</td><td>2.4배 구조상 <b>재참여 100%여도 유지 불가</b></td></tr>
+</tbody></table>
+<p><b>"재참여 미진"은 방아쇠였을 수는 있어도 원인은 아닙니다.</b>
+원인은 준비금을 쌓지 않은 것과, 애초에 준비금으로 막을 수 없는 배수 구조입니다.
+물탱크 없이 수도관 하나로 돌리다가 수압이 하루 떨어지자 그대로 멈춘 것에 가깝습니다.</p>
+
+<h2><span class="no">7</span>확인한 주소</h2>
 <div class="spec">
   <div class="r"><div class="k">회사 허브</div><div class="v">중앙금고 <code>0x7cc2f8914b4d77b68355757286f146373f4bf7ad</code></div></div>
   <div class="r"><div class="k">회원 수금</div><div class="v">CC2C <code>0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c</code></div></div>
@@ -318,13 +415,16 @@ Binance 48  <b>0xe780…e245</b>   18건    5,270,519
 </div>
 <p class="note">주소는 전부 폴리곤스캔에서 그대로 조회됩니다. 다른 값이 나오면 알려주세요.</p>
 
-<h2><span class="no">7</span>이 글이 주장하지 않는 것</h2>
+<h2><span class="no">8</span>이 글이 주장하지 않는 것</h2>
 <ul>
 <li><b>거래소 안에서 누구 계정인지는 모릅니다.</b> 온체인에서는 핫월렛까지만 보입니다.
 확인된 사실은 "중앙금고에서만 받아 거래소로만 보내는 전용 지갑"이라는 데까지입니다.</li>
 <li><b>3~4단을 넘어가면 추적을 멈췄습니다.</b> <code>0xf44013…b9bc</code>처럼 6만 6천 건이 모이는 집금 지갑에서
 남의 돈과 섞이기 때문입니다. 그 지점부터의 배분은 근거 없는 추정이 됩니다.</li>
-<li><b>폴리곤 USDT만입니다.</b> 다른 체인, 거래소 내부 잔고, 법정화폐는 범위 밖입니다.</li>
+<li><b>폴리곤 USDT만입니다.</b> 다른 체인, 거래소 내부 잔고, 법정화폐는 범위 밖입니다.
+회사가 SUT·MPC로도 지급했다면 그 부분은 빠져 있습니다.</li>
+<li><b>지급 지갑을 전부 찾았다는 보장이 없습니다.</b> 실제로 2~3월 지급 지갑을 뒤늦게 찾았습니다.
+따라서 6장의 지급액은 <b>하한선</b>이고, 실제 지급은 이보다 많을 수 있습니다.</li>
 <li><b>불법이라고 말하지 않습니다.</b> 자금 이동의 사실관계만 정리했습니다. 판단은 읽는 분 몫입니다.</li>
 <li><b>추적 배분은 시간순 비례 배분(taint)입니다.</b> 특정 달러가 특정 경로로 갔다는 뜻이 아니라,
 받은 시점 이후의 출금에 금액 비율로 나눈 근사치입니다. 3만 달러 미만 조각은 합산 처리했습니다.</li>
@@ -373,6 +473,32 @@ const RT=[['2025-03',73940,0],['2025-05',72226,0],['2025-06',0,653072],['2025-07
   s+=`<text x="${L+4}" y="${H-6}" fill="#199e70" font-size="13" font-weight="600">↑ 거래소에서 꺼냄</text>`;
   s+=`<text x="${W-R}" y="${H-6}" fill="#d95926" font-size="13" font-weight="600" text-anchor="end">↓ 거래소로 되돌려보냄</text>`;
   document.getElementById('rt').innerHTML=s;
+})();
+const MIR=[['05-16',1101,660000],['05-17',1654,0],['05-18',2080,309600],['05-19',6899,0],
+['05-20',133136,50010],['05-21',345,500000],['05-22',99,0],['05-23',223,99991],
+['05-25',50916,0],['05-28',99,0],['05-29',231,0],['05-30',9,0],['05-31',0,337609],
+['06-01',50916,484811],['06-03',99,158000]];
+(function(){
+  const W=700,H=330,L=8,R=8,T=44,B=54,MID=(W-L-R)/2+L, GAP=54;
+  const mx=Math.max(...MIR.flatMap(r=>[r[1],r[2]]));
+  const n=MIR.length, rh=(H-T-B)/n, bh=Math.min(15,rh*0.68);
+  const half=(W-L-R)/2-GAP/2;
+  let s=`<text x="${MID-GAP/2-6}" y="${T-20}" fill="#3987e5" font-size="17" font-weight="700" text-anchor="end">← 회원에게</text>`;
+  s+=`<text x="${MID+GAP/2+6}" y="${T-20}" fill="#d95926" font-size="17" font-weight="700">거래소로 →</text>`;
+  MIR.forEach((r,k)=>{
+    const y=T+rh*k+(rh-bh)/2;
+    const wl=r[1]/mx*half, wr=r[2]/mx*half;
+    s+=`<text x="${MID}" y="${y+bh-2}" fill="#75798c" font-size="14" text-anchor="middle">${r[0]}</text>`;
+    if(wl>0.4) s+=`<rect x="${MID-GAP/2-wl}" y="${y}" width="${wl}" height="${bh}" rx="2" fill="#3987e5"/>`;
+    if(wr>0.4) s+=`<rect x="${MID+GAP/2}" y="${y}" width="${wr}" height="${bh}" rx="2" fill="#d95926"/>`;
+    if(r[1]>=50000) s+=`<text x="${MID-GAP/2-wl-6}" y="${y+bh-2}" fill="#86b6ef" font-size="14" text-anchor="end">${r[1].toLocaleString()}</text>`;
+    if(r[2]>=50000) s+=`<text x="${MID+GAP/2+wr+6}" y="${y+bh-2}" fill="#e8763f" font-size="14">${r[2].toLocaleString()}</text>`;
+  });
+  const yb=H-B+24;
+  s+=`<line x1="${L}" y1="${yb-16}" x2="${W-R}" y2="${yb-16}" stroke="#3f424d"/>`;
+  s+=`<text x="${MID-GAP/2-6}" y="${yb+8}" fill="#3987e5" font-size="19" font-weight="800" text-anchor="end">합계 247,810</text>`;
+  s+=`<text x="${MID+GAP/2+6}" y="${yb+8}" fill="#d95926" font-size="19" font-weight="800">합계 2,600,021</text>`;
+  document.getElementById('mir').innerHTML=s;
 })();
 </script>
 </body>
