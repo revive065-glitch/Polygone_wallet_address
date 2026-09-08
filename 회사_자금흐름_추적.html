@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>회사 돈은 어디서 왔나 — 자금 흐름 추적</title>
+<meta name="description" content="회사 지갑 USDT 2억 5,960만 달러의 출처와 행선지. 바이낸스 왕복 구조, 2~3월 8,078만 달러 추적, 5월 18일 지급정지 당시 잔고까지 온체인 실측.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ /* 계열색 — 표면 #1c1e2c 에서 검증 통과 (명도대·채도·색각·대비 PASS) */
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.72;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:25px;line-height:1.32;letter-spacing:-.6px;margin:0 0 8px;font-weight:800}
+h2{font-size:18.5px;letter-spacing:-.3px;margin:46px 0 12px;font-weight:700;
+ padding-top:20px;border-top:1px solid var(--line);scroll-margin-top:12px}
+h2 .no{color:var(--ac);font-weight:800;margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 8px;font-weight:700}
+p{margin:11px 0}
+.lede{color:var(--tx2);font-size:14px;margin:0 0 22px}
+em{font-style:normal;color:var(--tx3)}
+a{color:var(--ac)}
+code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border-radius:4px;
+ word-break:break-all}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px 16px;margin:16px 0}
+.card.hi{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(201,162,39,.02))}
+.card.ac{border-color:#463f6b;background:linear-gradient(180deg,rgba(145,132,217,.09),rgba(145,132,217,.02))}
+.card.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.10),rgba(217,89,38,.02))}
+.kh{font-size:12px;color:var(--tx3);margin-bottom:5px}
+
+/* 쉬운 설명 3단 */
+.easy{display:grid;grid-template-columns:1fr;gap:11px;margin:18px 0}
+@media(min-width:640px){.easy{grid-template-columns:repeat(3,1fr)}}
+.easy .e{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px 14px}
+.easy .e .t{font-size:12px;color:var(--tx3);margin-bottom:7px}
+.easy .e h4{margin:0 0 6px;font-size:16px;font-weight:800}
+.easy .e p{margin:0;font-size:13.5px;color:var(--tx2);line-height:1.7}
+.easy .e.a{border-color:#7a3c1e} .easy .e.a h4{color:var(--s2)}
+.easy .e.b{border-color:#1d6b50} .easy .e.b h4{color:#2bb984}
+.easy .e.c{border-color:#5c5030} .easy .e.c h4{color:var(--hi)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+ background:#2b2e42;color:var(--tx3);border:1px solid var(--line2);margin-left:8px;vertical-align:3px}
+
+/* 사양 카드 */
+.spec{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;margin:16px 0}
+.spec .r{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px 15px;
+ border-top:1px solid var(--line);font-size:13.5px;align-items:baseline}
+.spec .r:first-child{border-top:0}
+.spec .k{color:var(--tx3);font-size:12px}
+.spec .v{font-weight:600;word-break:break-all}
+.spec .v b{color:var(--hi)}
+
+/* 단계 */
+.step{border-left:2px solid var(--line2);margin:18px 0 18px 9px;padding-left:20px;position:relative}
+.step>.s{position:relative;padding-bottom:20px}
+.step>.s:last-child{padding-bottom:0}
+.step>.s::before{content:attr(data-n);position:absolute;left:-31px;top:0;width:22px;height:22px;
+ border-radius:50%;background:var(--ac);color:#12101c;font-size:12px;font-weight:800;
+ display:grid;place-items:center}
+.step h4{margin:0 0 5px;font-size:15px;font-weight:700}
+.step p{margin:5px 0}
+
+/* 2단 비교 다이어그램 */
+.duo{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0}
+@media(min-width:660px){.duo{grid-template-columns:1fr 1fr}}
+.duo .p{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 14px 12px}
+.duo .p.b{border-color:#2b5a8f}
+.duo .pt{font-size:13.5px;font-weight:700;margin-bottom:2px}
+.duo .p.a .pt{color:var(--s2)} .duo .p.b .pt{color:var(--s1)}
+.duo .ps{font-size:11.5px;color:var(--tx3);margin-bottom:12px}
+.duo svg{width:100%;height:auto;display:block}
+.duo .fl{margin-top:12px;font-size:12.5px;color:var(--tx2);line-height:1.9}
+.duo .fl div{display:grid;grid-template-columns:62px 1fr;gap:8px}
+.duo .fl span{color:var(--tx3);font-size:11.5px}
+
+/* 구간 다이어그램 */
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 14px 12px;margin:18px 0}
+.figt{font-size:14px;font-weight:700}
+.figs{font-size:12px;color:var(--tx3);margin:2px 0 14px}
+.rng{width:100%;height:auto;display:block;overflow:visible}
+
+/* 가로 막대 */
+.hb .row{padding:10px 0;border-top:1px solid var(--line)}
+.hb .row:first-child{border-top:0}
+.hb .top{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:4px}
+.hb .q{font-weight:700}
+.hb .q em{margin-left:6px;font-size:11.5px;font-weight:400}
+.hb .r{font-weight:800;white-space:nowrap;color:var(--s2)}
+.hb .row.ok .r{color:var(--s3)}
+.hb .trk{height:12px;background:#22243a;border-radius:6px;overflow:hidden}
+.hb .fil{height:100%;border-radius:6px;background:var(--s2)}
+.hb .row.ok .fil{background:var(--s3)}
+
+table.tight{font-size:12px}
+table.tight th,table.tight td{padding:7px 7px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;white-space:nowrap}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--tx3);font-weight:600;font-size:12px;border-bottom:1px solid var(--line2)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:700}
+td.pk,th.pk{color:var(--hi)} td.dn{color:var(--s2)} td.up{color:var(--s3)}
+ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
+.note{font-size:12.5px;color:var(--tx3);line-height:1.65;margin-top:6px}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;
+ margin:14px 0;font-size:12.5px;line-height:1.9;overflow-x:auto;color:var(--tx2);
+ font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre b{color:var(--tx);font-weight:700}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+
+/* 스택 막대 */
+.stk{margin:16px 0}
+.stk .bar{display:flex;height:26px;border-radius:7px;overflow:hidden;background:#22243a}
+.stk .bar i{display:block}
+.stk .lg{margin-top:11px;font-size:13px}
+.stk .lg div{display:grid;grid-template-columns:12px 1fr;gap:9px;align-items:start;
+ padding:8px 0;border-top:1px solid var(--line)}
+@media(min-width:520px){.stk .lg div{grid-template-columns:12px 1fr auto}}
+.stk .lg div:first-child{border-top:0}
+.stk .lg u{display:block;width:11px;height:11px;border-radius:3px;text-decoration:none;margin-top:5px}
+.stk .lg .amt{grid-column:2;display:flex;gap:9px;align-items:baseline}
+@media(min-width:520px){.stk .lg .amt{grid-column:auto}}
+.stk .lg b{font-weight:700;white-space:nowrap}
+.stk .lg s{text-decoration:none;color:var(--tx3);font-size:12px;white-space:nowrap;min-width:46px;text-align:right}
+/* 왕복 차트 */
+.rt{width:100%;height:auto;display:block;overflow:visible}
+/* 파동 */
+.wv{display:grid;grid-template-columns:1fr;gap:11px;margin:16px 0}
+@media(min-width:660px){.wv{grid-template-columns:repeat(3,1fr)}}
+.wv .w{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px}
+.wv .w .t{font-size:11.5px;color:var(--tx3)}
+.wv .w .a{font-size:21px;font-weight:800;margin:3px 0 2px;letter-spacing:-.5px}
+.wv .w .d{font-size:12.5px;color:var(--tx2)}
+.wv .w.k1 .a{color:var(--s1)} .wv .w.k2 .a{color:var(--hi)} .wv .w.k3 .a{color:var(--s2)}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>회사 돈은 어디서 왔고<br>어디로 갔나</h1>
+<p class="lede">회사 지갑 15곳의 테더(USDT) 전송기록 약 87만 건을 전부 뽑아, 들어온 돈의 출처와 나간 돈의 행선지를 끝까지 따라갔습니다.
+<br>기준 2026-09-08 · 폴리곤 온체인 실측 · 금액 단위 USDT</p>
+
+<div class="card hi">
+  <div class="kh">한 줄로</div>
+  <p style="margin:2px 0 0;font-size:16px;line-height:1.68">
+  회사가 쓴 돈은 <b>처음부터 끝까지 회원 돈</b>이었습니다. 외부 자금원은 거래소 하나뿐이었는데,
+  그마저 <b>꺼내 쓴 1,884만을 1,689만 되갚은 왕복</b>이라 순증은 <b>195만</b>입니다.
+  그 완충이 2025년 9월엔 1,124만을 감당했지만, 2026년 5월엔 396만이 한계였습니다.</p>
+</div>
+
+<h2><span class="no">1</span>돈은 어디서 들어왔나</h2>
+<p>중앙금고(<code>0x7cc2…f7ad</code>)가 회사 자금의 허브입니다. 누적 유입 <b>259,600,960</b>을 출처별로 가르면 이렇습니다.</p>
+
+<div class="card">
+<div class="stk">
+  <div class="bar">
+    <i style="width:88.2%;background:#3987e5"></i><i style="width:7.2%;background:#c9a227"></i><i style="width:1.5%;background:#199e70"></i><i style="width:3.1%;background:#3f424d"></i>
+  </div>
+  <div class="lg">
+    <div><u style="background:#3987e5"></u><span>회원 납입 <em>(CC2C 수금지갑 → 중앙금고)</em></span><span class="amt"><b>228,904,989</b><s>88.2%</s></span></div>
+    <div><u style="background:#c9a227"></u><span>거래소 인출 <em>(바이낸스 3개 핫월렛)</em></span><span class="amt"><b>18,763,587</b><s>7.2%</s></span></div>
+    <div><u style="background:#199e70"></u><span>제2수금지갑 <em>(회원 8,189건을 모아 전달)</em></span><span class="amt"><b>3,779,467</b><s>1.5%</s></span></div>
+    <div><u style="background:#3f424d"></u><span>기타 · 내부 순환 복귀</span><span class="amt"><b>8,152,917</b><s>3.1%</s></span></div>
+  </div>
+</div>
+</div>
+
+<p><b>회원 돈이 아닌 유입은 바이낸스 한 곳뿐</b>이었습니다. 다른 거래소도, 투자자도, 브릿지도 없었습니다.</p>
+
+<pre>Binance 68  <b>0x2902…cb88</b>   29건    8,067,272
+Binance 69  <b>0x505e…8fd9</b>   23건    5,425,796
+Binance 48  <b>0xe780…e245</b>   18건    5,270,519
+                            ─────────────
+                       70건   <b>18,763,587</b></pre>
+
+<h2><span class="no">2</span>세 번의 인출 파동</h2>
+<p>인출은 아무 때나 있지 않았습니다. <b>회원 유입이 지급을 못 따라가는 주에만</b> 정확히 들어왔습니다.</p>
+
+<div class="wv">
+  <div class="w k1"><div class="t">1차 · 2025-06-17 ~ 07-31</div><div class="a">355.8만</div>
+    <div class="d">13건. 유입 주 4~12만인데 지급은 주 17~20만이던 시기</div></div>
+  <div class="w k2"><div class="t">2차 · 2025-09-09 ~ 09-28</div><div class="a">1,124.2만</div>
+    <div class="d">39건. 20일 동안 쪼개서. 역대 최대 규모</div></div>
+  <div class="w k3"><div class="t">3차 · 2026-04-19 ~ 05-20</div><div class="a">396.4만</div>
+    <div class="d">18건. 지급 재개 직후. 이번엔 규모가 못 미쳤습니다</div></div>
+</div>
+
+<table>
+<thead><tr><th>주(월요일)</th><th>회원 유입</th><th>지급액</th><th>차액</th><th class="pk">바이낸스 인출</th></tr></thead>
+<tbody>
+<tr><td>2025-06-16</td><td>78,107</td><td>176,680</td><td class="dn">−98,573</td><td class="pk">653,072</td></tr>
+<tr><td>2025-07-07</td><td>43,100</td><td>188,905</td><td class="dn">−145,804</td><td class="pk">1,461,888</td></tr>
+<tr><td>2025-09-22</td><td>79,720</td><td>237,985</td><td class="dn">−158,265</td><td class="pk">8,733,880</td></tr>
+<tr><td>2026-04-20</td><td>12,811,370</td><td>11,489,620</td><td class="up">+1,321,749</td><td class="pk">1,477,467</td></tr>
+<tr><td>2026-05-11</td><td>9,082,116</td><td>13,559,497</td><td class="dn">−4,477,381</td><td class="pk">1,677,537</td></tr>
+<tr class="tot"><td>2026-05-18 <em>정지</em></td><td>111,951</td><td>142,783</td><td class="dn">−30,832</td><td class="pk">201,516</td></tr>
+</tbody></table>
+<p class="note">인출 단위가 20만·33만 달러로 반복되는 건 거래소 1회 출금 한도에 맞춰 쪼갠 흔적으로 보입니다.
+마지막 인출은 <b>2026년 5월 20일 12:07, 201,516달러</b>였고, 그날 199명에게 133,136달러를 지급한 것이 사실상 마지막이었습니다.</p>
+
+<h2><span class="no">3</span>거래소는 자금원이 아니라 금고였습니다</h2>
+<p>반대 방향도 찾았습니다. <b>중앙금고에서만 받아서 거래소로만 보내는 전용 지갑 6곳</b>입니다.</p>
+
+<pre>0x1600ef50…42ea → Gate.io    <b>7,274,047</b>   44건
+0x6dfaa287…b7d1 → Binance    <b>3,086,821</b>    9건
+0x9290034a…c04a → Binance    <b>2,630,420</b>   11건
+0xfc8c143d…fe3d → Binance    <b>2,005,965</b>   24건
+0x456e467a…0a76 → Binance    <b>1,209,350</b>    9건
+0x84ccf6e6…014c → Binance      <b>683,046</b>    3건
+                            ─────────────
+                            <b>16,889,649</b></pre>
+
+<p>두 방향을 겹쳐 보면 왕복이 드러납니다.</p>
+
+<div class="fig">
+  <div class="figt">거래소 ↔ 회사 월별 흐름과 누적 순잔</div>
+  <div class="figs">위로 뻗으면 꺼내 온 달 · 아래로 뻗으면 되돌려보낸 달 · 노란 선이 누적</div>
+  <svg class="rt" id="rt" viewBox="0 0 700 300" role="img"
+    aria-label="2025년 6~9월 거래소에서 1884만을 꺼내 누적이 1439만까지 올랐다가, 2025년 10월부터 2026년 6월까지 1689만을 되돌려보내 누적이 195만으로 내려온 그래프"></svg>
+</div>
+
+<table class="tight">
+<thead><tr><th>월</th><th>나감</th><th>들어옴</th><th class="pk">누적</th></tr></thead>
+<tbody id="rtb"></tbody>
+</table>
+
+<div class="card ac">
+<div class="kh">그래서 무슨 뜻이냐면</div>
+<p style="margin:4px 0 0">2025년 여름·가을에 <b>미리 거래소에 넣어둔 돈을 꺼내</b> 초기 지급에 썼고,
+회원 유입이 폭증한 2025년 10월부터는 <b>꺼내 쓴 만큼 다시 넣었습니다.</b>
+순증이 <b>195만 달러</b>뿐이라, 외부에서 새 자금을 조달한 게 아니라 <b>자기 돈을 잠깐 돌려 쓴 것</b>에 가깝습니다.</p>
+</div>
+
+<h2><span class="no">4</span>2~3월에 빠져나간 8,078만 달러</h2>
+<p>주정산 지급이 멈춘 것처럼 보였던 2026년 2~3월, 중앙금고에서 <b>415곳의 외부 주소로 80,781,719</b>가 나갔습니다.
+2~6단계씩 경유하는 구조라 끝까지 따라가 봤습니다.</p>
+
+<div class="card">
+<div class="stk">
+  <div class="bar">
+    <i style="width:44.9%;background:#3987e5"></i><i style="width:42.0%;background:#199e70"></i><i style="width:8.6%;background:#d95926"></i><i style="width:4.5%;background:#3f424d"></i>
+  </div>
+  <div class="lg">
+    <div><u style="background:#3987e5"></u><span>회사 지갑으로 되돌아옴</span><span class="amt"><b>36,223,410</b><s>44.9%</s></span></div>
+    <div><u style="background:#199e70"></u><span>회원 주정산 지급으로 분산</span><span class="amt"><b>33,951,524</b><s>42.0%</s></span></div>
+    <div><u style="background:#d95926"></u><span>거래소로 인출</span><span class="amt"><b>6,942,169</b><s>8.6%</s></span></div>
+    <div><u style="background:#3f424d"></u><span>아직 중간 지갑에 남아있음</span><span class="amt"><b>3,624,614</b><s>4.5%</s></span></div>
+  </div>
+</div>
+</div>
+
+<div class="card warn">
+<div class="kh">앞선 분석에서 제가 틀렸던 것</div>
+<p style="margin:4px 0 0">"2~3월 주정산 지급 0원"은 <b>사실이 아니었습니다.</b>
+지급이 멈춘 게 아니라 <b>지급 지갑을 바꿨을 뿐</b>이고, 제가 보던 지급지갑 두 곳만 비어 있었습니다.</p>
+<pre style="margin:12px 0 0">0x3fbebfb2…0484  26-02-27~03-18  <b>30,254,457</b>  15,601곳  건당 중앙값 $124
+0x31c9342b…f747b 26-02-01~03-01   <b>8,062,920</b>  10,633곳  건당 중앙값  $55</pre>
+<p class="note" style="margin-top:9px">이 두 지갑의 수취인이 원래 지급지갑이 보내던 회원 지갑과
+<b>99.5% · 97.5% 일치</b>합니다. 같은 사람들에게 같은 방식으로 나간 주정산이 맞습니다.</p>
+</div>
+
+<p><b>"사라진 8천만 달러"가 아니었습니다.</b> 절반 가까이는 총판·중개 지갑을 돌아 회사로 되돌아왔고,
+나머지 대부분은 회원에게 나간 주정산이었습니다. 순수하게 밖으로 나간 건 <b>거래소로 간 694만</b>입니다.</p>
+
+<h2><span class="no">5</span>2026년 5월 18일, 그날</h2>
+<p>주정산 지급이 멈춘 날 회사 지갑 9곳의 테더 총잔고입니다. 9곳 모두 <b>현재 실측 잔고와 정확히 일치</b>하도록 검산했습니다.</p>
+
+<div class="card hi">
+  <div class="kh">2026-05-18 회사 보유 테더</div>
+  <p style="margin:2px 0 0;font-size:26px;font-weight:800;letter-spacing:-.8px;color:var(--hi)">$3,689,359</p>
+  <p class="note" style="margin-top:6px">직전 주(5/11~15) 실제 지급액 <b>13,559,497</b> 대비 <b>0.26주치</b>.
+  그 주 회원 유입은 9,082,116뿐이라 이미 447만이 모자란 상태였습니다.</p>
+</div>
+
+<pre>5/15(금)  3,284,479 지급 · 4,985건   <b>← 마지막 정상 지급</b>
+5/16(토)      1,101
+5/17(일)      1,654              잔고 3,689,359
+5/18(월)      2,080  <b>← 주정산 정지</b>   잔고 3,489,390
+5/20(수)    133,136 · 199건       바이낸스 마지막 인출 201,516
+5/25(월)     50,916 · 15,991건    <b>건당 중앙값 $1.0</b></pre>
+
+<p>5월 25일부터 지급 성격이 완전히 바뀝니다. 매주 약 16,000곳에 총 5만 달러, <b>건당 중앙값 1달러</b>.
+정상 지급이던 5월 15일(건당 중앙값 184달러)과는 다른 명목상 송금입니다.</p>
+
+<table>
+<thead><tr><th>월말</th><th>회사 보유 테더</th><th>&nbsp;</th></tr></thead>
+<tbody>
+<tr><td>2026-02-28</td><td>12,562,659</td><td class="pk">최고점 3/1 12,697,859</td></tr>
+<tr><td>2026-03-31</td><td>3,466,518</td><td></td></tr>
+<tr><td>2026-04-30</td><td>4,725,335</td><td></td></tr>
+<tr><td>2026-05-31</td><td>2,490,691</td><td></td></tr>
+<tr><td>2026-06-30</td><td class="dn">370,195</td><td class="dn">바닥</td></tr>
+<tr><td>2026-08-31</td><td>2,307,561</td><td></td></tr>
+<tr class="tot"><td>현재 (9/8)</td><td>2,465,385</td><td></td></tr>
+</tbody></table>
+
+<h2><span class="no">6</span>확인한 주소</h2>
+<div class="spec">
+  <div class="r"><div class="k">회사 허브</div><div class="v">중앙금고 <code>0x7cc2f8914b4d77b68355757286f146373f4bf7ad</code></div></div>
+  <div class="r"><div class="k">회원 수금</div><div class="v">CC2C <code>0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c</code></div></div>
+  <div class="r"><div class="k">지급 (4~5월)</div><div class="v">Gnosis Safe <code>0xca976c536a0e9176e81db1b854b07efb542d4faf</code> → 지급지갑#2</div></div>
+  <div class="r"><div class="k">지급 (2~3월)</div><div class="v"><code>0x3fbebfb25c4b9d8a2a6b37640f4c59d407fa0484</code> · <code>0x31c9342baf01f941d9eeeed11eb09815602f747b</code></div></div>
+  <div class="r"><div class="k">환전 (→거래소)</div><div class="v"><code>0x1600ef50319d38a42dafcde831b06b55640a42ea</code> 외 5곳</div></div>
+  <div class="r"><div class="k">거래소</div><div class="v">Binance 48·68·69 · Gate.io 1</div></div>
+</div>
+<p class="note">주소는 전부 폴리곤스캔에서 그대로 조회됩니다. 다른 값이 나오면 알려주세요.</p>
+
+<h2><span class="no">7</span>이 글이 주장하지 않는 것</h2>
+<ul>
+<li><b>거래소 안에서 누구 계정인지는 모릅니다.</b> 온체인에서는 핫월렛까지만 보입니다.
+확인된 사실은 "중앙금고에서만 받아 거래소로만 보내는 전용 지갑"이라는 데까지입니다.</li>
+<li><b>3~4단을 넘어가면 추적을 멈췄습니다.</b> <code>0xf44013…b9bc</code>처럼 6만 6천 건이 모이는 집금 지갑에서
+남의 돈과 섞이기 때문입니다. 그 지점부터의 배분은 근거 없는 추정이 됩니다.</li>
+<li><b>폴리곤 USDT만입니다.</b> 다른 체인, 거래소 내부 잔고, 법정화폐는 범위 밖입니다.</li>
+<li><b>불법이라고 말하지 않습니다.</b> 자금 이동의 사실관계만 정리했습니다. 판단은 읽는 분 몫입니다.</li>
+<li><b>추적 배분은 시간순 비례 배분(taint)입니다.</b> 특정 달러가 특정 경로로 갔다는 뜻이 아니라,
+받은 시점 이후의 출금에 금액 비율로 나눈 근사치입니다. 3만 달러 미만 조각은 합산 처리했습니다.</li>
+</ul>
+
+<div class="foot">
+<p><b>조회 방법</b></p>
+<p>· 폴리곤 USDT 컨트랙트의 Transfer 로그를 지갑별 양방향으로 전량 수집(약 87만 건)해 누적합으로 잔고를 복원했습니다.
+9개 지갑 모두 현재 실측 잔고와 오차 0으로 일치합니다.</p>
+<p>· 유출 추적은 시간순 비례 배분으로 최대 6단계까지 따라갔고, 거래소·소각·회사 지갑에 닿으면 종료했습니다.</p>
+<p style="margin-top:14px">데이터 기준 2026-09-08 · 가격 예측이나 매매 권유가 아닙니다.</p>
+</div>
+
+</div>
+<script>
+const RT=[['2025-03',73940,0],['2025-05',72226,0],['2025-06',0,653072],['2025-07',92399,2904980],
+['2025-09',168797,11242014],['2025-10',685985,0],['2025-11',95219,70000],['2025-12',1293059,0],
+['2026-01',3886109,0],['2026-02',3802448,0],['2026-03',2479187,0],['2026-04',1228881,2084368],
+['2026-05',2016674,1888510],['2026-06',993826,0]];
+(function(){
+  let c=0; const rows=RT.map(([m,o,i])=>{c+=i-o; return [m,o,i,c];});
+  document.getElementById('rtb').innerHTML=rows.map(([m,o,i,c],k)=>
+    `<tr${k===rows.length-1?' class="tot"':''}><td>${m}</td><td class="${o?'dn':''}">${o?'−'+o.toLocaleString():'—'}</td>`+
+    `<td class="${i?'up':''}">${i?'+'+i.toLocaleString():'—'}</td><td class="pk">${c.toLocaleString()}</td></tr>`).join('')
+    +`<tr class="tot"><td>합계</td><td class="dn">−16,889,649</td><td class="up">+18,842,944</td><td class="pk">+1,953,295</td></tr>`;
+  const W=700,H=300,L=52,R=14,T=18,B=46, n=rows.length;
+  const bw=(W-L-R)/n, mx=Math.max(...rows.map(r=>Math.max(r[1],r[2]))), mc=Math.max(...rows.map(r=>r[3]));
+  const y0=T+(H-T-B)*0.62;                       /* 0 기준선 */
+  const up=v=>y0-(v/mx)*(y0-T), dn=v=>y0+(v/mx)*(H-B-y0);
+  const cy=v=>y0-(v/mc)*(y0-T);
+  let s=`<line x1="${L}" y1="${y0}" x2="${W-R}" y2="${y0}" stroke="#3f424d" stroke-width="1.2"/>`;
+  s+=`<text x="${L-8}" y="${T+6}" fill="#75798c" font-size="13" text-anchor="end">${(mx/1e6).toFixed(0)}M</text>`;
+  s+=`<text x="${L-8}" y="${y0+5}" fill="#75798c" font-size="13" text-anchor="end">0</text>`;
+  rows.forEach((r,k)=>{
+    const x=L+bw*k+bw*0.18, w=bw*0.64;
+    if(r[2]) s+=`<rect x="${x}" y="${up(r[2])}" width="${w}" height="${y0-up(r[2])}" rx="2" fill="#199e70"/>`;
+    if(r[1]) s+=`<rect x="${x}" y="${y0}" width="${w}" height="${dn(r[1])-y0}" rx="2" fill="#d95926"/>`;
+    if(k%2===0||k>=n-3) s+=`<text x="${x+w/2}" y="${H-24}" fill="#75798c" font-size="12" text-anchor="middle">${r[0].slice(2)}</text>`;
+  });
+  const pts=rows.map((r,k)=>`${L+bw*k+bw*0.5},${cy(r[3])}`).join(' ');
+  s+=`<polyline points="${pts}" fill="none" stroke="#c9a227" stroke-width="2.5"/>`;
+  rows.forEach((r,k)=>{ s+=`<circle cx="${L+bw*k+bw*0.5}" cy="${cy(r[3])}" r="3" fill="#c9a227"/>`; });
+  const pk=rows.findIndex(r=>r[3]===mc);
+  s+=`<text x="${L+bw*pk+bw*0.5}" y="${cy(mc)-11}" fill="#c9a227" font-size="14" font-weight="700" text-anchor="middle">누적 1,439만</text>`;
+  s+=`<text x="${W-R}" y="${cy(rows[n-1][3])-11}" fill="#c9a227" font-size="14" font-weight="700" text-anchor="end">195만</text>`;
+  s+=`<text x="${L+4}" y="${H-6}" fill="#199e70" font-size="13" font-weight="600">↑ 거래소에서 꺼냄</text>`;
+  s+=`<text x="${W-R}" y="${H-6}" fill="#d95926" font-size="13" font-weight="600" text-anchor="end">↓ 거래소로 되돌려보냄</text>`;
+  document.getElementById('rt').innerHTML=s;
+})();
+</script>
+</body>
+</html>
