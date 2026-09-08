@@ -157,10 +157,28 @@ ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
  border-radius:9px;padding:7px 10px;font-size:12px;color:var(--tx);opacity:0;transition:opacity .1s;
  box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap;line-height:1.55}
 #tip.on{opacity:1} #tip em{display:block;font-size:11px}
+
+/* SUT 시리즈 띠 */
+.ser{margin:0 0 22px;padding:12px 13px;background:var(--panel);border:1px solid var(--line);
+ border-left:3px solid #199e70;border-radius:13px}
+.ser .st{font-size:11.5px;color:var(--tx3);margin-bottom:9px;letter-spacing:.3px}
+.ser .sl{display:flex;flex-wrap:wrap;gap:6px}
+.ser button{background:transparent;border:1px solid var(--line2);color:var(--tx2);border-radius:20px;
+ padding:5px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.ser button:hover{border-color:#199e70;color:var(--tx)}
+.ser button[aria-current="true"]{background:#199e70;border-color:#199e70;color:#08150f;cursor:default}
+.nxt{margin:34px 0 0;display:flex;gap:9px;flex-wrap:wrap}
+.nxt button{flex:1 1 220px;text-align:left;background:var(--panel);border:1px solid var(--line);
+ border-radius:13px;padding:12px 13px;font:inherit;color:var(--tx);cursor:pointer}
+.nxt button:hover{border-color:#199e70}
+.nxt .a{font-size:11.5px;color:var(--tx3)}
+.nxt .b{font-size:14.5px;font-weight:700;margin-top:2px}
+.nxt .c{font-size:12px;color:var(--tx2);margin-top:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div class="ser"><div class="st">SUT 시리즈 · 네 편이 이어집니다</div><div class="sl"><button data-go="easy">① 쉽게 보기</button><button data-go="sut" aria-current="true">② SUT 공급과 가격</button><button data-go="lp">③ 유동성 예치 방법</button><button data-go="rep">④ 풀 운영 검토</button><button data-go="home">↩ 개요</button></div></div>
 
 <h1>SUT 공급과 가격</h1>
 <p class="lede">회원들이 넣는 SUT가 어디서 오는지, 그 재고가 언제 마르는지,
@@ -537,6 +555,8 @@ P2P로 사는 사람이 적지 않은데, 그 P2P 물량도 결국 거래소에 
 <li>TRSUT 지갑·거래소·P2P를 <b>체인에서 구분할 수 없습니다.</b> 셋을 합쳐 '지갑 간 이체'로 묶었습니다.</li>
 </ul>
 
+<div class="nxt"><button data-go="easy"><div class="a">← 앞 편</div><div class="b">① 쉽게 보기</div><div class="c">과일가게 이야기</div></button><button data-go="lp"><div class="a">다음 편 →</div><div class="b">③ 유동성 예치 방법</div><div class="c">파는 게 아니라 넣는 것</div></button></div>
+
 <div class="foot">
 <p><b>검증 방법</b></p>
 <p>· CC2C 수금 <a href="https://polygonscan.com/address/0xaaa4d5dd26eb1a2afe5fd5fb529fc24cee89cc2c" target="_blank" rel="noopener">0xaaa4…cc2c</a>
@@ -625,6 +645,20 @@ document.addEventListener('pointermove',e=>{
   tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,Math.max(8,e.clientX-tip.offsetWidth/2))+'px';
   tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-14)+'px';
 },{passive:true});
+</script>
+
+<script>
+(function(){
+ const M={easy:'SUT_쉽게보기.html',sut:'SUT_공급과_가격.html',
+  lp:'SUT_유동성_예치방법.html',rep:'SUT_유동성풀_운영보고서.html',
+  home:'개요.html'};
+ document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-go]'); if(!b||b.getAttribute('aria-current')==='true') return;
+  var id=b.dataset.go;
+  try{ if(window.parent&&window.parent!==window){ window.parent.postMessage({go:id},'*'); return; } }catch(x){}
+  if(M[id]) location.href=encodeURI(M[id]);
+ });
+})();
 </script>
 </body>
 </html>

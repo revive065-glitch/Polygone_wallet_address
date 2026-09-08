@@ -56,10 +56,28 @@ em{font-style:normal;color:var(--tx3)}
 .note{font-size:13px;color:var(--tx3);line-height:1.7;margin-top:10px}
 .foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--tx3)}
 .foot a{color:var(--tx2)}
+
+/* SUT 시리즈 띠 */
+.ser{margin:0 0 22px;padding:12px 13px;background:var(--panel);border:1px solid var(--line);
+ border-left:3px solid #199e70;border-radius:13px}
+.ser .st{font-size:11.5px;color:var(--tx3);margin-bottom:9px;letter-spacing:.3px}
+.ser .sl{display:flex;flex-wrap:wrap;gap:6px}
+.ser button{background:transparent;border:1px solid var(--line2);color:var(--tx2);border-radius:20px;
+ padding:5px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.ser button:hover{border-color:#199e70;color:var(--tx)}
+.ser button[aria-current="true"]{background:#199e70;border-color:#199e70;color:#08150f;cursor:default}
+.nxt{margin:34px 0 0;display:flex;gap:9px;flex-wrap:wrap}
+.nxt button{flex:1 1 220px;text-align:left;background:var(--panel);border:1px solid var(--line);
+ border-radius:13px;padding:12px 13px;font:inherit;color:var(--tx);cursor:pointer}
+.nxt button:hover{border-color:#199e70}
+.nxt .a{font-size:11.5px;color:var(--tx3)}
+.nxt .b{font-size:14.5px;font-weight:700;margin-top:2px}
+.nxt .c{font-size:12px;color:var(--tx2);margin-top:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div class="ser"><div class="st">SUT 시리즈 · 네 편이 이어집니다</div><div class="sl"><button data-go="easy" aria-current="true">① 쉽게 보기</button><button data-go="sut">② SUT 공급과 가격</button><button data-go="lp">③ 유동성 예치 방법</button><button data-go="rep">④ 풀 운영 검토</button><button data-go="home">↩ 개요</button></div></div>
 
 <h1>왜 조금만 사고팔아도<br>가격이 확 움직일까</h1>
 <p class="lede">어렵다는 말씀이 많아서, 동네 과일가게에 빗대어 다시 써봤습니다.
@@ -253,6 +271,8 @@ em{font-style:normal;color:var(--tx3)}
   자세한 숫자와 근거는 아래 글에 있습니다.</p>
 </div>
 
+<div class="nxt"><button data-go="sut"><div class="a">다음 편 →</div><div class="b">② SUT 공급과 가격</div><div class="c">어디서 오고 언제 마르나</div></button></div>
+
 <div class="foot">
 <p>· 자세히 — <a href="SUT_공급과_가격.html">SUT 공급과 가격</a> · <a href="SUT_유동성_예치방법.html">유동성 예치 방법</a></p>
 <p>· 숫자 확인 — <a href="https://dexscreener.com/polygon/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">SUT 시세·유동성</a>
@@ -267,6 +287,20 @@ function dots(el,n,color){
 }
 dots(document.getElementById('d1'),24,'#c9a227');
 dots(document.getElementById('d2'),297,'#d95926');
+</script>
+
+<script>
+(function(){
+ const M={easy:'SUT_쉽게보기.html',sut:'SUT_공급과_가격.html',
+  lp:'SUT_유동성_예치방법.html',rep:'SUT_유동성풀_운영보고서.html',
+  home:'개요.html'};
+ document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-go]'); if(!b||b.getAttribute('aria-current')==='true') return;
+  var id=b.dataset.go;
+  try{ if(window.parent&&window.parent!==window){ window.parent.postMessage({go:id},'*'); return; } }catch(x){}
+  if(M[id]) location.href=encodeURI(M[id]);
+ });
+})();
 </script>
 </body>
 </html>

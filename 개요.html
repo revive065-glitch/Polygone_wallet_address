@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161826">
+<title>개요 — 무엇이 어디에 있나</title>
+<meta name="description" content="자료실 전체 지도와 시간순 흐름. 각 탭이 무엇을 알려주는지, 어떤 순서로 읽으면 되는지 한 장에 정리했습니다.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+
+:root{
+ --bg:#161826; --panel:#1c1e2c; --panel2:#232532; --line:#292b31; --line2:#3f424d;
+ --tx:#e9e9ed; --tx2:#b2b6ca; --tx3:#75798c;
+ --ac:#9184d9; --hi:#c9a227;
+ /* 계열색 — 표면 #1c1e2c 에서 검증 통과 (명도대·채도·색각·대비 PASS) */
+ --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.72;
+ font-family:"Inter",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+ -webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:26px 16px 90px;
+ padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:25px;line-height:1.32;letter-spacing:-.6px;margin:0 0 8px;font-weight:800}
+h2{font-size:18.5px;letter-spacing:-.3px;margin:46px 0 12px;font-weight:700;
+ padding-top:20px;border-top:1px solid var(--line);scroll-margin-top:12px}
+h2 .no{color:var(--ac);font-weight:800;margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 8px;font-weight:700}
+p{margin:11px 0}
+.lede{color:var(--tx2);font-size:14px;margin:0 0 22px}
+em{font-style:normal;color:var(--tx3)}
+a{color:var(--ac)}
+code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border-radius:4px;
+ word-break:break-all}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px 16px;margin:16px 0}
+.card.hi{border-color:#5c5030;background:linear-gradient(180deg,rgba(201,162,39,.09),rgba(201,162,39,.02))}
+.card.ac{border-color:#463f6b;background:linear-gradient(180deg,rgba(145,132,217,.09),rgba(145,132,217,.02))}
+.card.warn{border-color:#7a3c1e;background:linear-gradient(180deg,rgba(217,89,38,.10),rgba(217,89,38,.02))}
+.kh{font-size:12px;color:var(--tx3);margin-bottom:5px}
+
+/* 쉬운 설명 3단 */
+.easy{display:grid;grid-template-columns:1fr;gap:11px;margin:18px 0}
+@media(min-width:640px){.easy{grid-template-columns:repeat(3,1fr)}}
+.easy .e{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px 14px}
+.easy .e .t{font-size:12px;color:var(--tx3);margin-bottom:7px}
+.easy .e h4{margin:0 0 6px;font-size:16px;font-weight:800}
+.easy .e p{margin:0;font-size:13.5px;color:var(--tx2);line-height:1.7}
+.easy .e.a{border-color:#7a3c1e} .easy .e.a h4{color:var(--s2)}
+.easy .e.b{border-color:#1d6b50} .easy .e.b h4{color:#2bb984}
+.easy .e.c{border-color:#5c5030} .easy .e.c h4{color:var(--hi)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+ background:#2b2e42;color:var(--tx3);border:1px solid var(--line2);margin-left:8px;vertical-align:3px}
+
+/* 사양 카드 */
+.spec{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;margin:16px 0}
+.spec .r{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px 15px;
+ border-top:1px solid var(--line);font-size:13.5px;align-items:baseline}
+.spec .r:first-child{border-top:0}
+.spec .k{color:var(--tx3);font-size:12px}
+.spec .v{font-weight:600;word-break:break-all}
+.spec .v b{color:var(--hi)}
+
+/* 단계 */
+.step{border-left:2px solid var(--line2);margin:18px 0 18px 9px;padding-left:20px;position:relative}
+.step>.s{position:relative;padding-bottom:20px}
+.step>.s:last-child{padding-bottom:0}
+.step>.s::before{content:attr(data-n);position:absolute;left:-31px;top:0;width:22px;height:22px;
+ border-radius:50%;background:var(--ac);color:#12101c;font-size:12px;font-weight:800;
+ display:grid;place-items:center}
+.step h4{margin:0 0 5px;font-size:15px;font-weight:700}
+.step p{margin:5px 0}
+
+/* 2단 비교 다이어그램 */
+.duo{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0}
+@media(min-width:660px){.duo{grid-template-columns:1fr 1fr}}
+.duo .p{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 14px 12px}
+.duo .p.b{border-color:#2b5a8f}
+.duo .pt{font-size:13.5px;font-weight:700;margin-bottom:2px}
+.duo .p.a .pt{color:var(--s2)} .duo .p.b .pt{color:var(--s1)}
+.duo .ps{font-size:11.5px;color:var(--tx3);margin-bottom:12px}
+.duo svg{width:100%;height:auto;display:block}
+.duo .fl{margin-top:12px;font-size:12.5px;color:var(--tx2);line-height:1.9}
+.duo .fl div{display:grid;grid-template-columns:62px 1fr;gap:8px}
+.duo .fl span{color:var(--tx3);font-size:11.5px}
+
+/* 구간 다이어그램 */
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 14px 12px;margin:18px 0}
+.figt{font-size:14px;font-weight:700}
+.figs{font-size:12px;color:var(--tx3);margin:2px 0 14px}
+.rng{width:100%;height:auto;display:block;overflow:visible}
+
+/* 가로 막대 */
+.hb .row{padding:10px 0;border-top:1px solid var(--line)}
+.hb .row:first-child{border-top:0}
+.hb .top{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:4px}
+.hb .q{font-weight:700}
+.hb .q em{margin-left:6px;font-size:11.5px;font-weight:400}
+.hb .r{font-weight:800;white-space:nowrap;color:var(--s2)}
+.hb .row.ok .r{color:var(--s3)}
+.hb .trk{height:12px;background:#22243a;border-radius:6px;overflow:hidden}
+.hb .fil{height:100%;border-radius:6px;background:var(--s2)}
+.hb .row.ok .fil{background:var(--s3)}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;white-space:nowrap}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--tx3);font-weight:600;font-size:12px;border-bottom:1px solid var(--line2)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:700}
+td.pk,th.pk{color:var(--hi)} td.dn{color:var(--s2)} td.up{color:var(--s3)}
+ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
+.note{font-size:12.5px;color:var(--tx3);line-height:1.65;margin-top:6px}
+pre{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;
+ margin:14px 0;font-size:12.5px;line-height:1.9;overflow-x:auto;color:var(--tx2);
+ font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre b{color:var(--tx);font-weight:700}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
+.foot a{color:var(--tx2)}
+
+/* 그룹 색 */
+:root{--g1:#c9a227;--g2:#3987e5;--g3:#199e70;--g4:#d95926}
+.grp{margin:18px 0 26px}
+.grp .gh{display:flex;align-items:center;gap:9px;margin:0 0 4px}
+.grp .gh u{width:11px;height:11px;border-radius:3px;text-decoration:none;flex:0 0 auto}
+.grp .gh b{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.grp .gs{font-size:12.5px;color:var(--tx3);margin:0 0 12px;padding-left:20px}
+.cards{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:620px){.cards{grid-template-columns:1fr 1fr}}
+.tc{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);
+ border-left:3px solid var(--line2);border-radius:13px;padding:13px 14px;font:inherit;color:var(--tx);
+ cursor:pointer;transition:border-color .12s,background .12s}
+.tc:hover{background:#20223200;border-color:#5a5d70}
+.tc .n{font-size:11px;color:var(--tx3);letter-spacing:.4px}
+.tc .h{font-size:15.5px;font-weight:800;margin:2px 0 5px;letter-spacing:-.3px}
+.tc .p{font-size:13px;color:var(--tx2);line-height:1.65;margin:0}
+.tc .k{font-size:12px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.tc .k b{color:var(--tx2);font-weight:600}
+.g1 .tc{border-left-color:var(--g1)} .g2 .tc{border-left-color:var(--g2)}
+.g3 .tc{border-left-color:var(--g3)} .g4 .tc{border-left-color:var(--g4)}
+/* 읽는 순서 */
+.seq{display:flex;flex-wrap:wrap;gap:7px;align-items:center;font-size:12.5px;color:var(--tx3);margin:10px 0 0;padding-left:20px}
+.seq b{color:var(--tx2);font-weight:600}
+/* 타임라인 */
+.tl{position:relative;margin:20px 0 0;padding-left:26px}
+.tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line2)}
+.ev{position:relative;padding:0 0 20px}
+.ev::before{content:"";position:absolute;left:-25px;top:6px;width:11px;height:11px;border-radius:50%;
+ background:var(--tx3);border:2px solid var(--bg)}
+.ev.c1::before{background:var(--g1)} .ev.c2::before{background:var(--g2)}
+.ev.c3::before{background:var(--g3)} .ev.c4::before{background:var(--g4)}
+.ev.fu::before{background:var(--bg);border:2px solid var(--tx3)}
+.ev .d{font-size:11.5px;color:var(--tx3);letter-spacing:.3px}
+.ev .t{font-size:15px;font-weight:700;margin:1px 0 3px;letter-spacing:-.2px}
+.ev.big .t{font-size:17px;font-weight:800}
+.ev .x{font-size:13px;color:var(--tx2);margin:0;line-height:1.66}
+.ev.fu .t,.ev.fu .x{color:var(--tx3)}
+.pill{display:inline-block;margin-top:7px;font-size:11.5px;font-weight:600;color:var(--tx2);
+ background:#22243a;border:1px solid var(--line2);border-radius:20px;padding:3px 11px;cursor:pointer;font-family:inherit}
+.pill:hover{border-color:var(--ac);color:var(--tx)}
+.era{margin:26px 0 12px;padding:8px 12px;border-radius:9px;background:var(--panel2);
+ border:1px solid var(--line);font-size:12.5px;color:var(--tx2);font-weight:600}
+.era em{color:var(--tx3);font-weight:400;font-style:normal}
+/* 독자 경로 */
+.path{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px 15px;margin:12px 0}
+.path .q{font-size:14.5px;font-weight:700;margin:0 0 8px}
+.path ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--tx2);line-height:1.9}
+.path b{color:var(--tx)}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>무엇이 어디에 있나</h1>
+<p class="lede">여기 있는 자료는 전부 하나의 이야기에서 갈라져 나온 것들입니다.
+어느 탭이 무엇을 알려주는지, 어떤 순서로 읽으면 되는지, 그리고 그 일들이 언제 일어났는지 한 장에 모았습니다.
+<br>기준 2026-09-08 · 폴리곤 온체인 실측</p>
+
+<div class="card hi">
+  <div class="kh">전체를 세 문장으로</div>
+  <p style="margin:2px 0 0;font-size:15.5px;line-height:1.72">
+  회사는 회원 돈 <b>2억 5,262만 달러</b>를 받아 굴리다가 <b>2026년 5월 18일 주정산을 멈췄습니다.</b>
+  그날 회사가 들고 있던 테더는 <b>368만</b>, 한 주 지급액의 <b>0.26주치</b>였습니다.
+  남은 것은 SUT인데, 시장에 사고팔 수 있는 물량이 <b>24,080개</b>뿐이라
+  <b>1만 개만 팔려도 −13.9%</b>가 납니다.</p>
+</div>
+
+<h2><span class="no">1</span>네 갈래로 묶으면</h2>
+<p>색이 같은 탭끼리는 같은 이야기의 다른 각도입니다.</p>
+
+<div class="grp g4">
+  <div class="gh"><u style="background:var(--g4)"></u><b>회사 돈은 어디로 갔나</b></div>
+  <p class="gs">받은 돈과 나간 돈을 끝까지 따라간 기록. 가장 무거운 이야기입니다.</p>
+  <div class="cards">
+    <button class="tc" data-go="money">
+      <div class="n">추적</div><div class="h">회사 자금 흐름</div>
+      <p class="p">2억 5,960만의 출처와 행선지. 거래소 왕복 구조, 2~3월 8,078만 추적, 지급정지 당일의 자금 이동.</p>
+      <div class="k"><b>알 수 있는 것</b> — 왜 돈이 없다고 했는지, 정말 없었는지</div>
+    </button>
+    <button class="tc" data-go="mine">
+      <div class="n">상환 여력</div><div class="h">광산 상환 가능선</div>
+      <p class="p">MPC 100억 개로 남은 채무를 한 번에 갚으려면 광산에서 얼마가 나와야 하는지 역산했습니다.</p>
+      <div class="k"><b>알 수 있는 것</b> — 회사가 내놓은 상환 계획의 산수</div>
+    </button>
+  </div>
+</div>
+
+<div class="grp g3">
+  <div class="gh"><u style="background:var(--g3)"></u><b>SUT는 왜 안 오르나</b></div>
+  <p class="gs">네 편이 이어지는 한 편의 글입니다. 위에서부터 읽으면 순서가 맞습니다.</p>
+  <div class="cards">
+    <button class="tc" data-go="easy">
+      <div class="n">1편 · 입문</div><div class="h">쉽게 보기</div>
+      <p class="p">과일가게 이야기 8컷. 숫자 없이, 왜 조금만 사고팔아도 가격이 확 움직이는지부터.</p>
+      <div class="k"><b>알 수 있는 것</b> — 유동성이 얇다는 게 무슨 뜻인지</div>
+    </button>
+    <button class="tc" data-go="sut">
+      <div class="n">2편 · 진단</div><div class="h">SUT 공급과 가격</div>
+      <p class="p">사람들의 SUT가 어디서 오는지, 언제 마르는지, 마르면 가격에 무슨 일이 생기는지.</p>
+      <div class="k"><b>알 수 있는 것</b> — 9월 28일이 왜 분기점인지</div>
+    </button>
+    <button class="tc" data-go="lp">
+      <div class="n">3편 · 처방</div><div class="h">유동성 예치 방법</div>
+      <p class="p">파는 게 아니라 넣는 것. 어느 풀에 어떤 방식으로, 테더 한 푼 없이 하는 법까지 실제 절차로.</p>
+      <div class="k"><b>알 수 있는 것</b> — 회사가 지금 할 수 있는 가장 값싼 조치</div>
+    </button>
+    <button class="tc" data-go="rep">
+      <div class="n">4편 · 검토</div><div class="h">풀 운영 검토 보고서</div>
+      <p class="p">지금 풀은 누가 굴리나. 회사가 직접 운영할 때의 이점 7가지, 위험 8가지, 법적 제한.</p>
+      <div class="k"><b>알 수 있는 것</b> — 3편의 처방을 실제로 할 때의 득실</div>
+    </button>
+  </div>
+  <div class="seq"><b>읽는 순서</b> 쉽게 보기 → SUT 공급과 가격 → 유동성 예치 방법 → 풀 운영 검토 보고서</div>
+</div>
+
+<div class="grp g2">
+  <div class="gh"><u style="background:var(--g2)"></u><b>지금 이 순간</b></div>
+  <p class="gs">열 때마다 체인에서 직접 읽어 오는 실시간 자료입니다.</p>
+  <div class="cards">
+    <button class="tc" data-go="dash">
+      <div class="n">실시간</div><div class="h">실시간 대시보드</div>
+      <p class="p">오늘 들어온 SUT, 일별 30일, 월별 추이, 회사가 지금 들고 있는 각 자산과 감시 항목.</p>
+      <div class="k"><b>알 수 있는 것</b> — 오늘 회사 지갑에 무슨 일이 있었는지</div>
+    </button>
+    <button class="tc" data-go="mpc">
+      <div class="n">사건</div><div class="h">MPC 10억 이동</div>
+      <p class="p">9월 4일 금고에서 나간 총발행량의 10%. 스왑할 때 베스팅이 실제로 뜻하는 것.</p>
+      <div class="k"><b>알 수 있는 것</b> — 새로 등장한 토큰이 어떻게 움직이는지</div>
+    </button>
+  </div>
+</div>
+
+<div class="grp g1">
+  <div class="gh"><u style="background:var(--g1)"></u><b>내 숫자</b></div>
+  <p class="gs">본인 금액을 넣어 직접 계산해 보는 도구입니다.</p>
+  <div class="cards">
+    <button class="tc" data-go="calc">
+      <div class="n">계산기</div><div class="h">이관 계산기</div>
+      <p class="p">잔여 신용대금을 넣으면 이관 후 매주 받게 되는 금액이 나옵니다.</p>
+      <div class="k"><b>알 수 있는 것</b> — 내 경우 이관하면 얼마인지</div>
+    </button>
+    <button class="tc" data-go="debt">
+      <div class="n">규모</div><div class="h">통화별 잔여 채무</div>
+      <p class="p">회사의 신용대금을 KWT · 테더 · NSS 셋으로 갈라 규모를 잡았습니다.</p>
+      <div class="k"><b>알 수 있는 것</b> — 전체 채무에서 내 몫이 어디쯤인지</div>
+    </button>
+  </div>
+</div>
+
+<h2><span class="no">2</span>어디서부터 읽으면 되나</h2>
+
+<div class="path">
+  <p class="q">처음 오셨다면</p>
+  <ol>
+    <li><b>쉽게 보기</b> — 숫자 없이 그림으로 감을 잡습니다</li>
+    <li>아래 <b>타임라인</b> — 무슨 일이 언제 있었는지</li>
+    <li><b>SUT 공급과 가격</b> — 앞으로 무엇이 예정돼 있는지</li>
+  </ol>
+</div>
+<div class="path">
+  <p class="q">내 돈이 어떻게 되는지가 궁금하면</p>
+  <ol>
+    <li><b>이관 계산기</b> — 내 금액을 넣어 봅니다</li>
+    <li><b>통화별 잔여 채무</b> — 전체 규모에서 내 위치</li>
+    <li><b>광산 상환 가능선</b> — 갚겠다는 계획의 산수</li>
+  </ol>
+</div>
+<div class="path">
+  <p class="q">왜 멈췄는지가 궁금하면</p>
+  <ol>
+    <li><b>회사 자금 흐름 6장</b> — 회사 설명과 온체인 기록 대조</li>
+    <li>같은 글 <b>3장</b> — 거래소가 자금원이 아니라 금고였다는 것</li>
+    <li><b>실시간 대시보드</b> — 지금은 어떤 상태인지</li>
+  </ol>
+</div>
+
+<h2><span class="no">3</span>시간순으로 보면</h2>
+<p>점 색깔은 위 분류와 같습니다. 테두리만 있는 점은 <b>아직 오지 않은 일</b>입니다.</p>
+
+<div class="era">1기 · 쌓이던 시기 <em>— 2024 ~ 2025년 9월</em></div>
+<div class="tl">
+  <div class="ev c3">
+    <div class="d">2024-03-19</div>
+    <div class="t">SUT 5,000만 개 소각 · 5,000만 개 3년 락업</div>
+    <p class="x">발행량 2억 3,840만 중 1억 개를 묶었습니다. 그 뒤 2년 반 동안 가격은 0.19달러였습니다.</p>
+    <button class="pill" data-go="sut">SUT 공급과 가격에서 →</button>
+  </div>
+  <div class="ev c4">
+    <div class="d">2025-06 ~ 09</div>
+    <div class="t">거래소에서 1,884만 달러를 꺼내 지급에 씀</div>
+    <p class="x">회원 유입이 주 4~16만인데 지급은 주 17~24만이던 적자기. 특히 9월 9~28일 20일간 39번에 나눠 1,124만을 인출했습니다.</p>
+    <button class="pill" data-go="money">회사 자금 흐름에서 →</button>
+  </div>
+</div>
+
+<div class="era">2기 · 몰려들던 시기 <em>— 2025년 10월 ~ 2026년 4월</em></div>
+<div class="tl">
+  <div class="ev c3">
+    <div class="d">2025-11-01</div>
+    <div class="t">유니스왑 SUT 주풀 개설</div>
+    <p class="x">회사가 아니라 개인 지갑이 만들었습니다. 수수료 1% 구간이고, 지금까지 순공급은 마이너스 3만 8천 개입니다.</p>
+    <button class="pill" data-go="rep">풀 운영 검토 보고서에서 →</button>
+  </div>
+  <div class="ev c2">
+    <div class="d">2025-12 ~ 2026-02</div>
+    <div class="t">회원 유입이 주 313만에서 주 1,100만으로</div>
+    <p class="x">같은 기간 거래소로는 되돌려보내기 시작합니다. 12월 129만, 1월 389만, 2월 380만.</p>
+    <button class="pill" data-go="dash">실시간 대시보드에서 →</button>
+  </div>
+  <div class="ev c4 big">
+    <div class="d">2026-02 ~ 03</div>
+    <div class="t">중앙금고에서 415곳으로 8,078만 달러 유출</div>
+    <p class="x">지급 지갑이 조용히 바뀐 시기이기도 합니다. 절반 가까이는 회사로 되돌아왔고, 694만이 거래소로 빠졌습니다.</p>
+    <button class="pill" data-go="money">회사 자금 흐름 4장 →</button>
+  </div>
+  <div class="ev c4">
+    <div class="d">2026-03-01</div>
+    <div class="t">회사 테더 잔고 역대 최고 1,269만 달러</div>
+    <p class="x">그런데 당시 주당 지급이 1,356만이었습니다. <b>최고점에서도 1주치가 안 됐습니다.</b></p>
+    <button class="pill" data-go="money">회사 자금 흐름 6장 →</button>
+  </div>
+  <div class="ev c3">
+    <div class="d">2026-03 ~ 04</div>
+    <div class="t">앱에서 KWT → SUT 전환이 막힘</div>
+    <p class="x">이때부터 회원은 SUT를 시장·P2P에서 직접 구해야 합니다. 개인 재고를 헐어 쓰기 시작한 지점입니다.</p>
+    <button class="pill" data-go="sut">SUT 공급과 가격에서 →</button>
+  </div>
+</div>
+
+<div class="era">3기 · 멈춘 시기 <em>— 2026년 5월 ~ 6월</em></div>
+<div class="tl">
+  <div class="ev c4">
+    <div class="d">2026-05-15 (금)</div>
+    <div class="t">마지막 정상 지급 328만 달러 · 4,985건</div>
+    <p class="x">직전 4주는 유입 5,412만 대 지급 4,751만으로 흑자였습니다. 무너지기 바로 전 주였습니다.</p>
+  </div>
+  <div class="ev c4 big">
+    <div class="d">2026-05-18 (월)</div>
+    <div class="t">주정산 지급 정지</div>
+    <p class="x">보유 테더 368만 = 0.26주치. 회사는 "재참여가 미진해 지급할 수 없다"고 설명했습니다.
+    같은 날 회원 7곳에 2,080달러가 나가는 동안 바이낸스로 <b>309,600달러</b>가 갔습니다.</p>
+    <button class="pill" data-go="money">회사 설명과의 대조 →</button>
+  </div>
+  <div class="ev c4">
+    <div class="d">2026-05-20</div>
+    <div class="t">마지막 바이낸스 인출 20만 달러</div>
+    <p class="x">그날 199명에게 13만을 지급한 것이 사실상 마지막이었습니다. 완충 재원이 끝난 지점입니다.</p>
+  </div>
+  <div class="ev c4">
+    <div class="d">2026-05-25 부터</div>
+    <div class="t">지급 성격이 바뀜 — 매주 약 16,000곳에 건당 1달러</div>
+    <p class="x">정상 지급이던 5월 15일의 건당 중앙값은 184달러였습니다.</p>
+  </div>
+  <div class="ev c4">
+    <div class="d">2026-06-30</div>
+    <div class="t">회사 테더 잔고 바닥 — 37만 달러</div>
+    <p class="x">5/16~6/3 사이 회원에게 24.7만이 나가는 동안 거래소로는 260만이 갔습니다.</p>
+  </div>
+</div>
+
+<div class="era">4기 · 지금 <em>— 2026년 7월 ~ 9월</em></div>
+<div class="tl">
+  <div class="ev c3">
+    <div class="d">2026-07-20</div>
+    <div class="t">SUT 컨트랙트 소유권 포기 (owner = 0x0)</div>
+    <p class="x">이제 아무도 추가 발행·정지·블랙리스트를 할 수 없습니다. 공급은 1억 8,840만 개로 고정됐습니다.</p>
+    <button class="pill" data-go="sut">SUT 공급과 가격에서 →</button>
+  </div>
+  <div class="ev c2">
+    <div class="d">2026-09-04</div>
+    <div class="t">MPC 10억 개가 금고에서 이동</div>
+    <p class="x">총발행량의 10%입니다. 받은 지갑과 이후 경로를 추적했습니다.</p>
+    <button class="pill" data-go="mpc">MPC 10억 이동 →</button>
+  </div>
+  <div class="ev c3">
+    <div class="d">2026-09-05</div>
+    <div class="t">SUT 소요량 1,800개 → 900개로 변경</div>
+    <p class="x">1,000달러당 필요 개수가 절반이 됐지만, 달러 부담은 576 → 573으로 거의 그대로입니다.</p>
+    <button class="pill" data-go="sut">SUT 공급과 가격에서 →</button>
+  </div>
+  <div class="ev c4">
+    <div class="d">2026-09-07</div>
+    <div class="t">회사 매도지갑이 1만 개를 팔아 1분 만에 −13.9%</div>
+    <p class="x">이틀 전 MPC금고에서 20만 개를 받은 지갑입니다. 다음 날 2,000개를 한 번 더 팔았습니다.</p>
+    <button class="pill" data-go="easy">왜 이렇게 되는지 →</button>
+  </div>
+</div>
+
+<div class="era">앞으로 · 예상 <em>— 재고와 소비 속도로 계산한 시점</em></div>
+<div class="tl">
+  <div class="ev fu">
+    <div class="d">2026-09-28 주 (예상)</div>
+    <div class="t">개인 재고가 마르기 시작 — 시장 매수 비중 17%</div>
+    <p class="x">회원·허브 지갑에 남은 648만 개를 주당 112만 개씩 쓰고 있습니다.</p>
+    <button class="pill" data-go="sut">계산 근거 →</button>
+  </div>
+  <div class="ev fu">
+    <div class="d">2026-10-05 주 (예상)</div>
+    <div class="t">시장 매수 비중 82% — 한 주 만에 뒤집힘</div>
+    <p class="x">많이 넣는 사람일수록 먼저 마르기 때문에 서서히 늘지 않습니다. 하필 그 주 월요일이 참가자가 가장 몰리는 날입니다.</p>
+    <button class="pill" data-go="lp">그 전에 할 수 있는 일 →</button>
+  </div>
+</div>
+
+<div class="card ac" style="margin-top:26px">
+<div class="kh">이 자료실이 하지 않는 것</div>
+<p style="margin:4px 0 0">가격을 예측하거나 사라 팔라고 하지 않습니다.
+불법이라고 단정하지도 않습니다. 폴리곤 체인에 남은 기록을 정리하고,
+그것이 회사 설명과 맞는지까지만 봅니다. 판단은 읽는 분 몫입니다.</p>
+<p class="note" style="margin-top:9px">모든 숫자는 주소와 함께 각 탭에 적어뒀습니다. 다른 값이 나오면 알려주세요.</p>
+</div>
+
+</div>
+<script>
+const MAP={money:'회사_자금흐름_추적.html',mine:'광산_채무상환_계산.html',easy:'SUT_쉽게보기.html',
+sut:'SUT_공급과_가격.html',lp:'SUT_유동성_예치방법.html',rep:'SUT_유동성풀_운영보고서.html',
+dash:'실시간_대시보드.html',mpc:'MPC_오늘의_이동과_베스팅.html',calc:'이관_주정산_계산기.html',
+debt:'통화별_잔여채무.html'};
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-go]'); if(!b) return;
+  const id=b.dataset.go;
+  try{ if(window.parent&&window.parent!==window){ window.parent.postMessage({go:id},'*'); return; } }catch(err){}
+  if(MAP[id]) location.href=encodeURI(MAP[id]);
+});
+</script>
+</body>
+</html>

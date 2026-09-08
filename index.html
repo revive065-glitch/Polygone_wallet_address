@@ -10,7 +10,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
 :root{--bg:#161826;--panel:#1c1e2c;--panel2:#232532;--line:#292b31;--line2:#3f424d;
---tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc}
+--tx:#e9e9ed;--tx2:#b2b6ca;--tx3:#75798c;--ac:#9184d9;--ac2:#b5abfc;
+--g0:#9184d9;--g1:#c9a227;--g2:#3987e5;--g3:#199e70;--g4:#d95926}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.6;overflow:hidden;
@@ -28,10 +29,14 @@ nav{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scro
 scrollbar-width:none;padding-bottom:9px}
 nav::-webkit-scrollbar{display:none}
 nav button{flex:0 0 auto;background:transparent;border:1px solid var(--line2);color:var(--tx2);
-border-radius:20px;padding:6px 14px;font:inherit;font-size:12.6px;font-weight:600;cursor:pointer;
-white-space:nowrap;transition:background .12s,border-color .12s,color .12s}
-nav button:hover{color:var(--tx);border-color:#5a5d70}
-nav button[aria-selected="true"]{background:var(--ac);border-color:var(--ac);color:#12101c}
+border-radius:20px;padding:6px 13px 6px 10px;font:inherit;font-size:12.6px;font-weight:600;cursor:pointer;
+white-space:nowrap;transition:background .12s,border-color .12s,color .12s;
+display:inline-flex;align-items:center;gap:7px}
+nav button::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gc,var(--tx3));flex:0 0 auto}
+nav button:hover{color:var(--tx);border-color:var(--gc,#5a5d70)}
+nav button[aria-selected="true"]{background:var(--gc,var(--ac));border-color:var(--gc,var(--ac));color:#12101c}
+nav button[aria-selected="true"]::before{background:rgba(18,16,28,.55)}
+nav .sep{flex:0 0 auto;width:1px;align-self:stretch;margin:3px 3px;background:var(--line)}
 main{flex:1 1 auto;position:relative;min-height:0;background:var(--bg)}
 iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--tx3);font-size:13px;
@@ -61,65 +66,62 @@ background:var(--bg);transition:opacity .2s;pointer-events:none}
    탭 켜고 끄기 — on 을 true / false 로만 바꾸면 됩니다.
    순서를 바꾸려면 줄 위치를 옮기면 그대로 반영됩니다.
    ══════════════════════════════════════════════════════════ */
+const GROUPS={home:'--g0',calc:'--g1',now:'--g2',sut:'--g3',money:'--g4'};
 const TABS=[
- {on:true,  id:'calc',    t:'이관 계산기',      f:'이관_주정산_계산기.html',
-  d:'잔신을 넣으면 이관 후 매주 받는 금액이 나옵니다'},
+ {on:true, g:'home', id:'home', t:'개요',            f:'개요.html',
+  d:'무엇이 어디에 있나 — 네 갈래 분류 · 읽는 순서 · 시간순 타임라인'},
 
- {on:true,  id:'debt',    t:'통화별 잔여 채무',  f:'통화별_잔여채무.html',
-  d:'KWT · 테더 · NSS 셋으로 나눈 회사의 신용대금'},
+ {on:true, g:'calc', id:'calc',  t:'이관 계산기',      f:'이관_주정산_계산기.html',
+  d:'내 숫자 · 잔신을 넣으면 이관 후 매주 받는 금액이 나옵니다'},
 
- {on:true,  id:'dash',    t:'실시간 대시보드',    f:'실시간_대시보드.html',
-  d:'오늘 유입 · 일별 30일 · 월별 추이 · 회사 보유금 · 감시 항목'},
+ {on:true, g:'calc', id:'debt',  t:'통화별 잔여 채무',  f:'통화별_잔여채무.html',
+  d:'내 숫자 · KWT · 테더 · NSS 셋으로 나눈 회사의 신용대금'},
 
- {on:true,  id:'money',   t:'회사 자금 흐름',     f:'회사_자금흐름_추적.html',
-  d:'돈은 어디서 왔고 어디로 갔나 — 거래소 왕복 · 8,078만 추적 · 회사 설명과의 대조'},
+ {on:true, g:'now',  id:'dash',  t:'실시간 대시보드',   f:'실시간_대시보드.html',
+  d:'지금 이 순간 · 오늘 유입 · 일별 30일 · 회사 보유금 · 감시 항목'},
 
- {on:true,  id:'mine',    t:'광산 상환 가능선',   f:'광산_채무상환_계산.html',
-  d:'MPC 100억 개로 한 번에 갚으려면 광산에서 얼마가 나와야 하나'},
+ {on:true, g:'now',  id:'mpc',   t:'MPC 10억 이동',   f:'MPC_오늘의_이동과_베스팅.html',
+  d:'지금 이 순간 · 9월 4일 금고에서 나간 총발행 10%와 베스팅의 뜻'},
 
- {on:true,  id:'easy',    t:'쉽게 보기',         f:'SUT_쉽게보기.html',
-  d:'과일가게 이야기 — 왜 조금만 사고팔아도 가격이 확 움직이나'},
+ {on:true, g:'sut',  id:'easy',  t:'① 쉽게 보기',      f:'SUT_쉽게보기.html',
+  d:'SUT 1편 · 과일가게 이야기 — 왜 조금만 사고팔아도 가격이 확 움직이나'},
 
- {on:true,  id:'sut',     t:'SUT 공급과 가격',    f:'SUT_공급과_가격.html',
-  d:'어디서 오는지 · 언제 마르는지 · 마르면 가격에 무엇이 일어나는지'},
+ {on:true, g:'sut',  id:'sut',   t:'② SUT 공급과 가격', f:'SUT_공급과_가격.html',
+  d:'SUT 2편 · 어디서 오는지 · 언제 마르는지 · 마르면 가격에 무엇이 일어나는지'},
 
- {on:true,  id:'lp',      t:'유동성 예치 방법',    f:'SUT_유동성_예치방법.html',
-  d:'파는 게 아니라 넣는 것 — 어느 풀에 어떻게, 테더 0원으로 하는 방법까지'},
+ {on:true, g:'sut',  id:'lp',    t:'③ 유동성 예치 방법', f:'SUT_유동성_예치방법.html',
+  d:'SUT 3편 · 파는 게 아니라 넣는 것 — 테더 0원으로 하는 방법까지'},
 
- {on:true,  id:'rep',     t:'풀 운영 검토 보고서',   f:'SUT_유동성풀_운영보고서.html',
-  d:'지금 풀은 누가 굴리나 · 회사가 직접 운영할 때의 이점 7 · 위험 8 · 제한사항'},
+ {on:true, g:'sut',  id:'rep',   t:'④ 풀 운영 검토',    f:'SUT_유동성풀_운영보고서.html',
+  d:'SUT 4편 · 회사가 직접 풀을 운영할 때의 이점 7 · 위험 8 · 제한사항'},
 
- {on:true,  id:'mpc',     t:'MPC 10억 이동',     f:'MPC_오늘의_이동과_베스팅.html',
-  d:'9월 4일 금고에서 나간 총발행 10%와, 스왑 시 베스팅이 뜻하는 것'},
+ {on:true, g:'money',id:'money', t:'회사 자금 흐름',    f:'회사_자금흐름_추적.html',
+  d:'회사 돈 · 어디서 왔고 어디로 갔나 — 8,078만 추적 · 회사 설명과의 대조'},
+
+ {on:true, g:'money',id:'mine',  t:'광산 상환 가능선',  f:'광산_채무상환_계산.html',
+  d:'회사 돈 · MPC 100억 개로 한 번에 갚으려면 광산에서 얼마가 나와야 하나'},
 
  /* ── 아래는 꺼둔 탭 — on 을 true 로 바꾸면 켜집니다 ── */
 
- {on:false, id:'dow',     t:'요일 쏠림과 가격',    f:'SUT_요일별_가격시나리오.html',
+ {on:false, g:'sut', id:'dow',     t:'요일 쏠림과 가격',  f:'SUT_요일별_가격시나리오.html',
   d:'「SUT 공급과 가격」에 병합됨 — 요일 원자료가 따로 필요할 때만'},
- {on:false, id:'src',     t:'SUT 출처와 고갈',    f:'SUT_공급원과_고갈시점.html',
+ {on:false, g:'sut', id:'src',     t:'SUT 출처와 고갈',  f:'SUT_공급원과_고갈시점.html',
   d:'「SUT 공급과 가격」에 병합됨'},
-
- {on:false, id:'sutflow', t:'월별 SUT 유입량',   f:'월별_SUT_유입량.html',
+ {on:false, g:'now', id:'sutflow', t:'월별 SUT 유입량',  f:'월별_SUT_유입량.html',
   d:'실시간 대시보드에 병합됨 — 월별 원자료가 따로 필요할 때만 켜십시오'},
- {on:false, id:'registry',t:'지갑 등록소',      f:'wallet_address_arc.html',
+ {on:false, g:'now', id:'registry',t:'지갑 등록소',      f:'wallet_address_arc.html',
   d:'폴리곤스캔 주소에 커뮤니티 이름표를 덧씌운 등록소'},
-
- {on:false, id:'evidence',t:'주정산 산출근거',   f:'주정산_산출근거.html',
+ {on:false, g:'calc',id:'evidence',t:'주정산 산출근거',   f:'주정산_산출근거.html',
   d:'누구나 다시 확인할 수 있는 계산 근거'},
-
- {on:false, id:'nssflow', t:'NSS SUT 투입',     f:'NSS_SUT_투입흐름.html',
+ {on:false, g:'sut', id:'nssflow', t:'NSS SUT 투입',    f:'NSS_SUT_투입흐름.html',
   d:'6월 1일 이후 13주 실측과 향후 52주 예측'},
-
- {on:false, id:'sutmove', t:'SUT를 움직인 돈',   f:'SUT_가격을_움직인_돈.html',
+ {on:false, g:'sut', id:'sutmove', t:'SUT를 움직인 돈',  f:'SUT_가격을_움직인_돈.html',
   d:'3일간 41% 상승에 실제로 들어간 금액'},
-
- {on:false, id:'sutpx',   t:'SUT 가격 시나리오', f:'SUT_가격_시나리오.html',
+ {on:false, g:'sut', id:'sutpx',   t:'SUT 가격 시나리오',f:'SUT_가격_시나리오.html',
   d:'재참여 물량을 시장에서 조달할 때의 가격 경로'},
-
- {on:false, id:'rank',    t:'순증 수령자 랭킹',  f:'순증_수령자_랭킹.html',
+ {on:false, g:'money',id:'rank',   t:'순증 수령자 랭킹', f:'순증_수령자_랭킹.html',
   d:'받은 권리에서 낸 돈을 뺀 순증 랭킹과 조직 계보'},
-
- {on:false, id:'repay',   t:'상환 시나리오',     f:'상환_시나리오.html',
+ {on:false, g:'money',id:'repay',  t:'상환 시나리오',    f:'상환_시나리오.html',
   d:'분할 상환과 강제 재참여 경로 비교'},
 ];
 /* ════════════════════ 아래는 건드리지 않으셔도 됩니다 ════════════════════ */
@@ -144,8 +146,13 @@ function show(id,push){
   const b=nav.querySelector(`[data-id="${t.id}"]`);
   if(b) b.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
 }
-nav.innerHTML=ON.map(t=>`<button role="tab" data-id="${t.id}" aria-selected="false">${t.t}</button>`).join('');
+nav.innerHTML=ON.map((t,i)=>{
+  const sep=(i>0&&ON[i-1].g!==t.g)?'<span class="sep"></span>':'';
+  return sep+`<button role="tab" data-id="${t.id}" aria-selected="false" style="--gc:var(${GROUPS[t.g]||'--ac'})">${t.t}</button>`;
+}).join('');
 nav.addEventListener('click',e=>{const b=e.target.closest('button'); if(b) show(b.dataset.id,true);});
+/* 개요 페이지 안의 버튼에서 탭 전환 요청을 받는다 */
+addEventListener('message',e=>{ const g=e.data&&e.data.go; if(g&&ON.some(x=>x.id===g)) show(g,true); });
 addEventListener('hashchange',()=>show(location.hash.slice(1),false));
 show(location.hash.slice(1)||(ON[0]&&ON[0].id),false);
 </script>

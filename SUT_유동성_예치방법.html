@@ -116,10 +116,28 @@ pre{background:var(--panel2);border:1px solid var(--line);border-radius:12px;pad
 pre b{color:var(--tx);font-weight:700}
 .foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
 .foot a{color:var(--tx2)}
+
+/* SUT 시리즈 띠 */
+.ser{margin:0 0 22px;padding:12px 13px;background:var(--panel);border:1px solid var(--line);
+ border-left:3px solid #199e70;border-radius:13px}
+.ser .st{font-size:11.5px;color:var(--tx3);margin-bottom:9px;letter-spacing:.3px}
+.ser .sl{display:flex;flex-wrap:wrap;gap:6px}
+.ser button{background:transparent;border:1px solid var(--line2);color:var(--tx2);border-radius:20px;
+ padding:5px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.ser button:hover{border-color:#199e70;color:var(--tx)}
+.ser button[aria-current="true"]{background:#199e70;border-color:#199e70;color:#08150f;cursor:default}
+.nxt{margin:34px 0 0;display:flex;gap:9px;flex-wrap:wrap}
+.nxt button{flex:1 1 220px;text-align:left;background:var(--panel);border:1px solid var(--line);
+ border-radius:13px;padding:12px 13px;font:inherit;color:var(--tx);cursor:pointer}
+.nxt button:hover{border-color:#199e70}
+.nxt .a{font-size:11.5px;color:var(--tx3)}
+.nxt .b{font-size:14.5px;font-weight:700;margin-top:2px}
+.nxt .c{font-size:12px;color:var(--tx2);margin-top:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div class="ser"><div class="st">SUT 시리즈 · 네 편이 이어집니다</div><div class="sl"><button data-go="easy">① 쉽게 보기</button><button data-go="sut">② SUT 공급과 가격</button><button data-go="lp" aria-current="true">③ 유동성 예치 방법</button><button data-go="rep">④ 풀 운영 검토</button><button data-go="home">↩ 개요</button></div></div>
 
 <h1>SUT 유동성 예치<br>— 파는 게 아니라 넣는 것</h1>
 <p class="lede">회사가 SUT를 시장에 팔지 않으면서 회원이 살 수 있게 만드는 방법.
@@ -518,6 +536,8 @@ LP가 자동으로 하는 동작이 정확히 그것이라, <b>일반 투자자�
 <li><b>세금·회계 처리는 다루지 않습니다.</b> 예치와 수수료 수익의 처리는 별도 검토가 필요합니다.</li>
 </ul>
 
+<div class="nxt"><button data-go="sut"><div class="a">← 앞 편</div><div class="b">② SUT 공급과 가격</div><div class="c">어디서 오고 언제 마르나</div></button><button data-go="rep"><div class="a">다음 편 →</div><div class="b">④ 풀 운영 검토</div><div class="c">직접 운영할 때의 득실</div></button></div>
+
 <div class="foot">
 <p><b>확인 주소</b></p>
 <p>· SUT 주풀 <a href="https://polygonscan.com/address/0x092295c92bab5e734c4a60dbc0f0ffdcdfc4e165" target="_blank" rel="noopener">0x0922…e165</a>
@@ -536,6 +556,20 @@ document.getElementById('hb').innerHTML=SELL.map(([q,lab,d,c])=>
  `<div class="row ${c}"><div class="top"><span class="q">${lab}</span>
    <span class="r">−${d.toFixed(1)}%</span></div>
    <div class="trk"><div class="fil" style="width:${Math.max(2,d/13.9*100)}%"></div></div></div>`).join('');
+</script>
+
+<script>
+(function(){
+ const M={easy:'SUT_쉽게보기.html',sut:'SUT_공급과_가격.html',
+  lp:'SUT_유동성_예치방법.html',rep:'SUT_유동성풀_운영보고서.html',
+  home:'개요.html'};
+ document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-go]'); if(!b||b.getAttribute('aria-current')==='true') return;
+  var id=b.dataset.go;
+  try{ if(window.parent&&window.parent!==window){ window.parent.postMessage({go:id},'*'); return; } }catch(x){}
+  if(M[id]) location.href=encodeURI(M[id]);
+ });
+})();
 </script>
 </body>
 </html>
