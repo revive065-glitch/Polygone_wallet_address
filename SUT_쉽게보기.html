@@ -81,46 +81,110 @@ em{font-style:normal;color:var(--tx3)}
 
 <h1>왜 조금만 사고팔아도<br>가격이 확 움직일까</h1>
 <p class="lede">어렵다는 말씀이 많아서, 동네 과일가게에 빗대어 다시 써봤습니다.
-숫자는 전부 실제 값입니다.</p>
+"풀"과 "거래소"가 뭐가 다른지부터 시작합니다. 숫자는 전부 실제 값입니다.</p>
 
 <div class="cut">
   <span class="no">1컷</span>
-  <h2>시장을 과일가게라고 생각해보세요</h2>
-  <div class="say">사려면 가게에 있는 만큼만 살 수 있습니다. 없으면 못 삽니다.</div>
-  <svg viewBox="0 0 560 210" role="img" aria-label="과일가게 진열대에 사과가 몇 개 놓여 있는 그림">
-    <rect x="30" y="30" width="500" height="130" rx="14" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
-    <rect x="30" y="30" width="500" height="34" rx="14" fill="#2b2e42"/>
-    <text x="280" y="54" fill="#e9e9ed" font-size="19" font-weight="800" text-anchor="middle">S U T   과 일 가 게</text>
-    <line x1="55" y1="118" x2="505" y2="118" stroke="#4a4d5e" stroke-width="3"/>
-    <circle cx="110" cy="104" r="13" fill="#d95926"/><circle cx="150" cy="104" r="13" fill="#d95926"/>
-    <circle cx="190" cy="104" r="13" fill="#d95926"/><circle cx="230" cy="104" r="13" fill="#d95926"/>
-    <text x="330" y="112" fill="#75798c" font-size="17">…텅 비어 있음</text>
-    <text x="280" y="150" fill="#b2b6ca" font-size="16" text-anchor="middle">진열대에 남은 것 = 지금 시장에 나와 있는 SUT</text>
-    <rect x="180" y="176" width="200" height="30" rx="8" fill="rgba(201,162,39,.16)" stroke="#5c5030"/>
-    <text x="280" y="197" fill="#c9a227" font-size="17" font-weight="800" text-anchor="middle">24,080개</text>
+  <h2>SUT를 사고파는 곳은 두 군데입니다</h2>
+  <div class="say">"거래소"와 "풀". 이름만 다른 게 아니라 <b>파는 방식이 아예 다릅니다.</b></div>
+  <svg viewBox="0 0 560 250" role="img" aria-label="거래소는 주문 게시판이 있는 마트, 풀은 무인 자판기라는 비교 그림">
+    <rect x="20" y="26" width="250" height="196" rx="14" fill="#22243a" stroke="#3987e5" stroke-width="2"/>
+    <text x="145" y="54" fill="#5aa0f0" font-size="17" font-weight="800" text-anchor="middle">거래소</text>
+    <text x="145" y="75" fill="#75798c" font-size="13" text-anchor="middle">게이트아이오</text>
+    <rect x="42" y="90" width="206" height="86" rx="8" fill="#1a1c2e" stroke="#3f424d"/>
+    <text x="55" y="110" fill="#b2b6ca" font-size="13">팝니다 · 0.61 · 300개</text>
+    <text x="55" y="130" fill="#b2b6ca" font-size="13">팝니다 · 0.60 · 900개</text>
+    <line x1="48" y1="140" x2="242" y2="140" stroke="#4a4d5e" stroke-dasharray="4 4"/>
+    <text x="55" y="160" fill="#b2b6ca" font-size="13">삽니다 · 0.59 · 500개</text>
+    <text x="145" y="200" fill="#e9e9ed" font-size="14" text-anchor="middle">사람들이 걸어둔 주문끼리</text>
+    <text x="145" y="216" fill="#e9e9ed" font-size="14" text-anchor="middle">짝이 맞으면 체결</text>
+    <rect x="290" y="26" width="250" height="196" rx="14" fill="#22243a" stroke="#199e70" stroke-width="2"/>
+    <text x="415" y="54" fill="#2bb984" font-size="17" font-weight="800" text-anchor="middle">풀</text>
+    <text x="415" y="75" fill="#75798c" font-size="13" text-anchor="middle">유니스왑 · 지갑의 "스왑" 버튼</text>
+    <rect x="322" y="92" width="80" height="82" rx="8" fill="#1a1c2e" stroke="#7a3c1e" stroke-width="2"/>
+    <rect x="328" y="132" width="68" height="36" rx="4" fill="#d95926" opacity=".8"/>
+    <text x="362" y="112" fill="#e8763f" font-size="13" font-weight="700" text-anchor="middle">SUT 통</text>
+    <rect x="428" y="92" width="80" height="82" rx="8" fill="#1a1c2e" stroke="#1d6b50" stroke-width="2"/>
+    <rect x="434" y="106" width="68" height="62" rx="4" fill="#199e70" opacity=".8"/>
+    <text x="468" y="112" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">테더 통</text>
+    <text x="415" y="200" fill="#e9e9ed" font-size="14" text-anchor="middle">상대방 없이 통에 넣으면</text>
+    <text x="415" y="216" fill="#e9e9ed" font-size="14" text-anchor="middle">그 자리에서 바뀜</text>
   </svg>
-  <div class="pt">지금 시장에서 <b>실제로 살 수 있는 SUT는 24,080개</b>가 전부입니다.
-  나머지는 전부 누군가의 지갑 안에 있습니다.</div>
+  <div class="pt">거래소는 <b>회원가입하고 물건을 맡겨야</b> 팔 수 있고, 사려는 사람이 나타나야 팔립니다.
+  풀은 <b>지갑만 연결하면 끝</b>이고, 상대방이 없어도 통에서 바로 바꿔갑니다.
+  <b>트러스트월렛·메타마스크의 "스왑"이 바로 이 풀</b>입니다.</div>
 </div>
 
 <div class="cut">
   <span class="no">2컷</span>
+  <h2>풀은 왜 조금만 사도 값이 튈까요</h2>
+  <div class="say">풀에는 점원도 주문서도 없습니다. <b>값은 두 통에 남은 양으로 자동 계산됩니다.</b></div>
+  <svg viewBox="0 0 560 210" role="img" aria-label="SUT를 사가면 SUT통이 줄고 값이 오르는 그림">
+    <rect x="24" y="34" width="150" height="120" rx="10" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <rect x="34" y="96" width="60" height="50" rx="4" fill="#d95926" opacity=".8"/>
+    <rect x="104" y="66" width="60" height="80" rx="4" fill="#199e70" opacity=".8"/>
+    <text x="64" y="88" fill="#e8763f" font-size="12" text-anchor="middle">SUT</text>
+    <text x="134" y="58" fill="#2bb984" font-size="12" text-anchor="middle">테더</text>
+    <text x="99" y="176" fill="#b2b6ca" font-size="14" text-anchor="middle">지금</text>
+    <text x="99" y="196" fill="#c9a227" font-size="15" font-weight="800" text-anchor="middle">$0.60</text>
+    <path d="M192 94 L246 94" stroke="#9184d9" stroke-width="3"/>
+    <path d="M236 86 L248 94 L236 102" fill="none" stroke="#9184d9" stroke-width="3"/>
+    <text x="219" y="80" fill="#a99bf0" font-size="13" text-anchor="middle">누가 삼</text>
+    <rect x="266" y="34" width="150" height="120" rx="10" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <rect x="276" y="120" width="60" height="26" rx="4" fill="#d95926" opacity=".8"/>
+    <rect x="346" y="56" width="60" height="90" rx="4" fill="#199e70" opacity=".8"/>
+    <text x="306" y="112" fill="#e8763f" font-size="12" text-anchor="middle">SUT ↓</text>
+    <text x="376" y="48" fill="#2bb984" font-size="12" text-anchor="middle">테더 ↑</text>
+    <text x="341" y="176" fill="#b2b6ca" font-size="14" text-anchor="middle">SUT가 줄면</text>
+    <text x="341" y="196" fill="#e8763f" font-size="15" font-weight="800" text-anchor="middle">$0.66 ↑</text>
+    <text x="490" y="88" fill="#b2b6ca" font-size="14" text-anchor="middle">귀해지니까</text>
+    <text x="490" y="110" fill="#b2b6ca" font-size="14" text-anchor="middle">비싸집니다</text>
+  </svg>
+  <div class="pt">SUT를 사가면 <b>SUT 통이 줄고 테더 통이 늘어</b> 값이 오릅니다. 팔면 반대입니다.
+  <b>통이 작을수록 같은 양을 사고팔아도 값이 크게 흔들립니다.</b>
+  지금 풀에 있는 SUT는 <b>3만 5천 개</b>뿐입니다.</div>
+</div>
+
+<div class="cut">
+  <span class="no">3컷</span>
+  <h2>그런데 창고와 진열대는 다릅니다</h2>
+  <div class="say">거래소 창고엔 146만 개가 있습니다. 그게 다 살 수 있는 물건은 아닙니다.</div>
+  <svg viewBox="0 0 560 200" role="img" aria-label="창고에는 146만 개가 있지만 진열대에는 4만 2천 개뿐이라는 그림">
+    <rect x="24" y="30" width="240" height="130" rx="12" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
+    <text x="144" y="58" fill="#b2b6ca" font-size="15" font-weight="700" text-anchor="middle">창고에 쌓인 것</text>
+    <rect x="44" y="74" width="200" height="52" rx="6" fill="#3987e5" opacity=".75"/>
+    <text x="144" y="108" fill="#ffffff" font-size="20" font-weight="800" text-anchor="middle">1,462,138개</text>
+    <text x="144" y="150" fill="#75798c" font-size="13" text-anchor="middle">게이트아이오 + 풀</text>
+    <rect x="296" y="30" width="240" height="130" rx="12" fill="#22243a" stroke="#5c5030" stroke-width="2"/>
+    <text x="416" y="58" fill="#c9a227" font-size="15" font-weight="700" text-anchor="middle">진열대에 나와 있는 것</text>
+    <rect x="416" y="88" width="6" height="24" rx="2" fill="#c9a227"/>
+    <text x="416" y="134" fill="#c9a227" font-size="20" font-weight="800" text-anchor="middle">약 42,000개</text>
+    <text x="416" y="152" fill="#75798c" font-size="13" text-anchor="middle">값을 5% 안 넘기고 살 수 있는 양</text>
+    <text x="280" y="190" fill="#b2b6ca" font-size="14" text-anchor="middle">창고의 2.7%만 값이 붙어 나와 있습니다</text>
+  </svg>
+  <div class="pt">지금 값에서 <b>5% 안쪽으로 실제로 살 수 있는 건 약 4만 2천 개</b>입니다.
+  나머지 140만 개는 훨씬 비싼 값에만 나오거나, 아예 주문으로 걸려 있지도 않습니다.
+  <b>이 4만 2천 개가 진짜 "진열대"</b>입니다.</div>
+</div>
+
+<div class="cut">
+  <span class="no">4컷</span>
   <h2>그런데 필요한 양은 이만큼입니다</h2>
   <div class="say">점 하나가 1,000개입니다. 월요일 하루치만 놓고 비교해봤습니다.</div>
   <div class="dg">
-    <div class="lb"><span>가게에 있는 것</span><b style="color:var(--hi)">24,080개</b></div>
+    <div class="lb"><span>진열대에 나와 있는 것</span><b style="color:var(--hi)">약 42,000개</b></div>
     <div class="dots" id="d1"></div>
   </div>
   <div class="dg">
     <div class="lb"><span>월요일 하루에 필요한 것</span><b style="color:var(--s2)">296,987개</b></div>
     <div class="dots" id="d2"></div>
   </div>
-  <div class="pt">필요한 양이 가게에 있는 것의 <b>12배</b>입니다.
-  전부 가게로 사러 오면, 있는 걸 다 사도 <b>8%</b>밖에 못 채웁니다.</div>
+  <div class="pt">필요한 양이 진열대에 나와 있는 것의 <b>7배</b>입니다.
+  전부 사러 오면, 진열대를 싹 비워도 <b>14%</b>밖에 못 채웁니다.</div>
 </div>
 
 <div class="cut">
-  <span class="no">3컷</span>
+  <span class="no">5컷</span>
   <h2>그럼 왜 지금까지 조용했을까요</h2>
   <div class="say">사람들이 가게를 안 거치고 서로 직접 주고받았기 때문입니다.</div>
   <svg viewBox="0 0 560 200" role="img" aria-label="사람들이 가게를 우회해서 서로 직접 주고받는 그림">
@@ -143,7 +207,7 @@ em{font-style:normal;color:var(--tx3)}
 </div>
 
 <div class="cut warn">
-  <span class="no">4컷</span>
+  <span class="no">6컷</span>
   <h2>그런데 집에 쌓아둔 게 떨어져 갑니다</h2>
   <div class="say">서로 주고받을 수 있었던 건 각자 창고에 재고가 있었기 때문입니다.</div>
   <svg viewBox="0 0 560 180" role="img" aria-label="창고 재고가 5주 뒤 비는 그림">
@@ -165,15 +229,15 @@ em{font-style:normal;color:var(--tx3)}
 </div>
 
 <div class="cut warn">
-  <span class="no">5컷</span>
+  <span class="no">7컷</span>
   <h2>그때 다들 가게로 몰려옵니다</h2>
-  <div class="say">사과 24개짜리 가게에 297명이 줄을 서면 어떻게 될까요.</div>
+  <div class="say">진열대 42개짜리 가게에 297명이 줄을 서면 어떻게 될까요.</div>
   <svg viewBox="0 0 560 210" role="img" aria-label="작은 가게에 많은 사람이 몰려 값이 치솟는 그림">
     <rect x="30" y="40" width="180" height="110" rx="12" fill="#22243a" stroke="#3f424d" stroke-width="2"/>
     <text x="120" y="70" fill="#e9e9ed" font-size="16" font-weight="700" text-anchor="middle">과일가게</text>
     <circle cx="80" cy="105" r="10" fill="#d95926"/><circle cx="110" cy="105" r="10" fill="#d95926"/>
     <circle cx="140" cy="105" r="10" fill="#d95926"/>
-    <text x="120" y="137" fill="#75798c" font-size="14" text-anchor="middle">24,080개뿐</text>
+    <text x="120" y="137" fill="#75798c" font-size="14" text-anchor="middle">진열대 4.2만 개</text>
     <g fill="#3987e5">
       <circle cx="250" cy="60" r="9"/><circle cx="280" cy="60" r="9"/><circle cx="310" cy="60" r="9"/>
       <circle cx="340" cy="60" r="9"/><circle cx="370" cy="60" r="9"/><circle cx="400" cy="60" r="9"/>
@@ -189,13 +253,13 @@ em{font-style:normal;color:var(--tx3)}
     <text x="280" y="189" fill="#e8763f" font-size="17" font-weight="800" text-anchor="middle">값이 치솟습니다</text>
   </svg>
   <div class="pt">월요일은 참여자가 가장 많은 날입니다. 주간 필요량의 <b>26%</b>가 그날 하루에 몰립니다.
-  <b>필요량의 8%만 사도 가게가 텅 빕니다.</b></div>
+  <b>필요량의 14%만 사도 진열대가 텅 빕니다.</b></div>
 </div>
 
 <div class="cut warn">
-  <span class="no">6컷</span>
+  <span class="no">8컷</span>
   <h2>반대로 한 사람이 왕창 팔면요</h2>
-  <div class="say">이건 가정이 아니라 <b>9월 7일에 실제로 일어난 일</b>입니다.</div>
+  <div class="say">이건 가정이 아니라 <b>9월 7일 풀에서 실제로 일어난 일</b>입니다.</div>
   <svg viewBox="0 0 560 190" role="img" aria-label="1만 개 매도로 가격이 1분 만에 13.9퍼센트 떨어진 그림">
     <line x1="40" y1="150" x2="530" y2="150" stroke="#3f424d" stroke-width="2"/>
     <path d="M60 60 L200 60" stroke="#199e70" stroke-width="4"/>
@@ -215,7 +279,7 @@ em{font-style:normal;color:var(--tx3)}
 </div>
 
 <div class="cut">
-  <span class="no">7컷</span>
+  <span class="no">9컷</span>
   <h2>가게가 컸다면 어땠을까요</h2>
   <div class="say">똑같이 1만 개를 팔아도 결과가 이렇게 다릅니다.</div>
   <svg viewBox="0 0 560 200" role="img" aria-label="작은 가게와 큰 가게에서 같은 매도의 충격 차이">
@@ -241,7 +305,7 @@ em{font-style:normal;color:var(--tx3)}
 </div>
 
 <div class="cut ok">
-  <span class="no">8컷</span>
+  <span class="no">10컷</span>
   <h2>그래서 필요한 건 하나입니다</h2>
   <div class="say">진열대를 채워두는 것. 파는 게 아니라 <b>놓아두는 것</b>입니다.</div>
   <svg viewBox="0 0 560 170" role="img" aria-label="파는 것과 진열대에 놓아두는 것의 차이">
@@ -263,11 +327,11 @@ em{font-style:normal;color:var(--tx3)}
 
 <div class="end">
   <h3>세 문장으로</h3>
-  <p><b>1.</b> 지금 시장에 나와 있는 SUT는 <b>24,080개</b>뿐입니다. 월요일 하루 필요량의 <b>8%</b>입니다.</p>
+  <p><b>1.</b> 사는 곳은 <b>거래소</b>와 <b>풀</b> 둘입니다. 창고엔 146만 개가 있지만 값이 붙어 <b>진열대에 나와 있는 건 약 4만 2천 개</b> — 월요일 하루 필요량의 <b>14%</b>입니다.</p>
   <p><b>2.</b> 지금까지는 다들 서로 주고받아서 가게를 안 거쳤는데, <b>그 재고가 5~6주 뒤에 마릅니다.</b></p>
   <p><b>3.</b> 그러면 다 가게로 몰리는데 물건이 없습니다. <b>미리 진열대를 채워두면 되는 일</b>입니다.</p>
   <p class="note">가격이 오른다 내린다를 맞히려는 글이 아닙니다.
-  가게에 물건이 24개뿐이라는 사실, 그리고 5~6주 뒤에 사람들이 몰려온다는 계산까지입니다.
+  진열대가 얇다는 사실, 그리고 5~6주 뒤에 사람들이 몰려온다는 계산까지입니다.
   자세한 숫자와 근거는 아래 글에 있습니다.</p>
 </div>
 
@@ -285,7 +349,7 @@ em{font-style:normal;color:var(--tx3)}
 function dots(el,n,color){
   el.innerHTML=Array.from({length:n},()=>`<i style="background:${color}"></i>`).join('');
 }
-dots(document.getElementById('d1'),24,'#c9a227');
+dots(document.getElementById('d1'),42,'#c9a227');
 dots(document.getElementById('d2'),297,'#d95926');
 </script>
 

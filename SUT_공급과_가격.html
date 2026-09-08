@@ -136,6 +136,8 @@ code{font-size:12.5px;color:var(--tx2);background:#22243a;padding:1px 5px;border
 .hb .row.mk .q{color:var(--hi)}
 .hb .row.mk .trk{outline:1px solid #6b5a22;outline-offset:1px}
 
+table.tight{font-size:12.5px}
+table.tight th,table.tight td{padding:7px 8px}
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;white-space:nowrap}
 th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:right}
 th:first-child,td:first-child{text-align:left}
@@ -151,6 +153,8 @@ ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
 .flow{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;
  margin:14px 0;font-size:12.5px;line-height:2.1;overflow-x:auto;white-space:nowrap;color:var(--tx2)}
 .flow b{color:var(--tx)}
+pre{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:12.2px;line-height:1.85;
+ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--tx3)}
 .foot a{color:var(--tx2)}
 #tip{position:fixed;z-index:50;pointer-events:none;background:#0f1120;border:1px solid var(--line2);
@@ -186,12 +190,14 @@ ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
 <br>기준 2026-09-07 · 폴리곤 온체인 + 유니스왑 풀</p>
 
 <div class="card hi">
-  <div class="kh">네 줄로</div>
+  <div class="kh">다섯 줄로</div>
   <p style="margin:2px 0 0;font-size:15.5px;line-height:1.7">
   ① 지금 시장에서 <b>직접 사는 물량은 1.2%뿐</b>입니다. 96.6%가 지갑에서 지갑으로 옵니다.<br>
   ② 그 지갑들을 따라가면 <b>회사가 돌려주던 순환</b>이 나오는데, <b>2026년 3~4월에 멈췄고 금고는 비었습니다.</b><br>
   ③ 남은 재고 <b>648만 개</b>, 소비 주당 <b>112만 개</b> — <b>9월 28일 주부터 시장 매수가 시작되고 10월 5일 주에 82%로 뜁니다.</b><br>
-  ④ 그때 풀에 있는 SUT는 <b>2.4만 개</b>뿐이고, <b>팔 수 있는 곳은 회사밖에 남지 않습니다.</b></p>
+  ④ 그때 풀에 있는 SUT는 <b>3.3만 개</b>뿐입니다. 다만 <b>시장은 풀만이 아닙니다</b> —
+  게이트아이오에 <b>146만 개</b>가 있고, 실제 9월 상승도 <b>거기 재고가 마르면서</b> 났습니다.<br>
+  ⑤ 그 재고를 채워 넣은 쪽은 개인이 아니라 <b>회사(25만 개)와 차익 봇(22만 개)</b>이었습니다.</p>
 </div>
 
 <div class="cd">
@@ -216,9 +222,10 @@ ul{margin:11px 0;padding-left:20px} li{margin:6px 0}
     <li><a href="#s6">그래서 언제 시장으로 가는가</a></li>
     <li><a href="#s7">가면 어느 요일에 몰리는가</a></li>
     <li><a href="#s8">그때 풀은 얼마나 밀리는가</a></li>
-    <li><a href="#s9">풀은 창고가 아니라 창구입니다</a></li>
-    <li><a href="#s10">그러면 구조는 이렇게 돌아갑니다</a></li>
-    <li><a href="#s11">무엇을 보면 아는가</a></li>
+    <li><a href="#s9">시장은 풀만이 아니었습니다</a></li>
+    <li><a href="#s10">풀은 창고가 아니라 창구입니다</a></li>
+    <li><a href="#s11">그러면 구조는 이렇게 돌아갑니다</a></li>
+    <li><a href="#s12">무엇을 보면 아는가</a></li>
   </ol>
 </div>
 
@@ -440,7 +447,142 @@ P2P로 사는 사람이 적지 않은데, 그 P2P 물량도 결국 거래소에 
 <p class="note">매수는 곡선이 아니라 <b>재고라는 절벽</b>에 부딪힙니다.
 풀의 SUT를 다 사면 그 다음은 가격이 얼마든 살 물건이 없습니다.</p>
 
-<h2 id="s9"><span class="no">9</span>풀은 창고가 아니라 창구입니다</h2>
+<h2 id="s9"><span class="no">9</span>시장은 풀만이 아니었습니다</h2>
+<p>앞의 8번까지는 유니스왑 풀만 놓고 계산했습니다. <b>그건 시장의 일부입니다.</b>
+SUT는 중앙화 거래소에도 상장돼 있고, 온체인으로 물량이 확인되는 곳은 <b>게이트아이오</b>입니다.</p>
+
+<div class="card ac">
+  <div class="kh">먼저 — 풀과 거래소는 무엇이 다른가</div>
+  <p style="margin:4px 0 0">둘 다 SUT를 사고파는 곳입니다. 방식이 다릅니다.</p>
+  <table class="tight" style="margin:12px 0 0">
+  <thead><tr><th></th><th>거래소 (게이트아이오)</th><th>풀 (유니스왑)</th></tr></thead>
+  <tbody>
+  <tr><td>파는 방법</td><td>"0.6달러에 팝니다" 주문을 걸고<br>사려는 사람과 짝이 맞으면 체결</td><td>통에 넣으면 즉시 바뀜<br>상대방이 필요 없음</td></tr>
+  <tr><td>값을 정하는 것</td><td>사람들이 걸어둔 주문 목록</td><td>통 두 개에 남은 양의 비율<br>(자동 계산)</td></tr>
+  <tr><td>가입</td><td>회원가입·본인확인 필요</td><td>없음. 지갑만 연결</td></tr>
+  <tr><td>내 물건 위치</td><td>거래소에 맡겨둠</td><td>내 지갑 또는 내가 넣어둔 통</td></tr>
+  <tr><td>지금 재고</td><td>1,462,138개</td><td>35,352개</td></tr>
+  </tbody></table>
+  <p class="note" style="margin:12px 0 0">트러스트월렛·메타마스크의 "스왑" 버튼은 <b>풀</b>을 씁니다.
+  거래소를 거치지 않고 지갑에서 바로 바뀌는 게 그것입니다.
+  두 곳의 값이 벌어지면 <b>싼 쪽에서 사서 비싼 쪽에 파는 봇</b>이 붙어 다시 붙습니다.
+  그래서 값은 결국 한 덩어리로 움직입니다.</p>
+</div>
+
+<div class="card">
+  <div class="kh">창고와 진열대는 다릅니다</div>
+  <p style="margin:4px 0 0">아래 표의 "재고"는 <b>창고에 쌓인 양</b>입니다.
+  실제로 지금 값에 가깝게 살 수 있는 <b>진열대</b>는 그보다 훨씬 얇습니다.</p>
+  <table class="tight" style="margin:12px 0 0">
+  <thead><tr><th>값을 5% 올리는 선까지 살 수 있는 양</th><th>수량</th></tr></thead>
+  <tbody>
+  <tr><td>게이트아이오 호가창</td><td>39,487개</td></tr>
+  <tr><td>유니스왑 풀</td><td>약 3,000개</td></tr>
+  <tr class="tot"><td>합계</td><td>약 42,000개</td></tr>
+  </tbody></table>
+  <p class="note" style="margin:10px 0 0">게이트 창고에 146만 개가 있어도,
+  값을 5% 안쪽으로 유지하며 살 수 있는 건 <b>창고의 2.7%</b>뿐입니다.
+  나머지는 더 비싼 값에만 나오거나, 아예 주문으로 걸려 있지 않습니다.
+  <em>2026-09-08 기준 호가창 실측</em></p>
+</div>
+
+<table>
+<thead><tr><th>장소</th><th>SUT 재고</th><th>비고</th></tr></thead>
+<tbody>
+<tr class="pk"><td>게이트아이오</td><td class="pk">1,462,138개</td><td>온체인으로 확인되는 유일한 거래소</td></tr>
+<tr><td>유니스왑 주풀 1%</td><td>33,194개</td><td></td></tr>
+<tr><td>유니스왑 보조풀 0.05%</td><td>2,158개</td><td></td></tr>
+<tr><td>MEXC</td><td>23,918개</td><td></td></tr>
+<tr class="tot"><td>게이트가 두 풀의</td><td>41배</td><td></td></tr>
+</tbody></table>
+
+<p class="note">시세 사이트에는 KuCoin·BingX·CoinUp.io도 거래량이 잡히지만,
+그 지갑들의 SUT 재고는 온체인에서 확인되지 않았습니다.
+거래소마다 지갑 구조가 달라 제가 못 찾았을 수도 있어 단정하지는 않습니다.</p>
+
+<h3>이미 한 번 말랐고, 그때 가격이 올랐습니다</h3>
+<p>8월 말부터 <b>게이트와 풀이 동시에 비었습니다.</b> 그게 9월 상승의 실제 원인입니다.</p>
+
+<pre>날짜      게이트 재고     주풀 재고    게이트 종가
+08-28    2,059,356      279,684        —
+08-31    1,847,548      249,729    <b>$0.4900</b>
+09-01    1,719,482      159,193
+09-03    1,506,320       30,044    <b>$0.4900</b>
+09-04    1,239,776       21,041    <b>$0.5402</b>  <b>+10.2%</b>
+09-05    <b>1,104,457</b>       <b>16,723</b>    <b>$0.6317</b>  <b>+16.9%</b>  ← 바닥
+09-06    1,257,452       16,967    $0.6365
+09-07    1,523,910       18,755    $0.5813   −5.7%
+09-08    1,462,138       33,194    $0.6000</pre>
+
+<p><b>8월 31일 ~ 9월 5일 닷새 동안 게이트에서 74만 개가 빠져나갔고, 같은 기간 주풀은 25만 개에서 1만 6천 개로 말랐습니다.</b>
+가격은 $0.49에서 $0.63으로 올랐습니다. 6번에서 계산한 "재고가 마르면"이 축소판으로 한 번 일어난 셈입니다.</p>
+
+<div class="card">
+<div class="kh">거래소 재고가 왜 지표인가</div>
+<p style="margin:4px 0 0">재고가 준다고 값이 오르는 게 아닙니다. <b>순서가 반대입니다.</b></p>
+<pre style="margin:9px 0 0;background:transparent;border:0;padding:0">누가 산다  →  <b>여기서 값이 오른다</b>
+산 걸 지갑으로 뺀다  →  여기서 재고가 준다</pre>
+<p class="note" style="margin-top:9px">재고 감소는 <b>"얼마나 샀는지"의 흔적</b>이고, 동시에
+<b>앞으로 팔 물량이 그만큼 줄었다</b>는 뜻입니다. 거래소 밖으로 나간 물량은 클릭 한 번에 못 팝니다.</p>
+</div>
+
+<h3>되돌린 건 개인이 아니었습니다</h3>
+<p>9월 6~7일에 게이트로 <b>69만 개</b>가 다시 들어오면서 상승이 꺾였습니다.
+"오르니까 개인들이 되판 것"으로 보이지만, 지갑을 맞춰보면 아닙니다.</p>
+
+<pre>8/28~9/5  게이트에서 출금한 지갑   <b>202곳</b> · 1,609,764개
+9/6~9/8   게이트로 입금한 지갑     <b>69곳</b> ·   698,296개
+          ─────────────────────────────────────────
+          겹치는 지갑              <b>1곳</b> · 13,980개 (2.0%)</pre>
+
+<p><b>되판 물량의 98%는 그 전에 게이트에서 산 적 없는 지갑에서 나왔습니다.</b>
+가장 큰 두 곳은 이렇습니다.</p>
+
+<table class="tight">
+<thead><tr><th>지갑</th><th>게이트 입금</th><th>물량 출처</th></tr></thead>
+<tbody>
+<tr><td>0x1600ef50…42ea</td><td class="dn">250,000개</td><td>제2수금지갑·MPC금고 <b>= 회사</b></td></tr>
+<tr><td>0x039ac6fb…eb8d</td><td class="dn">221,805개</td><td>주풀·보조풀에서 매수 <b>= 차익봇</b></td></tr>
+<tr class="tot"><td>둘 합계</td><td class="dn">471,805개</td><td>최근 게이트 입금의 68%</td></tr>
+</tbody></table>
+
+<div class="card warn">
+<div class="kh">회사는 거래소로도 팔고 있습니다</div>
+<pre style="margin:8px 0 0;background:transparent;border:0;padding:0">2026-01-31   100,000개   ← 중앙금고에서 받아서
+2026-09-04    50,000개   ← MPC금고에서 받아서
+2026-09-07   250,000개   ← 제2수금지갑에서 받아서
+             ─────────
+             <b>400,000개</b>  회사 환전지갑 → 게이트아이오</pre>
+<p class="note" style="margin-top:9px">같은 지갑(<code>0x1600ef50…42ea</code>)이 2025년 9월~2026년 3월에
+<b>USDT 7,274,047달러</b>를 게이트로 보낸 곳이기도 합니다. 회사가 자금을 정리하는 통로입니다.</p>
+<p class="note">별도로 회사 매도지갑(<code>0x686a…a6a6</code>)은 9월 7~8일에 풀에서
+<b>14,000개</b>를 스왑으로 매도했고, <b>186,001개</b>가 아직 남아 있습니다.
+그 지갑은 유니스왑 포지션 NFT를 <b>0개</b> 갖고 있습니다 — <b>예치가 아니라 시장가 매도</b>라는 뜻입니다.</p>
+</div>
+
+<p><b>정리하면</b> — 9월 상승은 재고 고갈이 만들었고, 되돌림은 <b>회사와 차익봇</b>이 만들었습니다.
+개인이 고점에 던진 게 아닙니다. 회사가 30만 개를 거래소로 보낸 날이 <b>9월 7일</b>,
+가격이 −5.7% 빠진 날과 같습니다.</p>
+
+<h3>그래서 무엇을 보면 되나</h3>
+<table class="tight">
+<thead><tr><th>지표</th><th>지금</th><th>관찰</th><th>강함</th></tr></thead>
+<tbody>
+<tr><td>게이트 재고</td><td>1,462,138개</td><td>120만 아래</td><td class="pk">100만 아래</td></tr>
+<tr><td>주풀 재고</td><td>33,194개</td><td>2.5만 아래</td><td class="pk">1.5만 아래</td></tr>
+<tr><td>회사 매도지갑</td><td>186,001개</td><td>6만 아래</td><td class="pk">2만 아래</td></tr>
+<tr><td>게이트 +2% 매도벽</td><td>약 $15,000</td><td>$8,000 아래</td><td class="pk">$5,000 아래</td></tr>
+<tr><td>풀·게이트 괴리</td><td>약 1%</td><td>5% 초과</td><td class="pk">8% 초과</td></tr>
+</tbody></table>
+<p class="note">9월 5일 바닥이 게이트 1,104,457개였습니다. <b>100만 개는 그보다 낮은 수준</b>이라
+지난번보다 더 마른 상태를 뜻합니다. 다만 이 기준선들은 <b>사례 한 번으로 잡은 값</b>이라
+데이터가 쌓이면 조정돼야 합니다.</p>
+
+<p class="note">확인 주소 — 게이트아이오 <code>0x0d0707963952f2fba59dd06f2b425ace40b492fe</code> ·
+회사 환전지갑 <code>0x1600ef50319d38a42dafcde831b06b55640a42ea</code> ·
+회사 매도지갑 <code>0x686a2630ab724f07a1a1de7e2590efb621c5a6a6</code></p>
+
+<h2 id="s10"><span class="no">10</span>풀은 창고가 아니라 창구입니다</h2>
 <p>여기서 흔히 걸립니다. <em>"풀에 2만 4천 개밖에 없다면서, 지금까지는 어떻게 거래가 됐나?"</em></p>
 <p>24,080개는 <b>지금 이 순간 창구에 놓여 있는 물량</b>이지 통과할 수 있는 총량이 아닙니다.
 풀이 열린 뒤 지금까지 <b>1,707만 개</b>가 그 창구를 통과했습니다 — 현재 재고의 <b>709배</b>입니다.</p>
@@ -480,7 +622,7 @@ P2P로 사는 사람이 적지 않은데, 그 P2P 물량도 결국 거래소에 
 <b>2026-04 4.6% → 05월 36.3% → 08월 44.5%</b>로 올라왔고,
 가격도 지난 한 달 <b>$0.188 → $0.598로 3.2배</b> 올랐습니다.</p>
 
-<h2 id="s10"><span class="no">10</span>그러면 구조는 이렇게 돌아갑니다</h2>
+<h2 id="s11"><span class="no">11</span>그러면 구조는 이렇게 돌아갑니다</h2>
 <div class="flow">
 <b>회사가 시장에 판다</b> → 회원이 <b>시장에서 산다</b> → 회원이 <b>회사에 낸다</b> → <b>SUT가 회사로 돌아온다</b> → (다시 처음으로)
 </div>
@@ -529,21 +671,27 @@ P2P로 사는 사람이 적지 않은데, 그 P2P 물량도 결국 거래소에 
 지금까지의 행동과 앞뒤가 맞는 해석일 뿐이고, 회사는 언제든 팔고 빠질 수도 있습니다.
 그 갈림길은 <b>매도지갑 잔고가 줄어드는 속도</b>로 사후에 구분할 수 있을 뿐입니다.</p>
 
-<h2 id="s11"><span class="no">11</span>무엇을 보면 아는가</h2>
+<h2 id="s12"><span class="no">12</span>무엇을 보면 아는가</h2>
 <ul>
-<li><b>풀의 SUT 재고</b> — 지금 24,080개. 줄어들면 조달 압력이 실제로 붙은 것입니다.</li>
+<li><b>게이트아이오 재고</b> — 지금 1,462,138개. <b>여기가 제일 큰 시장입니다.</b>
+120만 개 아래면 관찰, 100만 개 아래면 9월 초보다 더 마른 상태입니다. (9장 참고)</li>
+<li><b>풀의 SUT 재고</b> — 지금 33,194개. 줄어들면 조달 압력이 실제로 붙은 것입니다.</li>
 <li><b>MPC 금고의 SUT</b> — 지금 1,040만 개. 회원 쪽으로 나가면 시점이 미뤄지고, 매도지갑으로 가면 반대입니다.</li>
 <li><b>매도지갑 잔고</b> — 9월 5일에 받은 20만 개. 줄면 회사가 시장에 팔고 있다는 뜻입니다.</li>
 <li><b>수금지갑 유입량</b> — 지금 하루 16만 개. 급감은 참여 이탈, 급증은 조달 압력 증가입니다.</li>
 <li><b>소요량 공지</b> — 900에서 또 내려가면 수요가 그만큼 줄어 시점이 미뤄집니다.</li>
 <li><b>P2P 방 호가</b> — 시장가보다 비싸지기 시작하면 P2P 재고가 마르고 있다는 신호입니다.</li>
+<li><b>회사 환전지갑</b> <code>0x1600ef50…42ea</code> — 여기서 게이트로 SUT가 나가면 회사가 거래소에서 파는 것입니다. 9월에 30만 개가 나갔습니다.</li>
 </ul>
 <p class="note">앞의 넷은 <a href="실시간_대시보드.html">실시간 대시보드</a>에서 바로 확인됩니다.</p>
 
-<h2 id="s12"><span class="no">12</span>이 글이 주장하지 않는 것</h2>
+<h2 id="s13"><span class="no">13</span>이 글이 주장하지 않는 것</h2>
 <ul>
 <li><b>가격을 예측하지 않습니다.</b> 재고와 소비 속도로 계산한 시점, 그리고 "이만큼 사고팔면 산술적으로 이렇게 된다"까지입니다.</li>
 <li><b>사거나 팔라고 권하지 않습니다.</b> 판단에 쓸 숫자를 드릴 뿐입니다.</li>
+<li><b>거래소를 다 확인하지 못했습니다.</b> 온체인에서 물량이 잡힌 건 게이트아이오와 MEXC뿐이고,
+시세 사이트에 거래량이 뜨는 KuCoin·BingX·CoinUp.io는 지갑을 찾지 못했습니다.
+그쪽 재고까지 합치면 그림이 달라질 수 있습니다.</li>
 <li><b>표본은 최근 7일 입금자 810곳</b>이고, 그들의 주간 입금은 전체 유입의 <b>60.6%</b>입니다.
 나머지 39.4%를 넣는 지갑은 이 계산에 없습니다.</li>
 <li><b>허브 재고는 상위 150곳만</b> 실측했습니다. 그 아래 꼬리가 더 있으면 시점이 미뤄집니다.</li>
