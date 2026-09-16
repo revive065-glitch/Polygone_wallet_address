@@ -128,7 +128,19 @@ td.v{font-weight:700}
 <body>
 <div class="wrap">
 <h1>이관 주정산 계산기</h1>
-<div class="tag">기존 슈퍼세이브 테더 잔신을 뉴슈세로 이관했을 때 매주 얼마를 받는지 · 공식 안내 기준</div>
+<div class="tag">NSS 이관정책 <b>확정 공지 반영</b> · 이관액 기준이 바뀌었습니다</div>
+
+<div class="note warn">
+<h3>무엇이 바뀌었나 — 기준이 뒤집혔습니다</h3>
+<p><b>변경 전</b> · 내 <b>기존 잔신</b>이 얼마인지가 기준이었습니다. 잔신이 많으면 많이 이관됐습니다.</p>
+<p><b>변경 후</b> · <b>NEW슈퍼세이브(NSS) 참여액</b>이 기준입니다.
+NSS 승인액의 <b>30%</b>만 기존 잔신에서 끌어옵니다.</p>
+<p style="margin-top:9px"><b>공지 예시</b> — 1,000 USDT 참여 → 2,400 승인 → <b>2,400 × 30% = 720 이관</b></p>
+<p><b>즉 이관액 = 참여액 × 0.72 입니다.</b>
+기존 잔신이 아무리 많아도 <b>새로 참여한 만큼만</b> 풀립니다.</p>
+<p style="margin-top:9px;color:var(--red)"><b>조건: 이관 금액 비율에 해당하는 MPC 반납.
+반납 수량과 시기는 아직 공지되지 않았습니다.</b> 아래 계산에는 MPC 반납 비용이 <b>빠져 있습니다.</b></p>
+</div>
 
 <div class="qa">
   <h3>DeCT DUTY가 뭔가요</h3>
@@ -145,10 +157,16 @@ td.v{font-weight:700}
   <div class="in">
     <div><label>기존 슈퍼세이브 테더 잔여신용대금 (USDT)</label>
       <input type="number" id="jan" value="70000" step="1000" min="0" inputmode="numeric"></div>
-    <div><label>이관률 (%)</label>
-      <input type="number" id="rt" value="20" step="5" min="1" max="100" inputmode="numeric"></div>
+    <div><label>슈세 참여 USDT <span class="lv" id="wonlv"></span></label>
+      <input type="number" id="part" value="1000" step="500" min="0" inputmode="numeric"></div>
   </div>
-  <div class="quick" id="qk"></div>
+  <div class="quick" id="qk2"></div>
+  <div class="in" style="margin-top:11px">
+    <div><label>이관비율 (%) · 공지 기준 30</label>
+      <input type="number" id="rt" value="30" step="5" min="1" max="100" inputmode="numeric"></div>
+    <div><label>기존 잔신 빠른입력</label>
+      <div class="quick" id="qk" style="margin:0"></div></div>
+  </div>
   <div class="in2" style="margin-top:13px">
     <div><label>SUT 소요량 (참여 1,000 USDT당)</label>
       <input type="number" id="sreq" value="900" step="50" min="0" inputmode="numeric">
@@ -157,20 +175,27 @@ td.v{font-weight:700}
         <button data-v="1800">1,800 · 변경 전</button>
       </div></div>
     <div><label>SUT 시장가 (USDT) <span class="lv" id="lv">체인 조회 중…</span></label>
-      <input type="number" id="px" value="0.647" step="0.001" min="0" inputmode="decimal">
+      <input type="number" id="px" value="0.3841" step="0.001" min="0" inputmode="decimal">
       <div class="seg" id="pg">
         <button data-live="1" id="bl">실시간</button>
         <button data-v="0.278">0.278 · 구 시트</button>
       </div></div>
   </div>
   <div class="out">
+    <div><span>필요 SUT</span><b class="num" id="s1"></b><em id="s1s"></em></div>
+    <div><span>SUT 매입 비용</span><b class="num" id="s2" style="color:var(--red)"></b><em id="s2s"></em></div>
+    <div class="big"><span>내가 실제 투입하는 금액</span><b class="num" id="s3"></b><em id="s3s"></em></div>
+    <div><span>NSS 참여액 (승인)</span><b class="num" id="s4"></b><em id="s4s"></em></div>
     <div><span>이관액</span><b class="num" id="o1"></b><em id="o1s"></em></div>
-    <div><span>합산 잔신</span><b class="num" id="o2"></b><em>NSS 참여 2,400 + 이관액</em></div>
+    <div><span>안 풀리고 남는 잔신</span><b class="num" id="o9" style="color:var(--red)"></b><em id="o9s"></em></div>
+    <div><span>전액 이관에 필요한 참여액</span><b class="num" id="o10"></b><em id="o10s"></em></div>
+    <div><span>환산 이관률 <em style="font-style:normal;opacity:.7">(옛 기준 대비)</em></span><b class="num" id="o11"></b><em id="o11s"></em></div>
+    <div><span>합산 잔신</span><b class="num" id="o2"></b><em id="o2s"></em></div>
     <div><span>매주 주정산</span><b class="num" id="o3"></b><em id="o3s"></em></div>
     <div><span>DeCT DUTY 의무참여</span><b class="num" id="o4" style="color:var(--red)"></b><em id="o4s"></em></div>
     <div><span>SUT 매수 비용</span><b class="num" id="o8" style="color:var(--red)"></b><em id="o8s"></em></div>
     <div class="big"><span>매주 손에 들어오는 돈</span><b class="num" id="o5"></b><em id="o5s"></em></div>
-    <div class="t2"><span>입장료 1,000 USDT 회수 기간</span><b class="num" id="o6"></b><em id="o6s"></em></div>
+    <div class="t2"><span>투입금 회수 기간</span><b class="num" id="o6"></b><em id="o6s"></em></div>
     <div class="t3"><span>이관액까지 다 받는 기간</span><b class="num" id="o7"></b><em id="o7s"></em></div>
   </div>
 </div>
@@ -192,7 +217,7 @@ td.v{font-weight:700}
 <h3>이전 판의 "SUT 매수 = 의무참여 ÷ 2"에 대하여</h3>
 <p>커뮤니티 시트를 그대로 재현하느라 <b>SUT 매수를 의무참여의 절반으로 고정</b>해 뒀었습니다.
 그 값이 성립하려면 <b>SUT 단가가 $0.278</b>이어야 합니다 (1,800개 × 0.278 ≈ 500).</p>
-<p>그런데 <b>실제 시장가는 그 2배가 넘습니다.</b> 2026년 9월 5일 기준 주풀 스팟 <b>$0.6470</b>(약 906원),
+<p>그런데 <b>실제 시장가는 그 2배가 넘습니다.</b> 2026년 9월 16일 기준 <b>$0.3841</b>(약 537원),
 최근 40건 체결 VWAP <b>$0.6607</b>입니다. <b>시트가 가정한 값의 약 2.3배</b>입니다.
 위 계산기는 이 값을 <b>실시간으로 읽어와</b> 씁니다.</p>
 <p>그래서 소요량이 900으로 줄어든 지금도, 실측 단가로 계산하면 실수령은
@@ -224,10 +249,26 @@ SUT가 10원이든 1만원이든 <b>매주 승인되는 금액은 똑같습니�
 <h2>계산 순서</h2>
 <div class="box"><div class="steps" id="sp"></div></div>
 
+<h2>옛 "이관률"로 환산하면</h2>
+<p class="sub">예전엔 회사가 <b>이관률 20%</b>처럼 비율을 정해줬습니다.
+지금은 그런 고정 비율이 없고, <b>얼마를 넣느냐에 따라 결정</b>됩니다.</p>
+
+<div class="note">
+<h3>환산 공식</h3>
+<p style="font-size:16px;text-align:center;margin:10px 0"><b>환산 이관률 = 0.72 × (참여액 ÷ 기존 잔신)</b></p>
+<p>참여액이 <b>잔신의 27.8%</b>일 때 옛 기준 <b>이관률 20%</b>와 같아집니다.<br>
+전액(100%)을 풀려면 참여액이 <b>잔신의 138.9%</b>여야 합니다.</p>
+</div>
+
+<div class="tw"><div class="tb"><table>
+<thead><tr><th class="l">옛 이관률</th><th>필요한 참여액</th><th>잔신 대비</th></tr></thead>
+<tbody id="eq"></tbody></table></div></div>
+<p class="sub">현재 입력한 기존 잔신 기준입니다.</p>
+
 <h2>잔신 구간별 표</h2>
-<p class="sub">현재 입력한 이관률 기준입니다. 초록색 줄부터 DeCT Right(외매권)가 생깁니다.</p>
+<p class="sub">위에 입력한 <b>NSS 참여액</b> 기준입니다. 참여액을 바꾸면 이관액·남는 잔신이 함께 움직입니다.</p>
 <div class="box"><div class="tw"><table>
-<thead><tr><th class="l">기존 잔신</th><th>이관액</th><th>주정산</th><th>의무참여</th><th>SUT 매수</th><th>실수령</th><th>1,000 회수</th></tr></thead>
+<thead><tr><th class="l">기존 잔신</th><th>이관액</th><th>남는 잔신</th><th>전액이관 필요참여</th><th>주정산</th><th>실수령</th></tr></thead>
 <tbody id="tb"></tbody></table></div></div>
 
 <h2>재참여를 계속하면 — 시나리오</h2>
@@ -259,9 +300,9 @@ SUT가 10원이든 1만원이든 <b>매주 승인되는 금액은 똑같습니�
 <h3>신청 전에 꼭 보실 것</h3>
 <ul>
   <li><b>해지 불가 · 원금 보장 없음</b>입니다. 공식 안내에 그대로 적혀 있습니다. 양도만 됩니다.</li>
-  <li><b>나머지는 그대로 멈춰 있습니다.</b> 이관률 20%면 나머지 80%는 지금처럼 남습니다.</li>
-  <li><b>"비율은 변동 가능"</b>이라고 적혀 있습니다. 20%가 확정이 아니라 위 이관률 칸을 바꿔가며 보십시오.</li>
-  <li><b>MPC를 이관비율만큼 반환</b>해야 합니다. 위 계산에는 안 들어 있습니다.</li>
+  <li><b>참여한 만큼만 풀립니다.</b> 기존 잔신이 아무리 많아도 <b>참여액 × 0.72</b>가 상한입니다. 나머지는 그대로 묶여 있습니다.</li>
+  <li><b>전액을 풀려면 잔신의 1.39배를 새로 넣어야 합니다.</b> (잔신 ÷ 0.72) 묶인 돈보다 더 큰 돈이 필요합니다.</li>
+  <li style="color:var(--red)"><b>MPC 반납 수량이 아직 공지되지 않았습니다.</b> 기한은 9월 30일 23시로 정해져 있는데 대가는 미정입니다. <b>위 계산에 MPC 반납 비용은 빠져 있습니다.</b></li><li><b>이관은 현금 지급이 아닙니다.</b> 기존 잔신이 NEW 잔신으로 옮겨가는 장부 이동이고, 실제 수령은 주정산으로 52주에 걸쳐 나옵니다.</li>
   <li><b>초대자 재지정이 필수</b>입니다. 안 하면 회사 계정으로 갑니다.</li>
   <li><b>SUT 가격이 올라도 주정산은 그대로입니다.</b> 줄어드는 것은 실수령입니다 —
   매주 사야 하는 재참여용 SUT가 비싸지기 때문입니다.</li>
@@ -270,20 +311,20 @@ SUT가 10원이든 1만원이든 <b>매주 승인되는 금액은 똑같습니�
 
 <div class="note">
 <h3>계산 기준</h3>
-<p>커뮤니티에 공유된 표를 그대로 재현했습니다. 10개 구간(잔신 5,000~70,000)의 모든 값이 일치하는 것을 확인했습니다.</p>
+<p>이전 판은 커뮤니티 공유 표(이관률 방식)를 그대로 재현한 것이었습니다. <b>확정 공지로 기준이 바뀌어 계산식을 교체했습니다.</b> 지금 값은 공지 예시(1,000 참여 → 720 이관)와 일치합니다.</p>
 <p><b>한 해를 52주가 아니라 365÷7 = 52.142857주로 나눕니다.</b> 그래서 52로 나눈 값과 미세하게 다릅니다.</p>
 <p><b>NSS 참여 2,400</b>은 신규 참여 1,000 USDT의 신용대금입니다. 환율은 1 USDT = 1,400원.</p>
 <p><b>SUT 소요량 900개</b>는 변경된 현행 기준입니다 (변경 전 1,800개).</p>
 <p><b>SUT 시장가는 페이지를 열 때마다 체인에서 직접 읽어옵니다.</b>
 Uniswap V3 SUT/USDT 주풀(<code>0x092295c9…c4e165</code>, 수수료 1%)의 <code>slot0()</code>을 호출해
 현재 스팟 가격을 계산합니다. 주풀이 응답하지 않으면 보조풀(<code>0xb700d11b…056878</code>)을 쓰고,
-둘 다 실패하면 <b>기록값 $0.647</b>(2026-09-05)로 계산합니다. 입력칸에 직접 넣으면 그 값이 우선합니다.</p>
+둘 다 실패하면 <b>기록값 $0.3841</b>(2026-09-16)로 계산합니다. 입력칸에 직접 넣으면 그 값이 우선합니다.</p>
 <p><b>이관하려는 금액은 2026년 5월 18일부터 멈춰 있는 채권입니다.</b> 매주 얼마 받는지와 별개로 이 사실을 함께 보십시오.</p>
 </div>
 </div>
 <script>
-const W=365/7, NSS=2400, ENTRY=1000, FX=1400, THR=100;
-let SREQ=900, PX=0.647, LIVE=true;
+const W=365/7, NSS=2400, ENTRY=1000, FX=1440, THR=100;   /* FX: 기준환율 1USDT=1440원 */
+let SREQ=900, PX=0.3841, LIVE=true;
 /* ── SUT 실시간 시세: Uniswap V3 slot0() 1회 조회 ── */
 const RPCS=['https://polygon-rpc.com','https://rpc.ankr.com/polygon','https://polygon.llamarpc.com',
             'https://polygon-bor-rpc.publicnode.com','https://1rpc.io/matic','https://polygon.drpc.org'];
@@ -315,24 +356,40 @@ async function fetchPx(){
       return px;
     }catch(e){}
   }
-  lv.className='lv err'; lv.textContent='조회 실패 · 기록값 $0.647 사용 (09-05)';
-  if(LIVE){ document.getElementById('px').value='0.647'; readSpec(true); }
+  lv.className='lv err'; lv.textContent='조회 실패 · 기록값 $0.3841 사용 (09-16)';
+  if(LIVE){ document.getElementById('px').value='0.3841'; readSpec(true); }
   return null;
 }
 const $=i=>document.getElementById(i);
 const n=v=>Math.round(v).toLocaleString();
 const f2=v=>v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 function sutCost(duty,sreq,px){ return duty*((sreq===undefined?SREQ:sreq)/1000)*(px===undefined?PX:px); }
-function calc(jan,rt,sreq,px){
-  const mig=jan*rt, hap=NSS+mig, pay=hap/W, d30=pay*0.30;
+const MUL=2.4;                       /* 참여액 -> 승인액 배수 */
+const REF_SUT=800/1440;              /* 기준가 1SUT=800원, 1USDT=1440원 → 0.5556 USDT */
+function calc(jan,part,rt,sreq,px){
+  const SR=(sreq===undefined?SREQ:sreq), PXv=(px===undefined?PX:px);
+  const sutQty=part*(SR/1000);       /* 참여에 필요한 SUT 개수 */
+  const sutBuy=sutQty*PXv;           /* SUT 매입 비용(USDT) */
+  const sutRef=sutQty*REF_SUT;       /* 회사가 쳐주는 기준가 환산 */
+  const invest=part+sutBuy;          /* 내가 실제 투입하는 총액 */
+  const newJan=part*MUL;             /* NEW 잔신(승인액) */
+  const migRaw=newJan*rt;            /* 이관 가능액 = 승인액 x 30% */
+  const mig=Math.min(migRaw,jan);    /* 보유 잔신을 넘을 수 없음 */
+  const left=Math.max(0,jan-mig);    /* 안 풀리는 잔신 */
+  const need=(rt>0)?jan/(MUL*rt):Infinity;   /* 전액 이관에 필요한 참여액 */
+  const hap=newJan+mig, pay=hap/W, d30=pay*0.30;
   let duty=Math.ceil(d30/10)*10; if(duty<20) duty=0;
   const sut=sutCost(duty,sreq,px), appr=duty*2.4, net=pay-duty-sut;
-  const wks=net>0?ENTRY/net:Infinity;
-  return {jan,rt,mig,hap,pay,d30,duty,sut,appr,net,won:net*FX,rate:pay>0?net/pay:0,wks};
+  const wks=net>0?invest/net:Infinity;
+  const mult=invest>0?newJan/invest:0;      /* 실효 승인배수 */
+  return {jan,part,rt,newJan,migRaw,mig,left,need,capped:migRaw>jan+1e-9,
+          sutQty,sutBuy,sutRef,invest,mult,
+          hap,pay,d30,duty,sut,appr,net,won:net*FX,rate:pay>0?net/pay:0,wks};
 }
 function wkTxt(w){ return isFinite(w)?(w<1000?w.toFixed(1)+'주':'—'):'회수 불가'; }
-function sim(jan,rt,weeks){
-  const hap=NSS+jan*rt; let coh=[[0,hap]], cash=-ENTRY, got=0, out=[];
+function sim(jan,part,rt,weeks){
+  const c0=calc(jan,part,rt); const hap=c0.hap;
+  let coh=[[0,hap]], cash=-c0.invest, got=0, out=[];
   for(let t=1;t<=weeks;t++){
     let pay=0; for(const [s0,a] of coh) if(t-s0-1>=0 && t-s0-1<W) pay+=a/W;
     let d=Math.ceil(pay*0.3/10)*10; if(d<20) d=0;
@@ -346,15 +403,42 @@ function sim(jan,rt,weeks){
 function firstWk(rows,target){ const r=rows.find(x=>x.got>=target); return r?r.t:null; }
 function render(){
   const jan=Math.max(0,parseFloat($('jan').value)||0);
+  const part=Math.max(0,parseFloat($('part').value)||0);
   const rt=Math.max(0,Math.min(100,parseFloat($('rt').value)||0))/100;
-  const c=calc(jan,rt);
-  $('o1').textContent=n(c.mig); $('o1s').textContent=n(c.jan)+' × '+(rt*100).toFixed(0)+'%';
+  const c=calc(jan,part,rt);
+  $('wonlv').className='lv ok'; $('wonlv').textContent='약 '+n(part*FX/1e4)+'만원';
+  $('s1').textContent=n(c.sutQty)+' 개';
+  $('s1s').textContent='참여 1,000당 '+n(SREQ)+'개 · 기준가로 '+f2(c.sutRef)+' USDT 인정';
+  $('s2').textContent=f2(c.sutBuy);
+  $('s2s').textContent=n(c.sutQty)+'개 × $'+PX.toFixed(4)+' · 약 '+n(c.sutBuy*FX/1e4)+'만원';
+  $('s3').innerHTML=f2(c.invest)+' <span style="font-size:.5em;font-weight:600">USDT</span>';
+  $('s3s').textContent='USDT '+n(part)+' + SUT '+f2(c.sutBuy)+' · 약 '+n(c.invest*FX/1e4)+'만원';
+  $('s4').textContent=n(c.newJan);
+  $('s4s').textContent='참여 '+n(part)+' × 2.4 · 투입 대비 '+c.mult.toFixed(2)+'배'
+    +(c.mult>1.6?' (기준 1.60배보다 유리)':(c.mult<1.6?' (기준 1.60배보다 불리)':''));
+  $('o1').textContent=n(c.mig);
+  $('o1s').textContent = c.capped
+    ? '승인 '+n(c.newJan)+' × '+(rt*100).toFixed(0)+'% = '+n(c.migRaw)+' → 잔신 한도로 '+n(c.mig)
+    : '승인 '+n(c.newJan)+' × '+(rt*100).toFixed(0)+'% · 참여액의 '+(MUL*rt).toFixed(2)+'배';
+  $('o9').textContent=n(c.left);
+  $('o9s').textContent = c.left>0 ? '기존 잔신 '+n(c.jan)+' 중 '+((c.left/Math.max(c.jan,1))*100).toFixed(0)+'% 가 그대로 묶임' : '전액 이관됨';
+  $('o10').textContent=isFinite(c.need)?n(c.need):'—';
+  $('o10s').textContent=isFinite(c.need)
+    ? n(c.jan)+' ÷ '+(MUL*rt).toFixed(2)+' · 약 '+n(c.need*FX/1e4)+'만원 · 잔신의 '+(c.need/Math.max(c.jan,1)).toFixed(2)+'배'
+    : '이관비율 0';
   $('o2').textContent=n(c.hap);
+  $('o2s').textContent='승인 '+n(c.newJan)+' + 이관 '+n(c.mig);
+  const eff = c.jan>0 ? c.mig/c.jan : 0;
+  $('o11').textContent=(eff*100).toFixed(1)+'%';
+  $('o11').style.color = eff>=0.20?'var(--green)':(eff>=0.10?'':'var(--red)');
+  $('o11s').textContent = c.jan>0
+    ? n(c.mig)+' ÷ '+n(c.jan)+' · 옛 20% 수준이려면 참여 '+n(c.jan*0.2/(MUL*rt))+' 필요'
+    : '기존 잔신을 입력하세요';
   $('o3').textContent=f2(c.pay); $('o3s').textContent='합산 잔신 ÷ 52.142857주';
   $('o4').textContent=n(c.duty);
   $('o8').textContent=f2(c.sut);
   $('o8s').textContent=c.duty?`SUT ${n(c.duty*SREQ/1000)}개 × $${PX}`:'재참여 없음';
-  {const A=calc(jan,rt,1800,PX), B=calc(jan,rt,900,PX);
+  {const A=calc(jan,part,rt,1800,PX), B=calc(jan,part,rt,900,PX);
    $('cp').innerHTML=[['변경 전 · 1,800 SUT',A,''],['변경 후 · 900 SUT',B,'now']]
     .map(([t,x,cl])=>`<div class="${cl}"><h4>${t}</h4>
       <div class="r"><span>SUT 매수</span><b style="color:var(--red)">${f2(x.sut)}</b></div>
@@ -365,7 +449,7 @@ function render(){
     const list=[...new Set([0.278,0.5,PX,1,1.5,2,be].filter(v=>v&&v>0&&isFinite(v)))]
       .sort((a,b)=>a-b);
     $('pxt').innerHTML=list.map(v=>{
-      const x=calc(jan,rt,SREQ,v), isCur=Math.abs(v-PX)<1e-9, isBe=be&&Math.abs(v-be)<1e-9;
+      const x=calc(jan,part,rt,SREQ,v), isCur=Math.abs(v-PX)<1e-9, isBe=be&&Math.abs(v-be)<1e-9;
       return `<tr class="${isCur?'cur':''} ${x.net<0?'neg':''}">
         <td class="l"><b>$${v.toFixed(3)}</b>${isCur?' <em style="font-style:normal;font-size:10.6px;color:var(--ac2)">현재</em>':''}${isBe?' <em style="font-style:normal;font-size:10.6px;color:var(--red)">손익분기</em>':''}</td>
         <td class="fix">${f2(x.pay)}</td><td class="fix">${n(x.duty)}</td>
@@ -389,18 +473,18 @@ function render(){
   $('o4s').textContent=c.duty?`30%는 ${f2(c.d30)} → 10단위 올림`:'주정산이 작아 DUTY 없음';
   $('o5').innerHTML=f2(c.net)+' <span style="font-size:.5em;font-weight:600">USDT</span>';
   $('o5s').textContent=n(c.won)+'원 · 주정산의 '+(c.rate*100).toFixed(1)+'%';
-  const S=sim(jan,rt,208), mig=c.mig;
-  const wEntry=firstWk(S.rows,ENTRY), wMig=firstWk(S.rows,mig), wHap=firstWk(S.rows,S.hap);
+  const S=sim(jan,part,rt,208), mig=c.mig;
+  const wEntry=firstWk(S.rows,c.invest), wMig=firstWk(S.rows,mig), wHap=firstWk(S.rows,S.hap);
   $('o6').textContent=wkTxt(c.wks);
   $('o6s').textContent=isFinite(c.wks)
-    ? `1,000 ÷ 주 ${f2(c.net)} · ${(c.wks/52.142857).toFixed(1)}년`+(c.wks>52?' · 52주 만기보다 깁니다':'')
+    ? `${n(c.invest)} ÷ 주 ${f2(c.net)} · ${(c.wks/52.142857).toFixed(1)}년`+(c.wks>52?' · 52주 만기보다 깁니다':'')
     : '실수령이 0 이하라 회수되지 않습니다';
   $('o7').textContent=wMig?wMig+'주':'208주 넘음';
   $('o7s').textContent=wMig?`이관액 ${n(mig)} · ${(wMig/52.142857).toFixed(1)}년 · 재참여 계속 기준`:'재참여를 계속해도 208주 안에 못 받습니다';
   $('ml').innerHTML=[
-   ['a','입장료 1,000 회수',wEntry,'처음 낸 입장료를 되찾는 시점'],
+   ['a','투입금 '+n(c.invest)+' 회수',wEntry,'USDT+SUT 합쳐 넣은 돈을 되찾는 시점'],
    ['b','이관액 '+n(mig)+' 회수',wMig,'이관한 금액만큼 받는 시점'],
-   ['c','합산잔신 '+n(S.hap)+' 전액',wHap,'입장료분까지 전부 받는 시점'],
+   ['c','합산잔신 '+n(S.hap)+' 전액',wHap,'참여분까지 전부 받는 시점'],
   ].map(([cl,t,w,d])=>`<div class="${cl}"><span>${t}</span><b>${w?w+'주':'—'}</b>
    <em>${w?(w/52.142857).toFixed(1)+'년 · ':''}${d}</em></div>`).join('');
   $('sc').innerHTML=[1,13,26,52,78,104,156,208].map(t=>{const r=S.rows[t-1]; if(!r)return'';
@@ -410,8 +494,11 @@ function render(){
     <td class="v gd">${f2(r.net)}</td><td class="v">${n(r.got)}</td>
     <td class="v ${r.cash<0?'neg':''}">${n(r.cash)}</td></tr>`}).join('');
   $('sp').innerHTML=[
-   ['1','이관액 = 기존 잔신 × 이관률',`${n(c.jan)} × ${(rt*100).toFixed(0)}%`,n(c.mig),''],
-   ['2','합산 잔신 = NSS 참여 + 이관액',`2,400 + ${n(c.mig)}`,n(c.hap),''],
+   ['0','필요 SUT = 참여 USDT × (소요량÷1,000)',`${n(part)} × ${(SREQ/1000).toFixed(2)}`,n(c.sutQty)+'개',''],
+   ['0b','총 투입 = 참여 USDT + SUT 매입비',`${n(part)} + ${f2(c.sutBuy)}`,f2(c.invest),'minus'],
+   ['1','NEW 잔신(승인액) = 참여 USDT × 2.4',`${n(part)} × 2.4`,n(c.newJan),''],
+   ['2','이관액 = NEW 잔신 × '+(rt*100).toFixed(0)+'%',`${n(c.newJan)} × ${(rt*100).toFixed(0)}%`+(c.capped?' → 잔신 한도':''),n(c.mig),''],
+   ['2b','합산 잔신 = 승인액 + 이관액',`${n(c.newJan)} + ${n(c.mig)}`,n(c.hap),''],
    ['3','주정산 = 합산 잔신 ÷ 52.142857',`${n(c.hap)} ÷ (365÷7)`,f2(c.pay),''],
    ['4','30% 계산',`${f2(c.pay)} × 0.30`,f2(c.d30),''],
    ['5','의무참여 = 10 단위 올림',`올림(${f2(c.d30)}) · 20 미만이면 0`,n(c.duty),'minus'],
@@ -420,16 +507,27 @@ function render(){
    ['8','실수령 = 주정산 − 의무참여 − SUT',`${f2(c.pay)} − ${n(c.duty)} − ${f2(c.sut)}`,f2(c.net),'fin'],
   ].map(([i,t,e,r,cl])=>`<div class="step ${cl}"><i>${i}</i>
    <div class="t">${t}<em>${e}</em></div><div class="r">${r}</div></div>`).join('');
+  $('eq').innerHTML=[0.10,0.20,0.30,0.50,1.00].map(r=>{
+    const need=(rt>0)?c.jan*r/(MUL*rt):Infinity;
+    const cur=Math.abs(r-eff)<0.005;
+    return `<tr class="${cur?'cur':''}"><td class="l"><b>${(r*100).toFixed(0)}%</b></td>
+      <td class="v">${isFinite(need)?n(need)+' <em style="font-style:normal;font-size:10.6px;opacity:.65">('+n(need*FX/1e4)+'만원)</em>':'—'}</td>
+      <td class="wd">${isFinite(need)&&c.jan>0?(need/c.jan*100).toFixed(1)+'%':'—'}</td></tr>`}).join('');
   $('tb').innerHTML=[5000,10000,20000,30000,40000,50000,60000,70000,80000,100000]
-   .map(v=>{const x=calc(v,rt), d=x.duty>=THR;
+   .map(v=>{const x=calc(v,part,rt), d=x.duty>=THR;
    return `<tr class="${d?'dcr':''}"><td class="l"><b>${n(v)}</b></td>
-    <td>${n(x.mig)}</td><td class="v">${f2(x.pay)}</td>
-    <td class="rd">${n(x.duty)}</td><td class="rd">${f2(x.sut)}</td>
-    <td class="v gd">${f2(x.net)}</td><td class="v wd">${wkTxt(x.wks)}</td></tr>`}).join('');
+    <td>${n(x.mig)}</td><td class="rd">${n(x.left)}</td>
+    <td class="wd">${isFinite(x.need)?n(x.need):'—'}</td>
+    <td class="v">${f2(x.pay)}</td><td class="v gd">${f2(x.net)}</td></tr>`}).join('');
 }
 $('qk').innerHTML=[5000,10000,20000,33542,61045,70000,89668,100000]
  .map(v=>`<button data-v="${v}">${n(v)}</button>`).join('');
 $('qk').addEventListener('click',e=>{const b=e.target.closest('button'); if(b){$('jan').value=b.dataset.v; render();}});
+$('qk2').innerHTML=[[1000,'1,000 · 1구좌'],[2000,'2,000'],[3000,'3,000'],[5000,'5,000'],
+ [10000,'10,000'],[20000,'20,000'],[50000,'50,000']]
+ .map(([v,t])=>`<button data-v="${v}">${t}</button>`).join('');
+$('qk2').addEventListener('click',e=>{const b=e.target.closest('button'); if(b){$('part').value=b.dataset.v; render();}});
+$('part').addEventListener('input',render);
 function syncSeg(){
   [...$('sg').children].forEach(b=>b.classList.toggle('on',+b.dataset.v===SREQ));
   [...$('pg').children].forEach(b=>b.classList.toggle('on',
